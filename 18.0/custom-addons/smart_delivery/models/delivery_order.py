@@ -69,33 +69,35 @@ class DeliveryOrder(models.Model):
     # Champs calculés
     distance_km = fields.Float(string='Distance (km)', compute='_compute_distance', store=True)
     
-    @api.model
-    def create(self, vals):
-        if vals.get('name', _('New')) == _('New'):
-            vals['name'] = self.env['ir.sequence'].next_by_code('delivery.order') or _('New')
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', _('New')) == _('New'):
+                vals['name'] = self.env['ir.sequence'].next_by_code('delivery.order') or _('New')
+            
+            # Appliquer les règles du secteur
+            if vals.get('sector_type'):
+                sector_rule = self.env['sector.rule'].search([
+                    ('sector_type', '=', vals['sector_type'])
+                ], limit=1)
+                if sector_rule:
+                    vals.setdefault('otp_required', sector_rule.otp_required)
+                    vals.setdefault('signature_required', sector_rule.signature_required)
+                    vals.setdefault('photo_required', sector_rule.photo_required)
+                    vals.setdefault('biometric_required', sector_rule.biometric_required)
         
-        # Appliquer les règles du secteur
-        if vals.get('sector_type'):
-            sector_rule = self.env['sector.rule'].search([
-                ('sector_type', '=', vals['sector_type'])
-            ], limit=1)
-            if sector_rule:
-                vals.setdefault('otp_required', sector_rule.otp_required)
-                vals.setdefault('signature_required', sector_rule.signature_required)
-                vals.setdefault('photo_required', sector_rule.photo_required)
-                vals.setdefault('biometric_required', sector_rule.biometric_required)
+        orders = super().create(vals_list)
         
-        order = super(DeliveryOrder, self).create(vals)
+        # Créer les conditions si nécessaire pour chaque commande
+        for order in orders:
+            if order.otp_required or order.signature_required or order.photo_required or order.biometric_required:
+                condition_vals = {'order_id': order.id}
+                # Générer OTP si requis
+                if order.otp_required:
+                    condition_vals['otp_value'] = ''.join(random.choices(string.digits, k=6))
+                self.env['delivery.condition'].create(condition_vals)
         
-        # Créer les conditions si nécessaire
-        if order.otp_required or order.signature_required or order.photo_required or order.biometric_required:
-            condition_vals = {'order_id': order.id}
-            # Générer OTP si requis
-            if order.otp_required:
-                condition_vals['otp_value'] = ''.join(random.choices(string.digits, k=6))
-            self.env['delivery.condition'].create(condition_vals)
-        
-        return order
+        return orders
     
     @api.depends('pickup_lat', 'pickup_long', 'drop_lat', 'drop_long')
     def _compute_distance(self):

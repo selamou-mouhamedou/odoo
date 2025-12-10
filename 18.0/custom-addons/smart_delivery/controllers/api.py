@@ -2,7 +2,8 @@
 
 import json
 import logging
-from odoo import http
+from datetime import datetime, timedelta
+from odoo import http, fields
 from odoo.http import request
 from odoo.exceptions import AccessDenied, ValidationError
 
@@ -40,12 +41,14 @@ class SmartDeliveryAPI(http.Controller):
                 token = auth_header.replace('Bearer ', '')
                 payload = JWTAuth.verify_token(token)
                 if payload:
+                    user_id = payload.get('user_id')
                     # Set the user in the environment
-                    user = request.env['res.users'].sudo().browse(payload.get('user_id'))
+                    user = request.env['res.users'].sudo().browse(user_id)
                     if user.exists():
-                        request.session.uid = user.id
-                        request.uid = user.id
-                        request.env = request.env(user=user.id)
+                        # Store user_id for later use (don't change request.env to avoid permission issues)
+                        request._jwt_user_id = user_id
+                        request._jwt_user = user
+                        # NOTE: Do NOT set request.session.uid - it causes session token validation errors
                         return True
         except Exception as e:
             _logger.error(f"JWT authentication error: {e}")
@@ -53,13 +56,16 @@ class SmartDeliveryAPI(http.Controller):
     
     def _authenticate(self):
         """Authenticate request via session or JWT"""
-        # Check session authentication
-        if request.session.uid:
-            return True
-        
-        # Check JWT authentication
+        # Check JWT authentication first (preferred for API)
         if self._authenticate_jwt():
             return True
+        
+        # Check session authentication as fallback
+        try:
+            if hasattr(request, 'session') and request.session and request.session.uid:
+                return True
+        except Exception:
+            pass
         
         return False
     
@@ -107,13 +113,65 @@ class SmartDeliveryAPI(http.Controller):
     
     def _get_current_user(self):
         """Get current authenticated user"""
-        if request.session.uid:
-            return request.env['res.users'].sudo().browse(request.session.uid)
+        # First check if we have a JWT authenticated user
+        if hasattr(request, '_jwt_user') and request._jwt_user:
+            return request._jwt_user
+        
+        if hasattr(request, '_jwt_user_id') and request._jwt_user_id:
+            return request.env['res.users'].sudo().browse(request._jwt_user_id)
+        
+        # Check multiple sources for user ID (session, request.uid, or env.uid)
+        uid = None
+        if hasattr(request, 'session') and request.session.uid:
+            uid = request.session.uid
+        elif hasattr(request, 'uid') and request.uid:
+            uid = request.uid
+        elif hasattr(request, 'env') and request.env.uid:
+            uid = request.env.uid
+        
+        if uid:
+            return request.env['res.users'].sudo().browse(uid)
         return None
+    
+    def _get_current_livreur(self):
+        """Get the livreur record linked to the current authenticated user"""
+        user = self._get_current_user()
+        if not user:
+            return None
+        livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+        return livreur if livreur.exists() else None
+    
+    def _require_livreur(self):
+        """Require that the authenticated user is a livreur, return error response or livreur"""
+        auth_error = self._require_auth()
+        if auth_error:
+            return None, auth_error
+        
+        # Get current user
+        user = self._get_current_user()
+        if not user:
+            error_response = self._json_response({
+                'error': 'Utilisateur non trouvé après authentification',
+                'code': 'USER_NOT_FOUND'
+            }, 401)
+            return None, error_response
+        
+        # Find livreur linked to this user
+        livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+        if not livreur:
+            error_response = self._json_response({
+                'error': 'Accès refusé. Vous devez être un livreur pour accéder à cette ressource.',
+                'code': 'NOT_A_LIVREUR',
+                'user_id': user.id,
+                'user_login': user.login,
+            }, 403)
+            return None, error_response
+        
+        return livreur, None
     
     # ==================== AUTHENTICATION ENDPOINT ====================
     
-    @http.route('/smart_delivery/api/auth/login', type='http', auth='none', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/auth/login', type='http', auth='public', methods=['POST'], csrf=False)
     def login(self, **kwargs):
         """
         POST /smart_delivery/api/auth/login - Authenticate user and get JWT token
@@ -216,21 +274,80 @@ class SmartDeliveryAPI(http.Controller):
             self._log_api_call('/smart_delivery/api/auth/login', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
+    @http.route('/smart_delivery/api/auth/logout', type='http', auth='public', methods=['POST'], csrf=False)
+    def logout(self, **kwargs):
+        """
+        POST /smart_delivery/api/auth/logout - Logout user and invalidate session
+        
+        Headers:
+            Authorization: Bearer <token>
+        
+        Response:
+        {
+            "success": true,
+            "message": "Logged out successfully"
+        }
+        """
+        try:
+            # Check if user is authenticated
+            auth_error = self._require_auth()
+            if auth_error:
+                return auth_error
+            
+            # Get current user info for logging
+            user = self._get_current_user()
+            user_info = {'id': user.id, 'login': user.login} if user else {}
+            
+            # Clear session if exists
+            if hasattr(request, 'session') and request.session:
+                try:
+                    request.session.logout()
+                except Exception as e:
+                    _logger.debug(f"Session logout note: {e}")
+            
+            # Clear JWT user attributes from request
+            if hasattr(request, '_jwt_user_id'):
+                del request._jwt_user_id
+            if hasattr(request, '_jwt_user'):
+                del request._jwt_user
+            
+            response_data = {
+                'success': True,
+                'message': 'Logged out successfully',
+            }
+            
+            self._log_api_call('/smart_delivery/api/auth/logout', user_info, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur logout: {e}")
+            error_response = {'error': str(e), 'code': 'LOGOUT_ERROR'}
+            self._log_api_call('/smart_delivery/api/auth/logout', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
     # ==================== SWAGGER DOCUMENTATION ====================
     
-    @http.route('/smart_delivery/api/docs', type='http', auth='none', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/docs', type='http', auth='public', methods=['GET'], csrf=False)
     def swagger_docs(self, **kwargs):
         """GET /smart_delivery/api/docs - Swagger/OpenAPI documentation"""
-        swagger_spec = self._get_swagger_spec()
-        return request.make_response(
-            json.dumps(swagger_spec, indent=2),
-            headers=[('Content-Type', 'application/json')]
-        )
+        try:
+            swagger_spec = self._get_swagger_spec()
+            return request.make_response(
+                json.dumps(swagger_spec, indent=2),
+                headers=[('Content-Type', 'application/json')]
+            )
+        except Exception as e:
+            _logger.error(f"Swagger docs error: {e}")
+            return request.make_response(
+                json.dumps({'error': str(e)}),
+                headers=[('Content-Type', 'application/json')]
+            )
     
-    @http.route('/smart_delivery/api/docs/ui', type='http', auth='none', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/docs/ui', type='http', auth='public', methods=['GET'], csrf=False)
     def swagger_ui(self, **kwargs):
         """GET /smart_delivery/api/docs/ui - Swagger UI HTML page"""
-        html = """
+        try:
+            html = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -265,8 +382,11 @@ class SmartDeliveryAPI(http.Controller):
     </script>
 </body>
 </html>
-        """
-        return request.make_response(html, headers=[('Content-Type', 'text/html')])
+            """
+            return request.make_response(html, headers=[('Content-Type', 'text/html')])
+        except Exception as e:
+            _logger.error(f"Swagger UI error: {e}")
+            return request.make_response(f"Error: {e}", headers=[('Content-Type', 'text/plain')])
     
     def _get_swagger_spec(self):
         """Generate OpenAPI 3.0 specification"""
@@ -400,6 +520,31 @@ class SmartDeliveryAPI(http.Controller):
                         }
                     }
                 },
+                "/smart_delivery/api/auth/logout": {
+                    "post": {
+                        "tags": ["Authentication"],
+                        "summary": "Logout user and invalidate session",
+                        "description": "Logs out the current user. The client should discard the JWT token after this call.",
+                        "security": [{"bearerAuth": []}],
+                        "responses": {
+                            "200": {
+                                "description": "Logout successful",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "message": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                        }
+                    }
+                },
                 "/smart_delivery/api/delivery/create": {
                     "post": {
                         "tags": ["Delivery"],
@@ -489,46 +634,11 @@ class SmartDeliveryAPI(http.Controller):
                         }
                     }
                 },
-                "/smart_delivery/api/delivery/validate/{order_id}": {
-                    "post": {
-                        "tags": ["Delivery"],
-                        "summary": "Validate delivery conditions",
-                        "security": [{"bearerAuth": []}],
-                        "parameters": [
-                            {
-                                "name": "order_id",
-                                "in": "path",
-                                "required": True,
-                                "schema": {"type": "integer"}
-                            }
-                        ],
-                        "requestBody": {
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "type": "object",
-                                        "properties": {
-                                            "otp_value": {"type": "string"},
-                                            "signature": {"type": "string", "format": "base64"},
-                                            "signature_filename": {"type": "string"},
-                                            "photo_url": {"type": "string", "format": "uri"},
-                                            "biometric_score": {"type": "number", "format": "float", "minimum": 0, "maximum": 1}
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "responses": {
-                            "200": {"description": "Validation result"},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
-                        }
-                    }
-                },
                 "/smart_delivery/api/livreur/location": {
                     "post": {
                         "tags": ["Driver"],
-                        "summary": "Update driver GPS location",
+                        "summary": "Update my GPS location (for authenticated driver)",
+                        "description": "Update GPS location for the authenticated driver. The driver is auto-detected from JWT token.",
                         "security": [{"bearerAuth": []}],
                         "requestBody": {
                             "required": True,
@@ -536,37 +646,30 @@ class SmartDeliveryAPI(http.Controller):
                                 "application/json": {
                                     "schema": {
                                         "type": "object",
-                                        "required": ["livreur_id", "lat", "long"],
+                                        "required": ["lat", "long"],
                                         "properties": {
-                                            "livreur_id": {"type": "integer"},
-                                            "lat": {"type": "number", "format": "float"},
-                                            "long": {"type": "number", "format": "float"}
+                                            "lat": {"type": "number", "format": "float", "example": 33.5731},
+                                            "long": {"type": "number", "format": "float", "example": -7.5898}
                                         }
                                     }
                                 }
                             }
                         },
                         "responses": {
-                            "200": {"description": "Location updated"},
+                            "200": {"description": "Location updated successfully"},
                             "400": {"$ref": "#/components/responses/BadRequest"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                            "401": {"$ref": "#/components/responses/Unauthorized"},
+                            "403": {"description": "Not a driver - access denied"}
                         }
                     }
                 },
-                "/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/deliver": {
+                "/smart_delivery/api/livreur/orders/{order_id}/deliver": {
                     "post": {
                         "tags": ["Driver"],
                         "summary": "Complete a delivery with validation",
-                        "description": "Validate delivery conditions (OTP, signature, photo, biometric) based on order requirements and mark order as delivered. Only the assigned driver can complete the delivery.",
+                        "description": "Validate delivery conditions (OTP, signature, photo, biometric) based on order requirements and mark order as delivered. The driver is auto-detected from JWT token. Only orders assigned to the authenticated driver can be completed.",
                         "security": [{"bearerAuth": []}],
                         "parameters": [
-                            {
-                                "name": "livreur_id",
-                                "in": "path",
-                                "required": True,
-                                "schema": {"type": "integer"},
-                                "description": "Driver ID"
-                            },
                             {
                                 "name": "order_id",
                                 "in": "path",
@@ -664,20 +767,13 @@ class SmartDeliveryAPI(http.Controller):
                         }
                     }
                 },
-                "/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/start": {
+                "/smart_delivery/api/livreur/orders/{order_id}/start": {
                     "post": {
                         "tags": ["Driver"],
                         "summary": "Start a delivery (change status from assigned to on_way)",
-                        "description": "Allows a driver to start a delivery. Changes the order status from 'assigned' to 'on_way'. Only the assigned driver can start the delivery.",
+                        "description": "Allows a driver to start a delivery. Changes the order status from 'assigned' to 'on_way'. The driver is auto-detected from JWT token. Only orders assigned to the authenticated driver can be started.",
                         "security": [{"bearerAuth": []}],
                         "parameters": [
-                            {
-                                "name": "livreur_id",
-                                "in": "path",
-                                "required": True,
-                                "schema": {"type": "integer"},
-                                "description": "Driver ID"
-                            },
                             {
                                 "name": "order_id",
                                 "in": "path",
@@ -719,20 +815,13 @@ class SmartDeliveryAPI(http.Controller):
                         }
                     }
                 },
-                "/smart_delivery/api/livreur/{livreur_id}/orders": {
+                "/smart_delivery/api/livreur/my-orders": {
                     "get": {
                         "tags": ["Driver"],
-                        "summary": "Get all orders assigned to a driver",
-                        "description": "Returns all delivery orders assigned to the specified driver with full details including conditions, validation status, and billing information.",
+                        "summary": "Get my orders (for authenticated driver)",
+                        "description": "Returns all delivery orders assigned to the authenticated driver. The driver is auto-detected from JWT token. Returns full details including conditions, validation status, and billing information.",
                         "security": [{"bearerAuth": []}],
                         "parameters": [
-                            {
-                                "name": "livreur_id",
-                                "in": "path",
-                                "required": True,
-                                "schema": {"type": "integer"},
-                                "description": "Driver ID"
-                            },
                             {
                                 "name": "status",
                                 "in": "query",
@@ -816,13 +905,103 @@ class SmartDeliveryAPI(http.Controller):
                             "401": {"$ref": "#/components/responses/Unauthorized"}
                         }
                     }
+                },
+                "/smart_delivery/api/livreur/stats": {
+                    "get": {
+                        "tags": ["Driver"],
+                        "summary": "Get delivery statistics for the authenticated driver",
+                        "description": "Returns delivery statistics including today's deliveries, in progress, delivered, and failed counts. The driver is auto-detected from JWT token.",
+                        "security": [{"bearerAuth": []}],
+                        "responses": {
+                            "200": {
+                                "description": "Driver statistics",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "livreur": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "name": {"type": "string"}
+                                                    }
+                                                },
+                                                "stats": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "today": {"type": "integer", "description": "Number of deliveries created today"},
+                                                        "in_progress": {"type": "integer", "description": "Number of deliveries in progress (assigned or on_way)"},
+                                                        "delivered": {"type": "integer", "description": "Total number of delivered orders"},
+                                                        "failed": {"type": "integer", "description": "Total number of failed orders"}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {"$ref": "#/components/responses/Unauthorized"},
+                            "403": {"description": "Not a driver - access denied"}
+                        }
+                    }
                 }
             }
         }
     
+    # ==================== DEBUG ENDPOINT ====================
+    
+    @http.route('/smart_delivery/api/debug/auth', type='http', auth='public', methods=['GET'], csrf=False)
+    def debug_auth(self, **kwargs):
+        """Debug endpoint to check authentication status"""
+        try:
+            result = {
+                'jwt_available': JWT_AVAILABLE,
+                'has_auth_header': bool(request.httprequest.headers.get('Authorization')),
+            }
+            
+            # Try to authenticate
+            auth_result = self._authenticate()
+            result['authenticated'] = auth_result
+            
+            # Check JWT user
+            if hasattr(request, '_jwt_user_id'):
+                result['jwt_user_id'] = request._jwt_user_id
+            if hasattr(request, '_jwt_user'):
+                result['jwt_user_exists'] = bool(request._jwt_user)
+            
+            # Get current user
+            user = self._get_current_user()
+            if user:
+                result['current_user'] = {
+                    'id': user.id,
+                    'name': user.name,
+                    'login': user.login,
+                }
+                
+                # Check if user has livreur
+                livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+                if livreur:
+                    result['livreur'] = {
+                        'id': livreur.id,
+                        'name': livreur.name,
+                        'user_id': livreur.user_id.id if livreur.user_id else None,
+                    }
+                else:
+                    result['livreur'] = None
+                    result['livreur_search'] = f"No livreur found for user_id={user.id}"
+            else:
+                result['current_user'] = None
+            
+            return self._json_response(result)
+        except Exception as e:
+            _logger.error(f"Debug auth error: {e}")
+            return self._json_response({'error': str(e)}, 500)
+    
     # ==================== USER INFO ENDPOINT ====================
     
-    @http.route('/smart_delivery/api/user/info', type='http', auth='none', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/user/info', type='http', auth='public', methods=['GET'], csrf=False)
     def get_user_info(self, **kwargs):
         """GET /smart_delivery/api/user/info - Get current user information and type"""
         auth_error = self._require_auth()
@@ -878,7 +1057,7 @@ class SmartDeliveryAPI(http.Controller):
     
     # ==================== DELIVERY ENDPOINTS ====================
     
-    @http.route('/smart_delivery/api/delivery/create', type='http', auth='none', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/delivery/create', type='http', auth='public', methods=['POST'], csrf=False)
     def create_delivery(self, **kwargs):
         """POST /smart_delivery/api/delivery/create - Crée une commande de livraison"""
         auth_error = self._require_auth()
@@ -925,7 +1104,7 @@ class SmartDeliveryAPI(http.Controller):
             self._log_api_call('/smart_delivery/api/delivery/create', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/delivery/status/<int:order_id>', type='http', auth='none', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/delivery/status/<int:order_id>', type='http', auth='public', methods=['GET'], csrf=False)
     def get_delivery_status(self, order_id, **kwargs):
         """GET /smart_delivery/api/delivery/status/<id> - Retourne le statut complet"""
         auth_error = self._require_auth()
@@ -991,7 +1170,7 @@ class SmartDeliveryAPI(http.Controller):
             self._log_api_call(f'/smart_delivery/api/delivery/status/{order_id}', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/delivery/assign', type='http', auth='none', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/delivery/assign', type='http', auth='public', methods=['POST'], csrf=False)
     def assign_delivery(self, **kwargs):
         """POST /smart_delivery/api/delivery/assign - Déclenche le dispatching"""
         auth_error = self._require_auth()
@@ -1029,83 +1208,12 @@ class SmartDeliveryAPI(http.Controller):
             self._log_api_call('/smart_delivery/api/delivery/assign', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/delivery/validate/<int:order_id>', type='http', auth='none', methods=['POST'], csrf=False)
-    def validate_delivery(self, order_id, **kwargs):
-        """POST /smart_delivery/api/delivery/validate/<id> - Valide OTP, photo, signature, biométrie"""
-        auth_error = self._require_auth()
-        if auth_error:
-            return auth_error
-        
-        try:
-            # Get JSON data from request body
-            data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
-            order = request.env['delivery.order'].sudo().browse(order_id)
-            
-            if not order.exists():
-                return self._json_response({'error': 'Commande non trouvée'}, 404)
-            
-            condition = order.condition_ids[:1]
-            if not condition:
-                condition = request.env['delivery.condition'].sudo().create({
-                    'order_id': order.id,
-                })
-            
-            # Valider OTP
-            if 'otp_value' in data:
-                if condition.otp_value == data['otp_value']:
-                    condition.write({'otp_verified': True})
-                else:
-                    return self._json_response({'error': 'OTP invalide'}, 400)
-            
-            # Valider signature
-            if 'signature' in data:
-                condition.write({
-                    'signature_file': data['signature'],
-                    'signature_filename': data.get('signature_filename', 'signature.png'),
-                })
-            
-            # Valider photo
-            if 'photo_url' in data:
-                condition.write({'photo_url': data['photo_url']})
-            
-            # Valider biométrie
-            if 'biometric_score' in data:
-                score = float(data['biometric_score'])
-                if score < 0.7:
-                    return self._json_response({'error': 'Score biométrique insuffisant'}, 400)
-                condition.write({'biometric_score': score})
-            
-            # Valider toutes les conditions
-            try:
-                order.validate_conditions()
-                response_data = {
-                    'success': True,
-                    'order_id': order.id,
-                    'status': order.status,
-                    'validated': True,
-                }
-            except ValidationError as ve:
-                response_data = {
-                    'success': False,
-                    'order_id': order.id,
-                    'status': order.status,
-                    'validated': False,
-                    'errors': str(ve),
-                }
-            
-            self._log_api_call(f'/smart_delivery/api/delivery/validate/{order_id}', data, response_data)
-            return self._json_response(response_data)
-            
-        except Exception as e:
-            _logger.error(f"Erreur validation livraison: {e}")
-            error_response = {'error': str(e)}
-            self._log_api_call(f'/smart_delivery/api/delivery/validate/{order_id}', kwargs, error_response, 500, e)
-            return self._json_response(error_response, 500)
-    
-    @http.route('/smart_delivery/api/livreur/<int:livreur_id>/orders', type='http', auth='none', methods=['GET'], csrf=False)
-    def get_livreur_orders(self, livreur_id, **kwargs):
+    @http.route('/smart_delivery/api/livreur/my-orders', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_livreur_orders(self, **kwargs):
         """
-        GET /smart_delivery/api/livreur/<livreur_id>/orders - Get all orders assigned to a livreur
+        GET /smart_delivery/api/livreur/my-orders - Get all orders assigned to the authenticated livreur
+        
+        The livreur is automatically detected from the JWT token.
         
         Query Parameters:
             - status (optional): Filter by status (draft, assigned, on_way, delivered, failed)
@@ -1121,37 +1229,26 @@ class SmartDeliveryAPI(http.Controller):
                 "phone": "+1234567890"
             },
             "orders_count": 10,
-            "orders": [
-                {
-                    "id": 1,
-                    "reference": "DEL00001",
-                    "status": "assigned",
-                    "sector_type": "standard",
-                    ...
-                }
-            ]
+            "orders": [...]
         }
         """
-        auth_error = self._require_auth()
-        if auth_error:
-            return auth_error
+        try:
+            # Check auth and get livreur
+            livreur, error = self._require_livreur()
+            if error:
+                return error
+        except Exception as e:
+            _logger.error(f"Auth error in my-orders: {e}")
+            return self._json_response({'error': str(e), 'code': 'AUTH_ERROR'}, 500)
         
         try:
-            # Validate livreur exists
-            livreur = request.env['delivery.livreur'].sudo().browse(livreur_id)
-            if not livreur.exists():
-                return self._json_response({
-                    'error': 'Livreur non trouvé',
-                    'code': 'LIVREUR_NOT_FOUND'
-                }, 404)
-            
             # Get query parameters
             status_filter = kwargs.get('status')
             limit = int(kwargs.get('limit', 50))
             offset = int(kwargs.get('offset', 0))
             
-            # Build domain
-            domain = [('assigned_livreur_id', '=', livreur_id)]
+            # Build domain - only orders assigned to THIS livreur
+            domain = [('assigned_livreur_id', '=', livreur.id)]
             if status_filter:
                 domain.append(('status', '=', status_filter))
             
@@ -1247,22 +1344,23 @@ class SmartDeliveryAPI(http.Controller):
                 'orders': orders_data,
             }
             
-            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders', kwargs, response_data)
+            self._log_api_call('/smart_delivery/api/livreur/my-orders', kwargs, response_data)
             return self._json_response(response_data)
             
         except Exception as e:
             _logger.error(f"Erreur récupération commandes livreur: {e}")
             error_response = {'error': str(e), 'code': 'LIVREUR_ORDERS_ERROR'}
-            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders', kwargs, error_response, 500, e)
+            self._log_api_call('/smart_delivery/api/livreur/my-orders', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/<int:livreur_id>/orders/<int:order_id>/start', type='http', auth='none', methods=['POST'], csrf=False)
-    def start_delivery(self, livreur_id, order_id, **kwargs):
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/start', type='http', auth='public', methods=['POST'], csrf=False)
+    def start_delivery(self, order_id, **kwargs):
         """
-        POST /smart_delivery/api/livreur/<livreur_id>/orders/<order_id>/start
+        POST /smart_delivery/api/livreur/orders/<order_id>/start
         
-        Change order status from 'assigned' to 'on_way' (en route)
-        Only the assigned livreur can start the delivery.
+        Change order status from 'assigned' to 'on_way' (en route).
+        The livreur is automatically detected from JWT token.
+        Only orders assigned to the authenticated livreur can be started.
         
         Response:
         {
@@ -1273,19 +1371,12 @@ class SmartDeliveryAPI(http.Controller):
             "message": "Livraison démarrée avec succès"
         }
         """
-        auth_error = self._require_auth()
-        if auth_error:
-            return auth_error
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
         
         try:
-            # Validate livreur exists
-            livreur = request.env['delivery.livreur'].sudo().browse(livreur_id)
-            if not livreur.exists():
-                return self._json_response({
-                    'error': 'Livreur non trouvé',
-                    'code': 'LIVREUR_NOT_FOUND'
-                }, 404)
-            
             # Validate order exists
             order = request.env['delivery.order'].sudo().browse(order_id)
             if not order.exists():
@@ -1294,11 +1385,11 @@ class SmartDeliveryAPI(http.Controller):
                     'code': 'ORDER_NOT_FOUND'
                 }, 404)
             
-            # Check if this order is assigned to this livreur
-            if order.assigned_livreur_id.id != livreur_id:
+            # Check if this order is assigned to THIS livreur
+            if order.assigned_livreur_id.id != livreur.id:
                 return self._json_response({
-                    'error': 'Cette commande n\'est pas assignée à ce livreur',
-                    'code': 'ORDER_NOT_ASSIGNED_TO_LIVREUR'
+                    'error': 'Cette commande n\'est pas assignée à votre compte',
+                    'code': 'ORDER_NOT_ASSIGNED_TO_YOU'
                 }, 403)
             
             # Check current status
@@ -1320,22 +1411,23 @@ class SmartDeliveryAPI(http.Controller):
                 'message': 'Livraison démarrée avec succès',
             }
             
-            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/start', {}, response_data)
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/start', {}, response_data)
             return self._json_response(response_data)
             
         except Exception as e:
             _logger.error(f"Erreur démarrage livraison: {e}")
             error_response = {'error': str(e), 'code': 'START_DELIVERY_ERROR'}
-            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/start', {}, error_response, 500, e)
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/start', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/<int:livreur_id>/orders/<int:order_id>/deliver', type='http', auth='none', methods=['POST'], csrf=False)
-    def deliver_order(self, livreur_id, order_id, **kwargs):
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/deliver', type='http', auth='public', methods=['POST'], csrf=False)
+    def deliver_order(self, order_id, **kwargs):
         """
-        POST /smart_delivery/api/livreur/<livreur_id>/orders/<order_id>/deliver
+        POST /smart_delivery/api/livreur/orders/<order_id>/deliver
         
         Validate delivery conditions and mark order as delivered.
-        The livreur must provide the required validation data based on the order's sector rules.
+        The livreur is automatically detected from JWT token.
+        Only orders assigned to the authenticated livreur can be delivered.
         
         Request Body (depending on order requirements):
         {
@@ -1356,21 +1448,14 @@ class SmartDeliveryAPI(http.Controller):
             "billing": { ... }
         }
         """
-        auth_error = self._require_auth()
-        if auth_error:
-            return auth_error
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
         
         try:
             # Get JSON data from request body
             data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
-            
-            # Validate livreur exists
-            livreur = request.env['delivery.livreur'].sudo().browse(livreur_id)
-            if not livreur.exists():
-                return self._json_response({
-                    'error': 'Livreur non trouvé',
-                    'code': 'LIVREUR_NOT_FOUND'
-                }, 404)
             
             # Validate order exists
             order = request.env['delivery.order'].sudo().browse(order_id)
@@ -1380,11 +1465,11 @@ class SmartDeliveryAPI(http.Controller):
                     'code': 'ORDER_NOT_FOUND'
                 }, 404)
             
-            # Check if this order is assigned to this livreur
-            if order.assigned_livreur_id.id != livreur_id:
+            # Check if this order is assigned to THIS livreur
+            if order.assigned_livreur_id.id != livreur.id:
                 return self._json_response({
-                    'error': 'Cette commande n\'est pas assignée à ce livreur',
-                    'code': 'ORDER_NOT_ASSIGNED_TO_LIVREUR'
+                    'error': 'Cette commande n\'est pas assignée à votre compte',
+                    'code': 'ORDER_NOT_ASSIGNED_TO_YOU'
                 }, 403)
             
             # Check current status - must be on_way
@@ -1500,37 +1585,46 @@ class SmartDeliveryAPI(http.Controller):
                 'billing': billing_data,
             }
             
-            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/deliver', data, response_data)
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/deliver', data, response_data)
             return self._json_response(response_data)
             
         except Exception as e:
             _logger.error(f"Erreur validation livraison: {e}")
             error_response = {'error': str(e), 'code': 'DELIVER_ERROR'}
-            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/deliver', {}, error_response, 500, e)
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/deliver', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/location', type='http', auth='none', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/location', type='http', auth='public', methods=['POST'], csrf=False)
     def update_livreur_location(self, **kwargs):
-        """POST /smart_delivery/api/livreur/location - Enregistre la position GPS du livreur"""
-        auth_error = self._require_auth()
-        if auth_error:
-            return auth_error
+        """
+        POST /smart_delivery/api/livreur/location - Update GPS location for the authenticated livreur
+        
+        The livreur is automatically detected from JWT token.
+        
+        Request Body:
+        {
+            "lat": 33.5731,
+            "long": -7.5898
+        }
+        """
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
         
         try:
             # Get JSON data from request body
             data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
-            livreur_id = data.get('livreur_id')
             lat = data.get('lat')
             long = data.get('long')
             
-            if not all([livreur_id, lat, long]):
-                return self._json_response({'error': 'livreur_id, lat et long requis'}, 400)
+            if lat is None or long is None:
+                return self._json_response({
+                    'error': 'lat et long requis',
+                    'code': 'MISSING_COORDINATES'
+                }, 400)
             
-            livreur = request.env['delivery.livreur'].sudo().browse(livreur_id)
-            if not livreur.exists():
-                return self._json_response({'error': 'Livreur non trouvé'}, 404)
-            
-            livreur.write({
+            livreur.sudo().write({
                 'current_lat': float(lat),
                 'current_long': float(long),
             })
@@ -1547,6 +1641,85 @@ class SmartDeliveryAPI(http.Controller):
             
         except Exception as e:
             _logger.error(f"Erreur mise à jour position livreur: {e}")
-            error_response = {'error': str(e)}
+            error_response = {'error': str(e), 'code': 'LOCATION_UPDATE_ERROR'}
             self._log_api_call('/smart_delivery/api/livreur/location', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/stats', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_livreur_stats(self, **kwargs):
+        """
+        GET /smart_delivery/api/livreur/stats - Get delivery statistics for the authenticated livreur
+        
+        The livreur is automatically detected from JWT token.
+        
+        Response:
+        {
+            "success": true,
+            "livreur": {
+                "id": 1,
+                "name": "John Doe"
+            },
+            "stats": {
+                "today": 5,
+                "in_progress": 2,
+                "delivered": 10,
+                "failed": 1
+            }
+        }
+        """
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
+        
+        try:
+            DeliveryOrder = request.env['delivery.order'].sudo()
+            
+            # Base domain: orders assigned to this livreur
+            base_domain = [('assigned_livreur_id', '=', livreur.id)]
+            
+            # Today's date range (start and end of today)
+            today_start = fields.Datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_end = today_start + timedelta(days=1)
+            
+            # Count today's deliveries (created or assigned today)
+            today_domain = base_domain + [
+                ('create_date', '>=', today_start),
+                ('create_date', '<', today_end)
+            ]
+            today_count = DeliveryOrder.search_count(today_domain)
+            
+            # Count in progress (assigned + on_way)
+            in_progress_domain = base_domain + [('status', 'in', ['assigned', 'on_way'])]
+            in_progress_count = DeliveryOrder.search_count(in_progress_domain)
+            
+            # Count delivered (all time)
+            delivered_domain = base_domain + [('status', '=', 'delivered')]
+            delivered_count = DeliveryOrder.search_count(delivered_domain)
+            
+            # Count failed (all time)
+            failed_domain = base_domain + [('status', '=', 'failed')]
+            failed_count = DeliveryOrder.search_count(failed_domain)
+            
+            response_data = {
+                'success': True,
+                'livreur': {
+                    'id': livreur.id,
+                    'name': livreur.name,
+                },
+                'stats': {
+                    'today': today_count,
+                    'in_progress': in_progress_count,
+                    'delivered': delivered_count,
+                    'failed': failed_count,
+                }
+            }
+            
+            self._log_api_call('/smart_delivery/api/livreur/stats', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération statistiques livreur: {e}")
+            error_response = {'error': str(e), 'code': 'STATS_ERROR'}
+            self._log_api_call('/smart_delivery/api/livreur/stats', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
