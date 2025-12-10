@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Smart Delivery',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'category': 'Delivery',
     'summary': 'Système de livraison intelligent avec dispatching automatique',
     'description': """
@@ -29,6 +29,9 @@
         'views/api_log_views.xml',
         'views/menu.xml',
     ],
+    'pre_init_hook': 'pre_init_hook',
+    'post_init_hook': 'post_init_hook',
+    'uninstall_hook': 'uninstall_hook',
     'installable': True,
     'application': True,
     'auto_install': False,

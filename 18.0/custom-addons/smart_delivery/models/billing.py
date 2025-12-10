@@ -39,11 +39,25 @@ class DeliveryBilling(models.Model):
         check_company=True,
     )
     invoice_state = fields.Selection(
-        related='invoice_id.state', 
+        selection=[
+            ('draft', 'Draft'),
+            ('posted', 'Posted'),
+            ('cancel', 'Cancelled'),
+        ],
         string='État Facture', 
+        compute='_compute_invoice_state',
         readonly=True, 
         store=False
     )
+    
+    @api.depends('invoice_id')
+    def _compute_invoice_state(self):
+        """Compute invoice state safely, handling case when account module is not installed"""
+        for record in self:
+            if record.invoice_id and hasattr(record.invoice_id, 'state'):
+                record.invoice_state = record.invoice_id.state
+            else:
+                record.invoice_state = False
     
     has_account_module = fields.Boolean(
         string='Has Account Module',

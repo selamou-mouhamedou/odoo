@@ -97,6 +97,20 @@ class SmartDeliveryAPI(http.Controller):
         response.status_code = status_code
         return response
     
+    def _get_user_type(self, user):
+        """Get user type: 'livreur' or 'other'"""
+        if not user:
+            return 'other'
+        # Check if user has a livreur record
+        livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+        return 'livreur' if livreur else 'other'
+    
+    def _get_current_user(self):
+        """Get current authenticated user"""
+        if request.session.uid:
+            return request.env['res.users'].sudo().browse(request.session.uid)
+        return None
+    
     # ==================== AUTHENTICATION ENDPOINT ====================
     
     @http.route('/smart_delivery/api/auth/login', type='http', auth='none', methods=['POST'], csrf=False)
@@ -164,6 +178,22 @@ class SmartDeliveryAPI(http.Controller):
             # Generate JWT token
             token = JWTAuth.generate_token(user.id, user.login)
             
+            # Get user type
+            user_type = self._get_user_type(user)
+            
+            # Get livreur info if user is a livreur
+            livreur_info = None
+            if user_type == 'livreur':
+                livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+                if livreur:
+                    livreur_info = {
+                        'id': livreur.id,
+                        'name': livreur.name,
+                        'phone': livreur.phone,
+                        'vehicle_type': livreur.vehicle_type,
+                        'availability': livreur.availability,
+                    }
+            
             response_data = {
                 'success': True,
                 'token': token,
@@ -171,7 +201,9 @@ class SmartDeliveryAPI(http.Controller):
                     'id': user.id,
                     'name': user.name,
                     'login': user.login,
+                    'type': user_type,
                 },
+                'livreur': livreur_info,
                 'expires_in': JWTAuth.TOKEN_EXPIRY_HOURS * 3600,  # seconds
             }
             
@@ -520,9 +552,329 @@ class SmartDeliveryAPI(http.Controller):
                             "401": {"$ref": "#/components/responses/Unauthorized"}
                         }
                     }
+                },
+                "/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/deliver": {
+                    "post": {
+                        "tags": ["Driver"],
+                        "summary": "Complete a delivery with validation",
+                        "description": "Validate delivery conditions (OTP, signature, photo, biometric) based on order requirements and mark order as delivered. Only the assigned driver can complete the delivery.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {
+                                "name": "livreur_id",
+                                "in": "path",
+                                "required": True,
+                                "schema": {"type": "integer"},
+                                "description": "Driver ID"
+                            },
+                            {
+                                "name": "order_id",
+                                "in": "path",
+                                "required": True,
+                                "schema": {"type": "integer"},
+                                "description": "Order ID to deliver"
+                            }
+                        ],
+                        "requestBody": {
+                            "required": True,
+                            "description": "Validation data based on order requirements",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "otp_value": {
+                                                "type": "string",
+                                                "description": "6-digit OTP code (required if otp_required is true)",
+                                                "example": "123456"
+                                            },
+                                            "signature": {
+                                                "type": "string",
+                                                "format": "base64",
+                                                "description": "Base64 encoded signature image (required if signature_required is true)"
+                                            },
+                                            "signature_filename": {
+                                                "type": "string",
+                                                "description": "Signature filename (optional, defaults to signature.png)",
+                                                "example": "signature.png"
+                                            },
+                                            "photo_url": {
+                                                "type": "string",
+                                                "format": "uri",
+                                                "description": "URL of delivery proof photo (required if photo_required is true)",
+                                                "example": "https://storage.example.com/photos/delivery_123.jpg"
+                                            },
+                                            "biometric_score": {
+                                                "type": "number",
+                                                "format": "float",
+                                                "minimum": 0,
+                                                "maximum": 1,
+                                                "description": "Biometric verification score (required if biometric_required is true, minimum 0.7)",
+                                                "example": 0.85
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Delivery completed successfully",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "order_id": {"type": "integer"},
+                                                "reference": {"type": "string"},
+                                                "previous_status": {"type": "string"},
+                                                "status": {"type": "string"},
+                                                "message": {"type": "string"},
+                                                "validation": {"type": "object"},
+                                                "billing": {"type": "object"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Validation failed - missing or invalid data",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string"},
+                                                "validation_errors": {
+                                                    "type": "array",
+                                                    "items": {"type": "string"}
+                                                },
+                                                "requirements": {"type": "object"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {"description": "Order not assigned to this driver"},
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/start": {
+                    "post": {
+                        "tags": ["Driver"],
+                        "summary": "Start a delivery (change status from assigned to on_way)",
+                        "description": "Allows a driver to start a delivery. Changes the order status from 'assigned' to 'on_way'. Only the assigned driver can start the delivery.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {
+                                "name": "livreur_id",
+                                "in": "path",
+                                "required": True,
+                                "schema": {"type": "integer"},
+                                "description": "Driver ID"
+                            },
+                            {
+                                "name": "order_id",
+                                "in": "path",
+                                "required": True,
+                                "schema": {"type": "integer"},
+                                "description": "Order ID to start"
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Delivery started successfully",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "order_id": {"type": "integer"},
+                                                "reference": {"type": "string"},
+                                                "previous_status": {"type": "string"},
+                                                "status": {"type": "string"},
+                                                "message": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "403": {
+                                "description": "Order not assigned to this driver",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {"$ref": "#/components/schemas/Error"}
+                                    }
+                                }
+                            },
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/{livreur_id}/orders": {
+                    "get": {
+                        "tags": ["Driver"],
+                        "summary": "Get all orders assigned to a driver",
+                        "description": "Returns all delivery orders assigned to the specified driver with full details including conditions, validation status, and billing information.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {
+                                "name": "livreur_id",
+                                "in": "path",
+                                "required": True,
+                                "schema": {"type": "integer"},
+                                "description": "Driver ID"
+                            },
+                            {
+                                "name": "status",
+                                "in": "query",
+                                "required": False,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": ["draft", "assigned", "on_way", "delivered", "failed"]
+                                },
+                                "description": "Filter orders by status"
+                            },
+                            {
+                                "name": "limit",
+                                "in": "query",
+                                "required": False,
+                                "schema": {"type": "integer", "default": 50},
+                                "description": "Maximum number of orders to return"
+                            },
+                            {
+                                "name": "offset",
+                                "in": "query",
+                                "required": False,
+                                "schema": {"type": "integer", "default": 0},
+                                "description": "Number of orders to skip"
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "List of orders assigned to the driver",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "livreur": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "name": {"type": "string"},
+                                                        "phone": {"type": "string"},
+                                                        "vehicle_type": {"type": "string"},
+                                                        "availability": {"type": "boolean"},
+                                                        "rating": {"type": "number"}
+                                                    }
+                                                },
+                                                "pagination": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "total": {"type": "integer"},
+                                                        "limit": {"type": "integer"},
+                                                        "offset": {"type": "integer"}
+                                                    }
+                                                },
+                                                "orders_count": {"type": "integer"},
+                                                "orders": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {"type": "integer"},
+                                                            "reference": {"type": "string"},
+                                                            "status": {"type": "string"},
+                                                            "sector_type": {"type": "string"},
+                                                            "sender": {"type": "object"},
+                                                            "receiver": {"type": "object"},
+                                                            "pickup": {"type": "object"},
+                                                            "drop": {"type": "object"},
+                                                            "distance_km": {"type": "number"},
+                                                            "conditions": {"type": "object"},
+                                                            "validation": {"type": "object"},
+                                                            "billing": {"type": "object"}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {"$ref": "#/components/responses/NotFound"},
+                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                        }
+                    }
                 }
             }
         }
+    
+    # ==================== USER INFO ENDPOINT ====================
+    
+    @http.route('/smart_delivery/api/user/info', type='http', auth='none', methods=['GET'], csrf=False)
+    def get_user_info(self, **kwargs):
+        """GET /smart_delivery/api/user/info - Get current user information and type"""
+        auth_error = self._require_auth()
+        if auth_error:
+            return auth_error
+        
+        try:
+            user = self._get_current_user()
+            if not user:
+                return self._json_response({
+                    'error': 'User not found',
+                    'code': 'USER_NOT_FOUND'
+                }, 404)
+            
+            # Get user type
+            user_type = self._get_user_type(user)
+            
+            # Get livreur info if user is a livreur
+            livreur_info = None
+            if user_type == 'livreur':
+                livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+                if livreur:
+                    livreur_info = {
+                        'id': livreur.id,
+                        'name': livreur.name,
+                        'phone': livreur.phone,
+                        'vehicle_type': livreur.vehicle_type,
+                        'availability': livreur.availability,
+                        'rating': livreur.rating,
+                        'verified': livreur.verified,
+                    }
+            
+            response_data = {
+                'success': True,
+                'user': {
+                    'id': user.id,
+                    'name': user.name,
+                    'login': user.login,
+                    'email': user.email,
+                    'type': user_type,
+                },
+                'livreur': livreur_info,
+            }
+            
+            self._log_api_call('/smart_delivery/api/user/info', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération info utilisateur: {e}")
+            error_response = {'error': str(e), 'code': 'USER_INFO_ERROR'}
+            self._log_api_call('/smart_delivery/api/user/info', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
     
     # ==================== DELIVERY ENDPOINTS ====================
     
@@ -748,6 +1100,413 @@ class SmartDeliveryAPI(http.Controller):
             _logger.error(f"Erreur validation livraison: {e}")
             error_response = {'error': str(e)}
             self._log_api_call(f'/smart_delivery/api/delivery/validate/{order_id}', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/<int:livreur_id>/orders', type='http', auth='none', methods=['GET'], csrf=False)
+    def get_livreur_orders(self, livreur_id, **kwargs):
+        """
+        GET /smart_delivery/api/livreur/<livreur_id>/orders - Get all orders assigned to a livreur
+        
+        Query Parameters:
+            - status (optional): Filter by status (draft, assigned, on_way, delivered, failed)
+            - limit (optional): Maximum number of orders to return (default: 50)
+            - offset (optional): Number of orders to skip (default: 0)
+        
+        Response:
+        {
+            "success": true,
+            "livreur": {
+                "id": 1,
+                "name": "John Doe",
+                "phone": "+1234567890"
+            },
+            "orders_count": 10,
+            "orders": [
+                {
+                    "id": 1,
+                    "reference": "DEL00001",
+                    "status": "assigned",
+                    "sector_type": "standard",
+                    ...
+                }
+            ]
+        }
+        """
+        auth_error = self._require_auth()
+        if auth_error:
+            return auth_error
+        
+        try:
+            # Validate livreur exists
+            livreur = request.env['delivery.livreur'].sudo().browse(livreur_id)
+            if not livreur.exists():
+                return self._json_response({
+                    'error': 'Livreur non trouvé',
+                    'code': 'LIVREUR_NOT_FOUND'
+                }, 404)
+            
+            # Get query parameters
+            status_filter = kwargs.get('status')
+            limit = int(kwargs.get('limit', 50))
+            offset = int(kwargs.get('offset', 0))
+            
+            # Build domain
+            domain = [('assigned_livreur_id', '=', livreur_id)]
+            if status_filter:
+                domain.append(('status', '=', status_filter))
+            
+            # Get orders
+            orders = request.env['delivery.order'].sudo().search(
+                domain,
+                limit=limit,
+                offset=offset,
+                order='create_date desc'
+            )
+            total_count = request.env['delivery.order'].sudo().search_count(domain)
+            
+            # Build orders list with details
+            orders_data = []
+            for order in orders:
+                order_data = {
+                    'id': order.id,
+                    'reference': order.name,
+                    'external_reference': order.reference,
+                    'status': order.status,
+                    'sector_type': order.sector_type,
+                    'sender': {
+                        'id': order.sender_id.id,
+                        'name': order.sender_id.name,
+                        'phone': order.sender_id.phone or '',
+                    },
+                    'receiver': {
+                        'name': order.receiver_name,
+                        'phone': order.receiver_phone,
+                    },
+                    'pickup': {
+                        'lat': order.pickup_lat,
+                        'long': order.pickup_long,
+                    },
+                    'drop': {
+                        'lat': order.drop_lat,
+                        'long': order.drop_long,
+                    },
+                    'distance_km': order.distance_km,
+                    'conditions': {
+                        'otp_required': order.otp_required,
+                        'signature_required': order.signature_required,
+                        'photo_required': order.photo_required,
+                        'biometric_required': order.biometric_required,
+                    },
+                    'created_at': order.create_date.isoformat() if order.create_date else None,
+                }
+                
+                # Add validation status if conditions exist
+                if order.condition_ids:
+                    condition = order.condition_ids[0]
+                    order_data['validation'] = {
+                        'otp_verified': condition.otp_verified,
+                        'otp_value': condition.otp_value if order.otp_required else None,
+                        'signature_provided': bool(condition.signature_file),
+                        'photo_provided': bool(condition.photo_url),
+                        'biometric_score': condition.biometric_score,
+                        'validated': condition.validated,
+                    }
+                else:
+                    order_data['validation'] = None
+                
+                # Add billing info if exists
+                if order.billing_id:
+                    billing = order.billing_id[0]
+                    order_data['billing'] = {
+                        'base_tariff': billing.base_tariff,
+                        'extra_fee': billing.extra_fee,
+                        'total_amount': billing.total_amount,
+                        'commission': billing.commission,
+                    }
+                else:
+                    order_data['billing'] = None
+                
+                orders_data.append(order_data)
+            
+            response_data = {
+                'success': True,
+                'livreur': {
+                    'id': livreur.id,
+                    'name': livreur.name,
+                    'phone': livreur.phone,
+                    'vehicle_type': livreur.vehicle_type,
+                    'availability': livreur.availability,
+                    'rating': livreur.rating,
+                },
+                'pagination': {
+                    'total': total_count,
+                    'limit': limit,
+                    'offset': offset,
+                },
+                'orders_count': len(orders_data),
+                'orders': orders_data,
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders', kwargs, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération commandes livreur: {e}")
+            error_response = {'error': str(e), 'code': 'LIVREUR_ORDERS_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/<int:livreur_id>/orders/<int:order_id>/start', type='http', auth='none', methods=['POST'], csrf=False)
+    def start_delivery(self, livreur_id, order_id, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/<livreur_id>/orders/<order_id>/start
+        
+        Change order status from 'assigned' to 'on_way' (en route)
+        Only the assigned livreur can start the delivery.
+        
+        Response:
+        {
+            "success": true,
+            "order_id": 1,
+            "reference": "DEL00001",
+            "status": "on_way",
+            "message": "Livraison démarrée avec succès"
+        }
+        """
+        auth_error = self._require_auth()
+        if auth_error:
+            return auth_error
+        
+        try:
+            # Validate livreur exists
+            livreur = request.env['delivery.livreur'].sudo().browse(livreur_id)
+            if not livreur.exists():
+                return self._json_response({
+                    'error': 'Livreur non trouvé',
+                    'code': 'LIVREUR_NOT_FOUND'
+                }, 404)
+            
+            # Validate order exists
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            if not order.exists():
+                return self._json_response({
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if this order is assigned to this livreur
+            if order.assigned_livreur_id.id != livreur_id:
+                return self._json_response({
+                    'error': 'Cette commande n\'est pas assignée à ce livreur',
+                    'code': 'ORDER_NOT_ASSIGNED_TO_LIVREUR'
+                }, 403)
+            
+            # Check current status
+            if order.status != 'assigned':
+                return self._json_response({
+                    'error': f'Impossible de démarrer la livraison. Statut actuel: {order.status}. La commande doit être en statut "assigned".',
+                    'code': 'INVALID_STATUS'
+                }, 400)
+            
+            # Start the delivery (change status to on_way)
+            order.action_start_delivery()
+            
+            response_data = {
+                'success': True,
+                'order_id': order.id,
+                'reference': order.name,
+                'previous_status': 'assigned',
+                'status': order.status,
+                'message': 'Livraison démarrée avec succès',
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/start', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur démarrage livraison: {e}")
+            error_response = {'error': str(e), 'code': 'START_DELIVERY_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/start', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/<int:livreur_id>/orders/<int:order_id>/deliver', type='http', auth='none', methods=['POST'], csrf=False)
+    def deliver_order(self, livreur_id, order_id, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/<livreur_id>/orders/<order_id>/deliver
+        
+        Validate delivery conditions and mark order as delivered.
+        The livreur must provide the required validation data based on the order's sector rules.
+        
+        Request Body (depending on order requirements):
+        {
+            "otp_value": "123456",           // Required if otp_required is true
+            "signature": "base64_data...",   // Required if signature_required is true
+            "signature_filename": "sig.png", // Optional, defaults to "signature.png"
+            "photo_url": "https://...",      // Required if photo_required is true
+            "biometric_score": 0.85          // Required if biometric_required is true (min 0.7)
+        }
+        
+        Response:
+        {
+            "success": true,
+            "order_id": 1,
+            "reference": "DEL00001",
+            "status": "delivered",
+            "message": "Livraison validée avec succès",
+            "billing": { ... }
+        }
+        """
+        auth_error = self._require_auth()
+        if auth_error:
+            return auth_error
+        
+        try:
+            # Get JSON data from request body
+            data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+            
+            # Validate livreur exists
+            livreur = request.env['delivery.livreur'].sudo().browse(livreur_id)
+            if not livreur.exists():
+                return self._json_response({
+                    'error': 'Livreur non trouvé',
+                    'code': 'LIVREUR_NOT_FOUND'
+                }, 404)
+            
+            # Validate order exists
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            if not order.exists():
+                return self._json_response({
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if this order is assigned to this livreur
+            if order.assigned_livreur_id.id != livreur_id:
+                return self._json_response({
+                    'error': 'Cette commande n\'est pas assignée à ce livreur',
+                    'code': 'ORDER_NOT_ASSIGNED_TO_LIVREUR'
+                }, 403)
+            
+            # Check current status - must be on_way
+            if order.status != 'on_way':
+                return self._json_response({
+                    'error': f'Impossible de valider la livraison. Statut actuel: {order.status}. La commande doit être en statut "on_way" (en route).',
+                    'code': 'INVALID_STATUS'
+                }, 400)
+            
+            # Get or create condition record
+            condition = order.condition_ids[:1]
+            if not condition:
+                condition = request.env['delivery.condition'].sudo().create({
+                    'order_id': order.id,
+                })
+            
+            # Collect validation errors
+            validation_errors = []
+            
+            # Build requirements info for response
+            requirements = {
+                'otp_required': order.otp_required,
+                'signature_required': order.signature_required,
+                'photo_required': order.photo_required,
+                'biometric_required': order.biometric_required,
+            }
+            
+            # Validate OTP if required
+            if order.otp_required:
+                otp_value = data.get('otp_value')
+                if not otp_value:
+                    validation_errors.append('OTP requis mais non fourni')
+                elif condition.otp_value and condition.otp_value != otp_value:
+                    validation_errors.append('OTP invalide')
+                else:
+                    condition.sudo().write({'otp_verified': True})
+            
+            # Validate signature if required
+            if order.signature_required:
+                signature = data.get('signature')
+                if not signature:
+                    validation_errors.append('Signature requise mais non fournie')
+                else:
+                    condition.sudo().write({
+                        'signature_file': signature,
+                        'signature_filename': data.get('signature_filename', 'signature.png'),
+                    })
+            
+            # Validate photo if required
+            if order.photo_required:
+                photo_url = data.get('photo_url')
+                if not photo_url:
+                    validation_errors.append('Photo requise mais non fournie')
+                else:
+                    condition.sudo().write({'photo_url': photo_url})
+            
+            # Validate biometric if required
+            if order.biometric_required:
+                biometric_score = data.get('biometric_score')
+                if biometric_score is None:
+                    validation_errors.append('Score biométrique requis mais non fourni')
+                else:
+                    score = float(biometric_score)
+                    if score < 0.7:
+                        validation_errors.append(f'Score biométrique insuffisant: {score}. Minimum requis: 0.7')
+                    else:
+                        condition.sudo().write({'biometric_score': score})
+            
+            # If there are validation errors, return them
+            if validation_errors:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Validation échouée',
+                    'code': 'VALIDATION_FAILED',
+                    'validation_errors': validation_errors,
+                    'requirements': requirements,
+                }, 400)
+            
+            # All validations passed - mark as validated and delivered
+            condition.sudo().write({'validated': True})
+            order.sudo().write({'status': 'delivered'})
+            
+            # Generate billing
+            billing_data = None
+            try:
+                billing = order._generate_billing()
+                if billing:
+                    billing_data = {
+                        'id': billing.id,
+                        'base_tariff': billing.base_tariff,
+                        'extra_fee': billing.extra_fee,
+                        'total_amount': billing.total_amount,
+                        'commission': billing.commission,
+                        'distance_km': billing.distance_km,
+                    }
+            except Exception as billing_error:
+                _logger.warning(f"Erreur génération facturation: {billing_error}")
+            
+            response_data = {
+                'success': True,
+                'order_id': order.id,
+                'reference': order.name,
+                'previous_status': 'on_way',
+                'status': order.status,
+                'message': 'Livraison validée avec succès',
+                'validation': {
+                    'otp_verified': condition.otp_verified if order.otp_required else None,
+                    'signature_provided': bool(condition.signature_file) if order.signature_required else None,
+                    'photo_provided': bool(condition.photo_url) if order.photo_required else None,
+                    'biometric_score': condition.biometric_score if order.biometric_required else None,
+                    'validated': condition.validated,
+                },
+                'billing': billing_data,
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/deliver', data, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur validation livraison: {e}")
+            error_response = {'error': str(e), 'code': 'DELIVER_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/{livreur_id}/orders/{order_id}/deliver', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
     @http.route('/smart_delivery/api/livreur/location', type='http', auth='none', methods=['POST'], csrf=False)

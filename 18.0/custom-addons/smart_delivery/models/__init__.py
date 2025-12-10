@@ -7,4 +7,5 @@ from . import sector_rule
 from . import billing
 from . import delivery_route
 from . import api_log
+from . import res_users
 

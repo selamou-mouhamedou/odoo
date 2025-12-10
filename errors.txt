@@ -2,12 +2,9 @@ RPC_ERROR
 
 Odoo Server Error
 
-Occured on localhost:8068 on model delivery.billing on 2025-12-10 10:48:28 GMT
+Occured on localhost:8068 on model ir.module.module on 2025-12-10 12:29:16 GMT
 
 Traceback (most recent call last):
-  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
-    return service_model.retrying(func, env=self.env)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 156, in retrying
     result = func()
              ^^^^^^
@@ -23,64 +20,121 @@ Traceback (most recent call last):
   File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 754, in route_wrapper
     result = endpoint(self, *args, **params_ok)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/addons/web/controllers/dataset.py", line 36, in call_kw
-    return call_kw(request.env[model], method, args, kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/controllers/dataset.py", line 42, in call_button
+    action = call_kw(request.env[model], method, args, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 535, in call_kw
     result = getattr(recs, name)(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 46, in web_search_read
-    values_records = records.web_read(specification)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 123, in web_read
-    many2one_data[rec.id]['display_name'] = rec.display_name
-                                            ^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 1305, in __get__
-    self.compute_value(recs)
-  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 1487, in compute_value
-    records._compute_field_value(self)
-  File "/Users/selamou/odoo/18.0/odoo/addons/mail/models/mail_thread.py", line 442, in _compute_field_value
-    return super()._compute_field_value(field)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 5297, in _compute_field_value
-    fields.determine(field.compute, self)
-  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 110, in determine
-    return needle(*args)
-           ^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 1799, in _compute_display_name
-    record.display_name = convert(record[self._rec_name], record)
-                                  ~~~~~~^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 7078, in __getitem__
-    return self._fields[key].__get__(self)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 1268, in __get__
-    recs._fetch_field(self)
-  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4115, in _fetch_field
-    self.fetch(fnames)
-  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4153, in fetch
-    fetched = self._fetch_query(query, fields_to_fetch)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4240, in _fetch_query
-    rows = self.env.execute_query(query.select(*sql_terms))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 993, in execute_query
-    self.cr.execute(query)
-  File "/Users/selamou/odoo/18.0/odoo/odoo/sql_db.py", line 357, in execute
-    res = self._obj.execute(query, params)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-psycopg2.errors.UndefinedColumn: column delivery_order.invoice_id does not exist
-LINE 1: ...required", "delivery_order"."biometric_required", "delivery_...
-                                                             ^
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_module.py", line 76, in check_and_log
+    return method(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_module.py", line 683, in button_immediate_upgrade
+    return self._button_immediate_function(self.env.registry[self._name].button_upgrade)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_module.py", line 616, in _button_immediate_function
+    registry = modules.registry.Registry.new(self._cr.dbname, update_module=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/tools/func.py", line 97, in locked
+    return func(inst, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/registry.py", line 129, in new
+    odoo.modules.load_modules(registry, force_demo, status, update_module)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/loading.py", line 485, in load_modules
+    processed_modules += load_marked_modules(env, graph,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/loading.py", line 365, in load_marked_modules
+    loaded, processed = load_module_graph(
+                        ^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/loading.py", line 205, in load_module_graph
+    registry.setup_models(env.cr)
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/tools/func.py", line 97, in locked
+    return func(inst, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/registry.py", line 355, in setup_models
+    model._setup_fields()
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 3720, in _setup_fields
+    field.setup(self)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 537, in setup
+    self.setup_related(model)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 2848, in setup_related
+    super().setup_related(model)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 611, in setup_related
+    raise KeyError(
+KeyError: 'Field state referenced in related field definition delivery.billing.invoice_state does not exist.'
 
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/registry.py", line 106, in __new__
+    return cls.registries[db_name]
+           ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/tools/func.py", line 97, in locked
+    return func(inst, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/tools/lru.py", line 33, in __getitem__
+    a = self.d[obj]
+        ~~~~~~^^^^^
+KeyError: 'odoo'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
+    return service_model.retrying(func, env=self.env)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 190, in retrying
+    env.reset()
+  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 568, in reset
+    self.transaction.reset()
+  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 1049, in reset
+    self.registry = Registry(self.registry.db_name)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/registry.py", line 108, in __new__
+    return cls.new(db_name)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/tools/func.py", line 97, in locked
+    return func(inst, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/registry.py", line 129, in new
+    odoo.modules.load_modules(registry, force_demo, status, update_module)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/loading.py", line 511, in load_modules
+    registry.setup_models(cr)
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/decorator.py", line 232, in fun
+    return caller(func, *(extras + args), **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/tools/func.py", line 97, in locked
+    return func(inst, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/modules/registry.py", line 355, in setup_models
+    model._setup_fields()
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 3720, in _setup_fields
+    field.setup(self)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 537, in setup
+    self.setup_related(model)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 2848, in setup_related
+    super().setup_related(model)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 611, in setup_related
+    raise KeyError(
+KeyError: 'Field state referenced in related field definition delivery.billing.invoice_state does not exist.'
 
 The above server error caused the following client error:
-OwlError: An error occured in the owl lifecycle (see this Error's "cause" property)
-    Error: An error occured in the owl lifecycle (see this Error's "cause" property)
-        at handleError (http://localhost:8068/web/assets/7b523ba/web.assets_web.min.js:972:101)
-        at App.handleError (http://localhost:8068/web/assets/7b523ba/web.assets_web.min.js:1630:29)
-        at ComponentNode.initiateRender (http://localhost:8068/web/assets/7b523ba/web.assets_web.min.js:1064:19)
-
-Caused by: RPC_ERROR: Odoo Server Error
+RPC_ERROR: Odoo Server Error
     RPC_ERROR
         at makeErrorFromResponse (http://localhost:8068/web/assets/7b523ba/web.assets_web.min.js:3165:165)
         at XMLHttpRequest.<anonymous> (http://localhost:8068/web/assets/7b523ba/web.assets_web.min.js:3170:13)

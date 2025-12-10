@@ -23,6 +23,19 @@ class DeliveryOrder(models.Model):
         ('medical', 'Médical'),
     ], string='Type de Secteur', required=True, tracking=True)
     
+    @api.onchange('sector_type')
+    def _onchange_sector_type(self):
+        """Applique automatiquement les règles du secteur sélectionné"""
+        if self.sector_type:
+            sector_rule = self.env['sector.rule'].search([
+                ('sector_type', '=', self.sector_type)
+            ], limit=1)
+            if sector_rule:
+                self.otp_required = sector_rule.otp_required
+                self.signature_required = sector_rule.signature_required
+                self.photo_required = sector_rule.photo_required
+                self.biometric_required = sector_rule.biometric_required
+    
     sender_id = fields.Many2one('res.partner', string='Expéditeur', required=True, tracking=True)
     receiver_name = fields.Char(string='Nom du Destinataire', required=True, tracking=True)
     receiver_phone = fields.Char(string='Téléphone Destinataire', required=True, tracking=True)

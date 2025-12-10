@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <list string="Livreurs" decoration-success="availability==True" decoration-muted="availability==False">
                 <field name="name"/>
+                <field name="email"/>
                 <field name="phone"/>
                 <field name="vehicle_type"/>
                 <field name="availability"/>
@@ -26,17 +27,28 @@
                         <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-truck">
                             <field name="order_count" widget="statinfo" string="Commandes"/>
                         </button>
+                        <button name="action_reset_password" type="object" class="oe_stat_button" icon="fa-key"
+                                string="Réinitialiser MDP" invisible="not user_id"/>
                     </div>
                     <group>
-                        <group>
+                        <group string="Informations Personnelles">
                             <field name="name"/>
                             <field name="phone"/>
                             <field name="vehicle_type"/>
                         </group>
-                        <group>
+                        <group string="Compte Utilisateur">
+                            <field name="email"/>
+                            <field name="password" password="True" invisible="user_id"/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Statut">
                             <field name="availability"/>
-                            <field name="rating" widget="progressbar" options="{'max_value': 5}"/>
                             <field name="verified"/>
+                        </group>
+                        <group string="Performance">
+                            <field name="rating" widget="progressbar" options="{'max_value': 5}"/>
                         </group>
                     </group>
                     <group string="Position GPS">
@@ -68,6 +80,7 @@
         <field name="arch" type="xml">
             <search string="Rechercher Livreurs">
                 <field name="name"/>
+                <field name="email"/>
                 <field name="phone"/>
                 <filter string="Disponible" name="available" domain="[('availability', '=', True)]"/>
                 <filter string="Vérifié" name="verified" domain="[('verified', '=', True)]"/>
