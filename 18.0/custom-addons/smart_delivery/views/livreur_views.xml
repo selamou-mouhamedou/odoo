@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_livreur_tree" model="ir.ui.view">
+        <field name="name">delivery.livreur.tree</field>
+        <field name="model">delivery.livreur</field>
+        <field name="arch" type="xml">
+            <list string="Livreurs" decoration-success="availability==True" decoration-muted="availability==False">
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="vehicle_type"/>
+                <field name="availability"/>
+                <field name="rating" widget="progressbar"/>
+                <field name="verified"/>
+                <field name="order_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_livreur_form" model="ir.ui.view">
+        <field name="name">delivery.livreur.form</field>
+        <field name="model">delivery.livreur</field>
+        <field name="arch" type="xml">
+            <form string="Livreur">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-truck">
+                            <field name="order_count" widget="statinfo" string="Commandes"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="phone"/>
+                            <field name="vehicle_type"/>
+                        </group>
+                        <group>
+                            <field name="availability"/>
+                            <field name="rating" widget="progressbar" options="{'max_value': 5}"/>
+                            <field name="verified"/>
+                        </group>
+                    </group>
+                    <group string="Position GPS">
+                        <field name="current_lat"/>
+                        <field name="current_long"/>
+                    </group>
+                    <notebook>
+                        <page string="Commandes">
+                            <field name="order_ids" nolabel="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="status"/>
+                                    <field name="sector_type"/>
+                                    <field name="receiver_name"/>
+                                    <field name="distance_km"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_livreur_search" model="ir.ui.view">
+        <field name="name">delivery.livreur.search</field>
+        <field name="model">delivery.livreur</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Livreurs">
+                <field name="name"/>
+                <field name="phone"/>
+                <filter string="Disponible" name="available" domain="[('availability', '=', True)]"/>
+                <filter string="Vérifié" name="verified" domain="[('verified', '=', True)]"/>
+                <separator/>
+                <filter string="Moto" name="motorcycle" domain="[('vehicle_type', '=', 'motorcycle')]"/>
+                <filter string="Voiture" name="car" domain="[('vehicle_type', '=', 'car')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Type de Véhicule" name="group_vehicle" context="{'group_by': 'vehicle_type'}"/>
+                    <filter string="Disponibilité" name="group_availability" context="{'group_by': 'availability'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_livreur" model="ir.actions.act_window">
+        <field name="name">Livreurs</field>
+        <field name="res_model">delivery.livreur</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_livreur_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouveau livreur
+            </p>
+        </field>
+    </record>
+</odoo>
+

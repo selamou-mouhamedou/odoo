@@ -1,0 +1,6 @@
+Exception in thread odoo.service.cron.cron1:
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+Exception in thread odoo.service.cron.cron0:
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 1052, in _bootstrap_inner

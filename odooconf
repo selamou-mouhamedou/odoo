@@ -1,0 +1,18 @@
+[options]
+; Path to Odoo addons
+addons_path = /Users/selamou/odoo/18.0/odoo/addons,/Users/selamou/odoo/18.0/custom-addons
+
+; Database connection
+db_host = localhost
+db_port = 5432
+db_user = odoo
+db_password = 010203
+
+; Server settings
+logfile = /Users/selamou/odoo/18.0/odoo.log
+admin_passwd = admin
+xmlrpc_port = 8069
+
+
+password_db : 5r5d-58q4-nsfq
+

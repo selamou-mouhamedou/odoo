@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_smart_delivery_root" name="Gestion de Livraison" sequence="10" web_icon="smart_delivery,static/description/icon.png"/>
+
+    <menuitem id="menu_delivery_orders" name="Commandes" parent="menu_smart_delivery_root" action="action_delivery_order" sequence="10"/>
+    <menuitem id="menu_delivery_livreurs" name="Livreurs" parent="menu_smart_delivery_root" action="action_livreur" sequence="20"/>
+    <menuitem id="menu_sector_rules" name="Règles de Secteur" parent="menu_smart_delivery_root" action="action_sector_rule" sequence="30"/>
+    <menuitem id="menu_delivery_billing" name="Facturation" parent="menu_smart_delivery_root" action="action_delivery_billing" sequence="40"/>
+
+    <menuitem id="menu_api_logs" name="Journaux API" parent="menu_smart_delivery_root" action="action_api_log" sequence="50"/>
+</odoo>
+

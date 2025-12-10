@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_billing_tree" model="ir.ui.view">
+        <field name="name">delivery.billing.tree</field>
+        <field name="model">delivery.billing</field>
+        <field name="arch" type="xml">
+            <list string="Facturation" decoration-success="invoice_state=='posted'">
+                <field name="order_id"/>
+                <field name="distance_km"/>
+                <field name="base_tariff"/>
+                <field name="extra_fee"/>
+                <field name="total_amount"/>
+                <field name="commission"/>
+                <field name="invoice_id" optional="hide"/>
+                <field name="invoice_state" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_delivery_billing_form" model="ir.ui.view">
+        <field name="name">delivery.billing.form</field>
+        <field name="model">delivery.billing</field>
+        <field name="arch" type="xml">
+            <form string="Facturation">
+                <header>
+                    <button name="action_create_invoice" string="Créer Facture" type="object" class="oe_highlight" invisible="invoice_id or not has_account_module"/>
+                    <button name="action_view_invoice" string="Voir Facture" type="object" invisible="not invoice_id or not has_account_module"/>
+                    <button name="action_install_chart_of_accounts" string="Installer Plan Comptable" type="object" invisible="invoice_id or not has_account_module" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="distance_km"/>
+                            <field name="base_tariff"/>
+                        </group>
+                        <group>
+                            <field name="extra_fee"/>
+                            <field name="total_amount"/>
+                            <field name="commission"/>
+                        </group>
+                    </group>
+                    <group string="Facture" invisible="not has_account_module">
+                        <field name="invoice_id"/>
+                        <field name="invoice_state"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_delivery_billing_search" model="ir.ui.view">
+        <field name="name">delivery.billing.search</field>
+        <field name="model">delivery.billing</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Facturation">
+                <field name="order_id"/>
+                <filter string="Avec Facture" name="with_invoice" domain="[('invoice_id', '!=', False)]"/>
+                <filter string="Sans Facture" name="without_invoice" domain="[('invoice_id', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Force update to clear any customized context -->
+    <data noupdate="0">
+        <record id="action_delivery_billing" model="ir.actions.act_window">
+            <field name="name">Facturation</field>
+            <field name="res_model">delivery.billing</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_delivery_billing_search"/>
+            <field name="context">{}</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_condition_tree" model="ir.ui.view">
+        <field name="name">delivery.condition.tree</field>
+        <field name="model">delivery.condition</field>
+        <field name="arch" type="xml">
+            <list string="Conditions de Livraison" decoration-success="validated==True">
+                <field name="order_id"/>
+                <field name="otp_verified"/>
+                <field name="signature_file" filename="signature_filename"/>
+                <field name="photo_url"/>
+                <field name="biometric_score"/>
+                <field name="validated"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_delivery_condition_form" model="ir.ui.view">
+        <field name="name">delivery.condition.form</field>
+        <field name="model">delivery.condition</field>
+        <field name="arch" type="xml">
+            <form string="Condition de Livraison">
+                <sheet>
+                    <group>
+                        <field name="order_id"/>
+                        <field name="validated"/>
+                    </group>
+                    <notebook>
+                        <page string="OTP">
+                            <group>
+                                <field name="otp_value" password="True"/>
+                                <field name="otp_verified"/>
+                            </group>
+                        </page>
+                        <page string="Signature">
+                            <group>
+                                <field name="signature_file" filename="signature_filename" widget="image"/>
+                            </group>
+                        </page>
+                        <page string="Photo">
+                            <group>
+                                <field name="photo_url"/>
+                            </group>
+                        </page>
+                        <page string="Biométrie">
+                            <group>
+                                <field name="biometric_score" widget="progressbar" options="{'max_value': 1}"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_delivery_condition_search" model="ir.ui.view">
+        <field name="name">delivery.condition.search</field>
+        <field name="model">delivery.condition</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Conditions">
+                <field name="order_id"/>
+                <filter string="Validé" name="validated" domain="[('validated', '=', True)]"/>
+                <filter string="OTP Vérifié" name="otp_verified" domain="[('otp_verified', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Force update to clear any customized context -->
+    <data noupdate="0">
+        <record id="action_delivery_condition" model="ir.actions.act_window">
+            <field name="name">Conditions de Livraison</field>
+            <field name="res_model">delivery.condition</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_delivery_condition_search"/>
+            <field name="context">{}</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_delivery_order_tree" model="ir.ui.view">
+        <field name="name">delivery.order.tree</field>
+        <field name="model">delivery.order</field>
+        <field name="arch" type="xml">
+            <list string="Commandes de Livraison" decoration-success="status=='delivered'" decoration-info="status=='assigned'" decoration-warning="status=='on_way'" decoration-danger="status=='failed'">
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="sector_type"/>
+                <field name="sender_id"/>
+                <field name="receiver_name"/>
+                <field name="receiver_phone"/>
+                <field name="assigned_livreur_id"/>
+                <field name="status"/>
+                <field name="distance_km"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_delivery_order_form" model="ir.ui.view">
+        <field name="name">delivery.order.form</field>
+        <field name="model">delivery.order</field>
+        <field name="arch" type="xml">
+            <form string="Commande de Livraison">
+                <header>
+                    <button name="assign_livreur" string="Assigner Livreur" type="object" class="oe_highlight" invisible="status != 'draft'"/>
+                    <button name="action_start_delivery" string="Démarrer Livraison" type="object" invisible="status != 'assigned'"/>
+                    <button name="validate_conditions" string="Valider Conditions" type="object" invisible="status not in ['assigned', 'on_way']"/>
+                    <button name="action_fail_delivery" string="Marquer Échoué" type="object" invisible="status in ['delivered', 'failed']"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,assigned,on_way,delivered"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_conditions" type="object" class="oe_stat_button" icon="fa-check-square">
+                            <field name="condition_ids" widget="statinfo" string="Conditions"/>
+                        </button>
+                        <button name="action_view_billing" type="object" class="oe_stat_button" icon="fa-money">
+                            <field name="billing_id" widget="statinfo" string="Facturation"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="reference"/>
+                            <field name="sector_type"/>
+                            <field name="sender_id"/>
+                        </group>
+                        <group>
+                            <field name="receiver_name"/>
+                            <field name="receiver_phone"/>
+                            <field name="assigned_livreur_id"/>
+                            <field name="distance_km"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Coordonnées GPS">
+                            <group>
+                                <group string="Point de Pickup">
+                                    <field name="pickup_lat"/>
+                                    <field name="pickup_long"/>
+                                </group>
+                                <group string="Point de Livraison">
+                                    <field name="drop_lat"/>
+                                    <field name="drop_long"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Conditions de Validation">
+                            <group>
+                                <field name="otp_required"/>
+                                <field name="signature_required"/>
+                                <field name="photo_required"/>
+                                <field name="biometric_required"/>
+                            </group>
+                            <field name="condition_ids" nolabel="1">
+                                <list>
+                                    <field name="otp_verified"/>
+                                    <field name="signature_file" filename="signature_filename"/>
+                                    <field name="photo_url"/>
+                                    <field name="biometric_score"/>
+                                    <field name="validated"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Itinéraire">
+                            <field name="route_ids" nolabel="1">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="waypoint_lat"/>
+                                    <field name="waypoint_long"/>
+                                    <field name="name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_delivery_order_kanban" model="ir.ui.view">
+        <field name="name">delivery.order.kanban</field>
+        <field name="model">delivery.order</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="status"/>
+                <field name="sector_type"/>
+                <field name="receiver_name"/>
+                <field name="assigned_livreur_id"/>
+                <field name="distance_km"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div>
+                                        <span>Destinataire: </span>
+                                        <field name="receiver_name"/>
+                                    </div>
+                                    <div>
+                                        <span>Livreur: </span>
+                                        <field name="assigned_livreur_id"/>
+                                    </div>
+                                    <div>
+                                        <span>Distance: </span>
+                                        <field name="distance_km"/> km
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_delivery_order_search" model="ir.ui.view">
+        <field name="name">delivery.order.search</field>
+        <field name="model">delivery.order</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Commandes">
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="sender_id"/>
+                <field name="receiver_name"/>
+                <field name="assigned_livreur_id"/>
+                <filter string="Brouillon" name="draft" domain="[('status', '=', 'draft')]"/>
+                <filter string="Assigné" name="assigned" domain="[('status', '=', 'assigned')]"/>
+                <filter string="En Route" name="on_way" domain="[('status', '=', 'on_way')]"/>
+                <filter string="Livré" name="delivered" domain="[('status', '=', 'delivered')]"/>
+                <separator/>
+                <filter string="Standard" name="standard" domain="[('sector_type', '=', 'standard')]"/>
+                <filter string="Premium" name="premium" domain="[('sector_type', '=', 'premium')]"/>
+                <filter string="Express" name="express" domain="[('sector_type', '=', 'express')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Statut" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Secteur" name="group_sector" context="{'group_by': 'sector_type'}"/>
+                    <filter string="Livreur" name="group_livreur" context="{'group_by': 'assigned_livreur_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_delivery_order" model="ir.actions.act_window">
+        <field name="name">Commandes de Livraison</field>
+        <field name="res_model">delivery.order</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_delivery_order_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer une nouvelle commande de livraison
+            </p>
+        </field>
+    </record>
+</odoo>
+
