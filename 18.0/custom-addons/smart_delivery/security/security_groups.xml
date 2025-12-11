@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Security Groups for Smart Delivery Module -->
+    
+    <!-- Category for Smart Delivery -->
+    <record id="module_category_smart_delivery" model="ir.module.category">
+        <field name="name">Smart Delivery</field>
+        <field name="description">Gestion des accès au module Smart Delivery</field>
+        <field name="sequence">50</field>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- Group 1: Livreur - API access only, no Odoo backend access -->
+    <!-- ============================================================ -->
+    <record id="group_livreur" model="res.groups">
+        <field name="name">Livreur</field>
+        <field name="category_id" ref="module_category_smart_delivery"/>
+        <field name="comment">
+            Groupe pour les livreurs:
+            - Accès API uniquement (login, mise à jour position, voir commandes assignées)
+            - Pas d'accès au backend Odoo
+            - Peuvent voir et gérer leurs propres livraisons via l'API
+        </field>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- Group 2: Enterprise - Limited Odoo access + API access -->
+    <!-- ============================================================ -->
+    <record id="group_enterprise" model="res.groups">
+        <field name="name">Entreprise</field>
+        <field name="category_id" ref="module_category_smart_delivery"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">
+            Groupe pour les entreprises clientes:
+            - Accès au module Smart Delivery uniquement
+            - Peuvent voir/créer leurs propres commandes (liées à leur entreprise)
+            - Peuvent voir leurs propres factures
+            - Peuvent voir les livreurs (lecture seule)
+            - Accès API complet pour leur entreprise
+        </field>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- Group 3: Admin - Full system access -->
+    <!-- ============================================================ -->
+    <record id="group_admin" model="res.groups">
+        <field name="name">Administrateur Smart Delivery</field>
+        <field name="category_id" ref="module_category_smart_delivery"/>
+        <field name="implied_ids" eval="[(4, ref('smart_delivery.group_enterprise'))]"/>
+        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+        <field name="comment">
+            Groupe administrateur avec accès complet:
+            - Accès total au module Smart Delivery
+            - Gestion des livreurs, commandes, factures
+            - Configuration des règles de secteur
+            - Accès aux journaux API
+            - Peut supprimer des enregistrements
+        </field>
+    </record>
+
+</odoo>

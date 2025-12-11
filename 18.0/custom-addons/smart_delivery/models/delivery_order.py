@@ -125,12 +125,35 @@ class DeliveryOrder(models.Model):
         
         return R * c
     
-    def assign_livreur(self):
-        """Moteur de dispatching automatique"""
+    def assign_livreur(self, force=False):
+        """Moteur de dispatching automatique
+        
+        Args:
+            force: Si True, écrase le livreur déjà assigné. Si False, garde le livreur existant.
+        """
         self.ensure_one()
         
         if self.status != 'draft':
             raise UserError(_('Seules les commandes en brouillon peuvent être assignées'))
+        
+        # Si un livreur est déjà assigné et qu'on ne force pas, on le garde
+        if self.assigned_livreur_id and not force:
+            # Vérifier que le livreur est toujours disponible et vérifié
+            if self.assigned_livreur_id.availability and self.assigned_livreur_id.verified:
+                self.write({'status': 'assigned'})
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Livreur Confirmé'),
+                        'message': _('Le livreur %s déjà assigné a été confirmé') % self.assigned_livreur_id.name,
+                        'type': 'success',
+                        'sticky': False,
+                    }
+                }
+            else:
+                # Le livreur assigné n'est plus disponible, on cherche un autre
+                pass
         
         # Filtrer les livreurs disponibles
         available_livreurs = self.env['delivery.livreur'].search([

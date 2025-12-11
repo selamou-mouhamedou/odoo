@@ -19,14 +19,20 @@
         'python': ['PyJWT', 'cryptography'],
     },
     'data': [
+        # Security - groups first, then access rules, then record rules
+        'security/security_groups.xml',
         'security/ir.model.access.csv',
+        'security/security_rules.xml',
+        # Data
         'data/delivery_data.xml',
+        # Views
         'views/delivery_order_views.xml',
         'views/livreur_views.xml',
         'views/condition_views.xml',
         'views/sector_rule_views.xml',
         'views/billing_views.xml',
         'views/api_log_views.xml',
+        'views/res_users_views.xml',
         'views/menu.xml',
     ],
     'pre_init_hook': 'pre_init_hook',

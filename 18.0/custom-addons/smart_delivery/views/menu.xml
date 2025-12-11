@@ -1,12 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_smart_delivery_root" name="Gestion de Livraison" sequence="10" web_icon="smart_delivery,static/description/icon.png"/>
+    <!-- Root menu - visible to enterprise and admin -->
+    <menuitem 
+        id="menu_smart_delivery_root" 
+        name="Gestion de Livraison" 
+        sequence="10" 
+        web_icon="smart_delivery,static/description/icon.png"
+        groups="smart_delivery.group_enterprise,smart_delivery.group_admin"/>
 
-    <menuitem id="menu_delivery_orders" name="Commandes" parent="menu_smart_delivery_root" action="action_delivery_order" sequence="10"/>
-    <menuitem id="menu_delivery_livreurs" name="Livreurs" parent="menu_smart_delivery_root" action="action_livreur" sequence="20"/>
-    <menuitem id="menu_sector_rules" name="Règles de Secteur" parent="menu_smart_delivery_root" action="action_sector_rule" sequence="30"/>
-    <menuitem id="menu_delivery_billing" name="Facturation" parent="menu_smart_delivery_root" action="action_delivery_billing" sequence="40"/>
+    <!-- ============================================================ -->
+    <!-- MAIN OPERATIONS -->
+    <!-- ============================================================ -->
+    
+    <!-- Orders -->
+    <menuitem 
+        id="menu_delivery_orders" 
+        name="Commandes" 
+        parent="menu_smart_delivery_root" 
+        action="action_delivery_order" 
+        sequence="10"
+        groups="smart_delivery.group_enterprise,smart_delivery.group_admin"/>
+    
+    <!-- Livreurs -->
+    <menuitem 
+        id="menu_delivery_livreurs" 
+        name="Livreurs" 
+        parent="menu_smart_delivery_root" 
+        action="action_livreur" 
+        sequence="20"
+        groups="smart_delivery.group_enterprise,smart_delivery.group_admin"/>
+    
+    <!-- Billing -->
+    <menuitem 
+        id="menu_delivery_billing" 
+        name="Facturation" 
+        parent="menu_smart_delivery_root" 
+        action="action_delivery_billing" 
+        sequence="30"
+        groups="smart_delivery.group_enterprise,smart_delivery.group_admin"/>
 
-    <menuitem id="menu_api_logs" name="Journaux API" parent="menu_smart_delivery_root" action="action_api_log" sequence="50"/>
+    <!-- ============================================================ -->
+    <!-- ADMINISTRATION - Admin Only -->
+    <!-- ============================================================ -->
+    
+    <menuitem 
+        id="menu_administration" 
+        name="Administration" 
+        parent="menu_smart_delivery_root" 
+        sequence="100"
+        groups="smart_delivery.group_admin"/>
+    
+    <!-- User Management -->
+    <menuitem 
+        id="menu_user_management" 
+        name="Gestion des Utilisateurs" 
+        parent="menu_administration" 
+        action="action_delivery_users"
+        sequence="10"
+        groups="smart_delivery.group_admin"/>
+    
+    <!-- Sector Rules -->
+    <menuitem 
+        id="menu_sector_rules" 
+        name="Règles de Secteur" 
+        parent="menu_administration" 
+        action="action_sector_rule" 
+        sequence="20"
+        groups="smart_delivery.group_admin"/>
+
+    <!-- API Logs -->
+    <menuitem 
+        id="menu_api_logs" 
+        name="Journaux API" 
+        parent="menu_administration" 
+        action="action_api_log" 
+        sequence="30"
+        groups="smart_delivery.group_admin"/>
 </odoo>
-

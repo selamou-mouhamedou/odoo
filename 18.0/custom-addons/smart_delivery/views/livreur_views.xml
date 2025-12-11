@@ -9,6 +9,7 @@
                 <field name="email"/>
                 <field name="phone"/>
                 <field name="vehicle_type"/>
+                <field name="sector_ids" widget="many2many_tags"/>
                 <field name="availability"/>
                 <field name="rating" widget="progressbar"/>
                 <field name="verified"/>
@@ -40,6 +41,12 @@
                             <field name="email"/>
                             <field name="password" password="True" invisible="user_id"/>
                             <field name="user_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Types de Secteur" colspan="2">
+                            <field name="sector_ids" widget="many2many_tags" nolabel="1" 
+                                   placeholder="Sélectionnez les types de secteur..."/>
                         </group>
                     </group>
                     <group>
@@ -82,11 +89,18 @@
                 <field name="name"/>
                 <field name="email"/>
                 <field name="phone"/>
+                <field name="sector_ids"/>
                 <filter string="Disponible" name="available" domain="[('availability', '=', True)]"/>
                 <filter string="Vérifié" name="verified" domain="[('verified', '=', True)]"/>
                 <separator/>
                 <filter string="Moto" name="motorcycle" domain="[('vehicle_type', '=', 'motorcycle')]"/>
                 <filter string="Voiture" name="car" domain="[('vehicle_type', '=', 'car')]"/>
+                <separator/>
+                <filter string="Standard" name="sector_standard" domain="[('sector_ids.sector_type', '=', 'standard')]"/>
+                <filter string="Premium" name="sector_premium" domain="[('sector_ids.sector_type', '=', 'premium')]"/>
+                <filter string="Express" name="sector_express" domain="[('sector_ids.sector_type', '=', 'express')]"/>
+                <filter string="Fragile" name="sector_fragile" domain="[('sector_ids.sector_type', '=', 'fragile')]"/>
+                <filter string="Médical" name="sector_medical" domain="[('sector_ids.sector_type', '=', 'medical')]"/>
                 <group expand="0" string="Grouper par">
                     <filter string="Type de Véhicule" name="group_vehicle" context="{'group_by': 'vehicle_type'}"/>
                     <filter string="Disponibilité" name="group_availability" context="{'group_by': 'availability'}"/>

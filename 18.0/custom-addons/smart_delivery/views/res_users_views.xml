@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================ -->
+    <!-- LIST VIEW - Smart Delivery Users -->
+    <!-- ============================================================ -->
+    <record id="view_delivery_users_list" model="ir.ui.view">
+        <field name="name">res.users.delivery.list</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <list string="Utilisateurs Smart Delivery"
+                  decoration-success="delivery_user_type == 'admin'"
+                  decoration-info="delivery_user_type == 'enterprise'"
+                  decoration-warning="delivery_user_type == 'livreur'">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="delivery_user_type" string="Rôle"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- FORM VIEW - Smart Delivery Users -->
+    <!-- ============================================================ -->
+    <record id="view_delivery_users_form" model="ir.ui.view">
+        <field name="name">res.users.delivery.form</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <form string="Utilisateur Smart Delivery">
+                <sheet>
+                    <widget name="web_ribbon" title="Archivé" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'avatar_128'}"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Nom complet" required="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Informations">
+                            <field name="email" required="1" placeholder="exemple@email.com"/>
+                            <field name="login" invisible="1"/>
+                            <field name="phone" placeholder="+212 6XX XXX XXX"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Mot de passe">
+                            <field name="set_password" password="True" placeholder="Entrez un nouveau mot de passe"/>
+                            <span class="text-muted small">Laissez vide pour ne pas changer</span>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Société" invisible="not id">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Rôle Smart Delivery">
+                            <field name="delivery_user_type" widget="radio" required="1"/>
+                        </group>
+                    </group>
+                    <notebook invisible="not livreur_id">
+                        <page string="Profil Livreur" name="livreur_profile">
+                            <field name="livreur_id" nolabel="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="phone"/>
+                                    <field name="vehicle_type"/>
+                                    <field name="availability"/>
+                                    <field name="verified"/>
+                                    <field name="rating"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- SEARCH VIEW -->
+    <!-- ============================================================ -->
+    <record id="view_delivery_users_search" model="ir.ui.view">
+        <field name="name">res.users.delivery.search</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Utilisateurs">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <separator/>
+                <filter string="Administrateurs" name="filter_admin" 
+                        domain="[('delivery_user_type', '=', 'admin')]"/>
+                <filter string="Entreprises" name="filter_enterprise" 
+                        domain="[('delivery_user_type', '=', 'enterprise')]"/>
+                <filter string="Livreurs" name="filter_livreur" 
+                        domain="[('delivery_user_type', '=', 'livreur')]"/>
+                <separator/>
+                <filter string="Actifs" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Archivés" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Rôle" name="group_type" context="{'group_by': 'delivery_user_type'}"/>
+                    <filter string="Société" name="group_company" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- ACTIONS -->
+    <!-- ============================================================ -->
+    
+    <!-- All Smart Delivery Users -->
+    <record id="action_delivery_users" model="ir.actions.act_window">
+        <field name="name">Gestion des Utilisateurs</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_delivery_users_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_delivery_users_form')})]"/>
+        <field name="search_view_id" ref="view_delivery_users_search"/>
+        <field name="domain">[('delivery_user_type', 'in', ['admin', 'enterprise', 'livreur'])]</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouvel utilisateur Smart Delivery
+            </p>
+            <p>
+                Créez un utilisateur et assignez-lui un rôle: Administrateur, Entreprise ou Livreur.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Enterprise Users Only -->
+    <record id="action_enterprise_users" model="ir.actions.act_window">
+        <field name="name">Utilisateurs Entreprise</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_delivery_users_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_delivery_users_form')})]"/>
+        <field name="search_view_id" ref="view_delivery_users_search"/>
+        <field name="domain">[('delivery_user_type', '=', 'enterprise')]</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+    
+    <!-- Admin Users Only -->
+    <record id="action_admin_users" model="ir.actions.act_window">
+        <field name="name">Administrateurs Smart Delivery</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_delivery_users_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_delivery_users_form')})]"/>
+        <field name="search_view_id" ref="view_delivery_users_search"/>
+        <field name="domain">[('delivery_user_type', '=', 'admin')]</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+    
+    <!-- Livreur Users Only -->
+    <record id="action_livreur_users" model="ir.actions.act_window">
+        <field name="name">Utilisateurs Livreurs</field>
+        <field name="res_model">res.users</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_delivery_users_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_delivery_users_form')})]"/>
+        <field name="search_view_id" ref="view_delivery_users_search"/>
+        <field name="domain">[('delivery_user_type', '=', 'livreur')]</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+
+</odoo>

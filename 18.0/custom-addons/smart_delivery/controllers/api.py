@@ -104,12 +104,50 @@ class SmartDeliveryAPI(http.Controller):
         return response
     
     def _get_user_type(self, user):
-        """Get user type: 'livreur' or 'other'"""
+        """Get user type: 'admin', 'enterprise', 'livreur', or 'other'"""
         if not user:
             return 'other'
-        # Check if user has a livreur record
+        
+        # Check groups
+        admin_group = request.env.ref('smart_delivery.group_admin', raise_if_not_found=False)
+        enterprise_group = request.env.ref('smart_delivery.group_enterprise', raise_if_not_found=False)
+        livreur_group = request.env.ref('smart_delivery.group_livreur', raise_if_not_found=False)
+        
+        if admin_group and admin_group.id in user.groups_id.ids:
+            return 'admin'
+        elif enterprise_group and enterprise_group.id in user.groups_id.ids:
+            return 'enterprise'
+        elif livreur_group and livreur_group.id in user.groups_id.ids:
+            return 'livreur'
+        
+        # Fallback: check if user has a livreur record
         livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
         return 'livreur' if livreur else 'other'
+    
+    def _require_enterprise_or_admin(self):
+        """Require that the authenticated user is enterprise or admin, return error response or user"""
+        auth_error = self._require_auth()
+        if auth_error:
+            return None, auth_error
+        
+        user = self._get_current_user()
+        if not user:
+            error_response = self._json_response({
+                'error': 'Utilisateur non trouvé après authentification',
+                'code': 'USER_NOT_FOUND'
+            }, 401)
+            return None, error_response
+        
+        user_type = self._get_user_type(user)
+        if user_type not in ('admin', 'enterprise'):
+            error_response = self._json_response({
+                'error': 'Accès refusé. Vous devez être une entreprise ou un administrateur.',
+                'code': 'NOT_ENTERPRISE_OR_ADMIN',
+                'user_type': user_type,
+            }, 403)
+            return None, error_response
+        
+        return user, None
     
     def _get_current_user(self):
         """Get current authenticated user"""
@@ -252,6 +290,18 @@ class SmartDeliveryAPI(http.Controller):
                         'availability': livreur.availability,
                     }
             
+            # Get enterprise info if user is enterprise
+            enterprise_info = None
+            if user_type == 'enterprise':
+                partner = user.partner_id
+                if partner:
+                    enterprise_info = {
+                        'id': partner.id,
+                        'name': partner.name,
+                        'company_id': partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id,
+                        'company_name': partner.commercial_partner_id.name if partner.commercial_partner_id else partner.name,
+                    }
+            
             response_data = {
                 'success': True,
                 'token': token,
@@ -262,6 +312,7 @@ class SmartDeliveryAPI(http.Controller):
                     'type': user_type,
                 },
                 'livreur': livreur_info,
+                'enterprise': enterprise_info,
                 'expires_in': JWTAuth.TOKEN_EXPIRY_HOURS * 3600,  # seconds
             }
             
@@ -396,18 +447,40 @@ class SmartDeliveryAPI(http.Controller):
             "openapi": "3.0.0",
             "info": {
                 "title": "Smart Delivery API",
-                "description": "API for managing delivery orders, tracking status, assigning drivers, and validating delivery conditions",
-                "version": "1.0.0",
+                "description": """
+# Smart Delivery API
+
+API pour la gestion des livraisons avec trois types d'utilisateurs:
+
+## Types d'utilisateurs
+
+| Type | Accès |
+|------|-------|
+| **Admin** | Accès complet à toutes les fonctionnalités |
+| **Enterprise** | Gestion des commandes de leur entreprise, recherche de livreurs par secteur |
+| **Livreur** | API mobile pour gérer leurs livraisons assignées |
+
+## Authentification
+
+Toutes les requêtes (sauf login) nécessitent un token JWT dans le header:
+```
+Authorization: Bearer <token>
+```
+                """,
+                "version": "2.0.0",
                 "contact": {
-                    "name": "Smart Delivery Team",
-                    "url": "https://www.odoo.com"
+                    "name": "Smart Delivery Team"
                 }
             },
-            "servers": [
-                {
-                    "url": base_url,
-                    "description": "Odoo Server"
-                }
+            "servers": [{"url": base_url, "description": "Odoo Server"}],
+            "tags": [
+                {"name": "1. Authentication", "description": "Authentification et gestion de session"},
+                {"name": "2. Enterprise - Orders", "description": "Gestion des commandes pour les entreprises"},
+                {"name": "3. Enterprise - Sectors", "description": "Recherche de livreurs par secteur"},
+                {"name": "4. Enterprise - Billing", "description": "Facturation et statistiques entreprise"},
+                {"name": "5. Driver - Orders", "description": "Gestion des commandes pour les livreurs"},
+                {"name": "6. Driver - Delivery", "description": "Processus de livraison"},
+                {"name": "7. Driver - Profile", "description": "Profil et localisation du livreur"},
             ],
             "components": {
                 "securitySchemes": {
@@ -415,7 +488,7 @@ class SmartDeliveryAPI(http.Controller):
                         "type": "http",
                         "scheme": "bearer",
                         "bearerFormat": "JWT",
-                        "description": "JWT token obtained from /smart_delivery/api/auth/login"
+                        "description": "Token JWT obtenu via /smart_delivery/api/auth/login"
                     }
                 },
                 "schemas": {
@@ -426,192 +499,165 @@ class SmartDeliveryAPI(http.Controller):
                             "code": {"type": "string"}
                         }
                     },
-                    "LoginRequest": {
-                        "type": "object",
-                        "required": ["login", "password"],
-                        "properties": {
-                            "login": {"type": "string", "example": "user@example.com"},
-                            "password": {"type": "string", "format": "password"}
-                        }
-                    },
-                    "LoginResponse": {
-                        "type": "object",
-                        "properties": {
-                            "success": {"type": "boolean"},
-                            "token": {"type": "string"},
-                            "user": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {"type": "integer"},
-                                    "name": {"type": "string"},
-                                    "login": {"type": "string"}
-                                }
-                            },
-                            "expires_in": {"type": "integer"}
-                        }
-                    },
-                    "DeliveryOrder": {
-                        "type": "object",
-                        "required": ["sector_type", "sender_id", "receiver_name", "receiver_phone", "pickup_lat", "pickup_long", "drop_lat", "drop_long"],
-                        "properties": {
-                            "reference": {"type": "string"},
-                            "sector_type": {"type": "string", "enum": ["standard", "premium", "express", "fragile", "medical"]},
-                            "sender_id": {"type": "integer"},
-                            "receiver_name": {"type": "string"},
-                            "receiver_phone": {"type": "string"},
-                            "pickup_lat": {"type": "number", "format": "float"},
-                            "pickup_long": {"type": "number", "format": "float"},
-                            "drop_lat": {"type": "number", "format": "float"},
-                            "drop_long": {"type": "number", "format": "float"}
-                        }
+                    "SectorType": {
+                        "type": "string",
+                        "enum": ["standard", "premium", "express", "fragile", "medical"],
+                        "description": "Type de secteur de livraison"
                     }
                 },
                 "responses": {
-                    "BadRequest": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
-                        }
-                    },
-                    "Unauthorized": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
-                        }
-                    },
-                    "NotFound": {
-                        "description": "Not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
-                        }
-                    }
+                    "BadRequest": {"description": "Requête invalide", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+                    "Unauthorized": {"description": "Non authentifié", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+                    "Forbidden": {"description": "Accès refusé", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}},
+                    "NotFound": {"description": "Ressource non trouvée", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}}
                 }
             },
             "paths": {
+                # ==================== AUTHENTICATION ====================
                 "/smart_delivery/api/auth/login": {
                     "post": {
-                        "tags": ["Authentication"],
-                        "summary": "Authenticate user and get JWT token",
+                        "tags": ["1. Authentication"],
+                        "summary": "Connexion et obtention du token JWT",
+                        "description": "Authentifie l'utilisateur et retourne un token JWT. Le type d'utilisateur (admin/enterprise/livreur) est inclus dans la réponse.",
                         "requestBody": {
                             "required": True,
                             "content": {
                                 "application/json": {
-                                    "schema": {"$ref": "#/components/schemas/LoginRequest"}
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["login", "password"],
+                                        "properties": {
+                                            "login": {"type": "string", "example": "user@example.com"},
+                                            "password": {"type": "string", "format": "password"}
+                                        }
+                                    }
                                 }
                             }
                         },
                         "responses": {
                             "200": {
-                                "description": "Authentication successful",
+                                "description": "Connexion réussie",
                                 "content": {
                                     "application/json": {
-                                        "schema": {"$ref": "#/components/schemas/LoginResponse"}
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "token": {"type": "string"},
+                                                "user": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "name": {"type": "string"},
+                                                        "login": {"type": "string"},
+                                                        "type": {"type": "string", "enum": ["admin", "enterprise", "livreur", "other"]}
+                                                    }
+                                                },
+                                                "expires_in": {"type": "integer", "description": "Durée de validité en secondes"}
+                                            }
+                                        }
                                     }
                                 }
                             },
-                            "400": {"$ref": "#/components/responses/BadRequest"},
                             "401": {"$ref": "#/components/responses/Unauthorized"}
                         }
                     }
                 },
                 "/smart_delivery/api/auth/logout": {
                     "post": {
-                        "tags": ["Authentication"],
-                        "summary": "Logout user and invalidate session",
-                        "description": "Logs out the current user. The client should discard the JWT token after this call.",
+                        "tags": ["1. Authentication"],
+                        "summary": "Déconnexion",
                         "security": [{"bearerAuth": []}],
                         "responses": {
-                            "200": {
-                                "description": "Logout successful",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "success": {"type": "boolean"},
-                                                "message": {"type": "string"}
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                            "200": {"description": "Déconnexion réussie"}
                         }
                     }
                 },
+                "/smart_delivery/api/user/info": {
+                    "get": {
+                        "tags": ["1. Authentication"],
+                        "summary": "Obtenir les informations de l'utilisateur connecté",
+                        "security": [{"bearerAuth": []}],
+                        "responses": {
+                            "200": {"description": "Informations utilisateur"}
+                        }
+                    }
+                },
+                
+                # ==================== ENTERPRISE - ORDERS ====================
                 "/smart_delivery/api/delivery/create": {
                     "post": {
-                        "tags": ["Delivery"],
-                        "summary": "Create a new delivery order",
+                        "tags": ["2. Enterprise - Orders"],
+                        "summary": "Créer une nouvelle commande",
+                        "description": "Crée une commande de livraison. Pour les entreprises, le sender_id est automatiquement défini sur leur société.",
                         "security": [{"bearerAuth": []}],
                         "requestBody": {
                             "required": True,
                             "content": {
                                 "application/json": {
-                                    "schema": {"$ref": "#/components/schemas/DeliveryOrder"}
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["sector_type", "receiver_name", "receiver_phone", "pickup_lat", "pickup_long", "drop_lat", "drop_long"],
+                                        "properties": {
+                                            "reference": {"type": "string", "description": "Référence externe"},
+                                            "sector_type": {"$ref": "#/components/schemas/SectorType"},
+                                            "sender_id": {"type": "integer", "description": "ID du partenaire expéditeur (auto pour enterprise)"},
+                                            "receiver_name": {"type": "string"},
+                                            "receiver_phone": {"type": "string"},
+                                            "pickup_lat": {"type": "number"},
+                                            "pickup_long": {"type": "number"},
+                                            "drop_lat": {"type": "number"},
+                                            "drop_long": {"type": "number"},
+                                            "livreur_id": {"type": "integer", "description": "ID du livreur à assigner (optionnel)"}
+                                        }
+                                    }
                                 }
                             }
                         },
                         "responses": {
-                            "200": {
-                                "description": "Delivery order created",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "success": {"type": "boolean"},
-                                                "order_id": {"type": "integer"},
-                                                "reference": {"type": "string"},
-                                                "status": {"type": "string"}
-                                            }
-                                        }
-                                    }
-                                }
-                            },
+                            "200": {"description": "Commande créée"},
                             "400": {"$ref": "#/components/responses/BadRequest"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                            "403": {"$ref": "#/components/responses/Forbidden"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/enterprise/my-orders": {
+                    "get": {
+                        "tags": ["2. Enterprise - Orders"],
+                        "summary": "Lister mes commandes",
+                        "description": "Retourne toutes les commandes de l'entreprise connectée.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "status", "in": "query", "schema": {"$ref": "#/components/schemas/SectorType"}},
+                            {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50}},
+                            {"name": "offset", "in": "query", "schema": {"type": "integer", "default": 0}}
+                        ],
+                        "responses": {
+                            "200": {"description": "Liste des commandes"},
+                            "403": {"$ref": "#/components/responses/Forbidden"}
                         }
                     }
                 },
                 "/smart_delivery/api/delivery/status/{order_id}": {
                     "get": {
-                        "tags": ["Delivery"],
-                        "summary": "Get delivery order status",
+                        "tags": ["2. Enterprise - Orders"],
+                        "summary": "Obtenir le statut d'une commande",
                         "security": [{"bearerAuth": []}],
                         "parameters": [
-                            {
-                                "name": "order_id",
-                                "in": "path",
-                                "required": True,
-                                "schema": {"type": "integer"},
-                                "description": "Delivery order ID"
-                            }
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}}
                         ],
                         "responses": {
-                            "200": {
-                                "description": "Delivery status",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {"type": "object"}
-                                    }
-                                }
-                            },
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                            "200": {"description": "Statut de la commande"},
+                            "403": {"$ref": "#/components/responses/Forbidden"},
+                            "404": {"$ref": "#/components/responses/NotFound"}
                         }
                     }
                 },
                 "/smart_delivery/api/delivery/assign": {
                     "post": {
-                        "tags": ["Delivery"],
-                        "summary": "Assign driver to delivery order",
+                        "tags": ["2. Enterprise - Orders"],
+                        "summary": "Assigner un livreur à une commande",
+                        "description": "Déclenche le dispatching automatique ou confirme le livreur assigné.",
                         "security": [{"bearerAuth": []}],
                         "requestBody": {
                             "required": True,
@@ -621,24 +667,266 @@ class SmartDeliveryAPI(http.Controller):
                                         "type": "object",
                                         "required": ["order_id"],
                                         "properties": {
-                                            "order_id": {"type": "integer"}
+                                            "order_id": {"type": "integer"},
+                                            "force": {"type": "boolean", "default": False, "description": "Forcer le re-dispatching"}
                                         }
                                     }
                                 }
                             }
                         },
                         "responses": {
-                            "200": {"description": "Driver assigned"},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                            "200": {"description": "Livreur assigné"}
                         }
                     }
                 },
+                
+                # ==================== ENTERPRISE - SECTORS ====================
+                "/smart_delivery/api/enterprise/sectors": {
+                    "get": {
+                        "tags": ["3. Enterprise - Sectors"],
+                        "summary": "Lister tous les secteurs disponibles",
+                        "description": "Retourne la liste des secteurs avec leurs exigences et le nombre de livreurs.",
+                        "security": [{"bearerAuth": []}],
+                        "responses": {
+                            "200": {
+                                "description": "Liste des secteurs",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "sectors": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {"type": "integer"},
+                                                            "sector_type": {"$ref": "#/components/schemas/SectorType"},
+                                                            "description": {"type": "string"},
+                                                            "requirements": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "otp_required": {"type": "boolean"},
+                                                                    "signature_required": {"type": "boolean"},
+                                                                    "photo_required": {"type": "boolean"},
+                                                                    "biometric_required": {"type": "boolean"}
+                                                                }
+                                                            },
+                                                            "livreur_count": {"type": "integer"}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "/smart_delivery/api/enterprise/livreurs-by-sector": {
+                    "get": {
+                        "tags": ["3. Enterprise - Sectors"],
+                        "summary": "Trouver des livreurs par secteur",
+                        "description": "Retourne les livreurs qui travaillent dans un secteur donné.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "sector", "in": "query", "required": True, "schema": {"$ref": "#/components/schemas/SectorType"}, "description": "Code du secteur"},
+                            {"name": "available_only", "in": "query", "schema": {"type": "boolean", "default": True}, "description": "Filtrer les livreurs disponibles"},
+                            {"name": "verified_only", "in": "query", "schema": {"type": "boolean", "default": False}, "description": "Filtrer les livreurs vérifiés"},
+                            {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50}},
+                            {"name": "offset", "in": "query", "schema": {"type": "integer", "default": 0}}
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Liste des livreurs",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "sector": {"type": "object"},
+                                                "livreurs_count": {"type": "integer"},
+                                                "livreurs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {"type": "integer"},
+                                                            "name": {"type": "string"},
+                                                            "phone": {"type": "string"},
+                                                            "vehicle_type": {"type": "string"},
+                                                            "availability": {"type": "boolean"},
+                                                            "verified": {"type": "boolean"},
+                                                            "rating": {"type": "number"},
+                                                            "sectors": {"type": "array", "items": {"type": "string"}}
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {"$ref": "#/components/responses/BadRequest"}
+                        }
+                    }
+                },
+                
+                # ==================== ENTERPRISE - BILLING ====================
+                "/smart_delivery/api/enterprise/my-billings": {
+                    "get": {
+                        "tags": ["4. Enterprise - Billing"],
+                        "summary": "Lister mes factures",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "state", "in": "query", "schema": {"type": "string", "enum": ["draft", "confirmed", "paid", "cancelled"]}},
+                            {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50}},
+                            {"name": "offset", "in": "query", "schema": {"type": "integer", "default": 0}}
+                        ],
+                        "responses": {
+                            "200": {"description": "Liste des factures"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/enterprise/stats": {
+                    "get": {
+                        "tags": ["4. Enterprise - Billing"],
+                        "summary": "Obtenir les statistiques de l'entreprise",
+                        "security": [{"bearerAuth": []}],
+                        "responses": {
+                            "200": {
+                                "description": "Statistiques",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "stats": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "total_orders": {"type": "integer"},
+                                                        "delivered": {"type": "integer"},
+                                                        "in_progress": {"type": "integer"},
+                                                        "failed": {"type": "integer"},
+                                                        "total_spent": {"type": "number"},
+                                                        "total_paid": {"type": "number"}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                
+                # ==================== DRIVER - ORDERS ====================
+                "/smart_delivery/api/livreur/my-orders": {
+                    "get": {
+                        "tags": ["5. Driver - Orders"],
+                        "summary": "Lister mes commandes assignées",
+                        "description": "Retourne toutes les commandes assignées au livreur connecté.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "status", "in": "query", "schema": {"type": "string", "enum": ["draft", "assigned", "on_way", "delivered", "failed"]}},
+                            {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50}},
+                            {"name": "offset", "in": "query", "schema": {"type": "integer", "default": 0}}
+                        ],
+                        "responses": {
+                            "200": {"description": "Liste des commandes"},
+                            "403": {"description": "Pas un livreur"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/orders/{order_id}/details": {
+                    "get": {
+                        "tags": ["5. Driver - Orders"],
+                        "summary": "Détails complets d'une commande",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}}
+                        ],
+                        "responses": {
+                            "200": {"description": "Détails de la commande"},
+                            "403": {"description": "Commande non assignée à ce livreur"},
+                            "404": {"$ref": "#/components/responses/NotFound"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/orders/{order_id}/otp": {
+                    "get": {
+                        "tags": ["5. Driver - Orders"],
+                        "summary": "Obtenir l'OTP d'une commande",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}}
+                        ],
+                        "responses": {
+                            "200": {"description": "Code OTP"},
+                            "403": {"description": "Commande non assignée à ce livreur"}
+                        }
+                    }
+                },
+                
+                # ==================== DRIVER - DELIVERY ====================
+                "/smart_delivery/api/livreur/orders/{order_id}/start": {
+                    "post": {
+                        "tags": ["6. Driver - Delivery"],
+                        "summary": "Démarrer une livraison",
+                        "description": "Change le statut de 'assigned' à 'on_way'.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}}
+                        ],
+                        "responses": {
+                            "200": {"description": "Livraison démarrée"},
+                            "400": {"description": "Statut invalide"},
+                            "403": {"description": "Commande non assignée à ce livreur"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/orders/{order_id}/deliver": {
+                    "post": {
+                        "tags": ["6. Driver - Delivery"],
+                        "summary": "Valider et terminer une livraison",
+                        "description": "Valide les conditions (OTP, signature, photo, biométrie) selon les exigences et marque la commande comme livrée.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}}
+                        ],
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "otp_value": {"type": "string", "description": "Code OTP (si requis)"},
+                                            "signature": {"type": "string", "format": "base64", "description": "Signature en base64 (si requise)"},
+                                            "photo_url": {"type": "string", "format": "uri", "description": "URL de la photo (si requise)"},
+                                            "biometric_score": {"type": "number", "minimum": 0, "maximum": 1, "description": "Score biométrique min 0.7 (si requis)"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {"description": "Livraison validée avec succès"},
+                            "400": {"description": "Validation échouée"}
+                        }
+                    }
+                },
+                
+                # ==================== DRIVER - PROFILE ====================
                 "/smart_delivery/api/livreur/location": {
                     "post": {
-                        "tags": ["Driver"],
-                        "summary": "Update my GPS location (for authenticated driver)",
-                        "description": "Update GPS location for the authenticated driver. The driver is auto-detected from JWT token.",
+                        "tags": ["7. Driver - Profile"],
+                        "summary": "Mettre à jour ma position GPS",
                         "security": [{"bearerAuth": []}],
                         "requestBody": {
                             "required": True,
@@ -648,302 +936,46 @@ class SmartDeliveryAPI(http.Controller):
                                         "type": "object",
                                         "required": ["lat", "long"],
                                         "properties": {
-                                            "lat": {"type": "number", "format": "float", "example": 33.5731},
-                                            "long": {"type": "number", "format": "float", "example": -7.5898}
+                                            "lat": {"type": "number", "example": 33.5731},
+                                            "long": {"type": "number", "example": -7.5898}
                                         }
                                     }
                                 }
                             }
                         },
                         "responses": {
-                            "200": {"description": "Location updated successfully"},
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"},
-                            "403": {"description": "Not a driver - access denied"}
-                        }
-                    }
-                },
-                "/smart_delivery/api/livreur/orders/{order_id}/deliver": {
-                    "post": {
-                        "tags": ["Driver"],
-                        "summary": "Complete a delivery with validation",
-                        "description": "Validate delivery conditions (OTP, signature, photo, biometric) based on order requirements and mark order as delivered. The driver is auto-detected from JWT token. Only orders assigned to the authenticated driver can be completed.",
-                        "security": [{"bearerAuth": []}],
-                        "parameters": [
-                            {
-                                "name": "order_id",
-                                "in": "path",
-                                "required": True,
-                                "schema": {"type": "integer"},
-                                "description": "Order ID to deliver"
-                            }
-                        ],
-                        "requestBody": {
-                            "required": True,
-                            "description": "Validation data based on order requirements",
-                            "content": {
-                                "application/json": {
-                                    "schema": {
-                                        "type": "object",
-                                        "properties": {
-                                            "otp_value": {
-                                                "type": "string",
-                                                "description": "6-digit OTP code (required if otp_required is true)",
-                                                "example": "123456"
-                                            },
-                                            "signature": {
-                                                "type": "string",
-                                                "format": "base64",
-                                                "description": "Base64 encoded signature image (required if signature_required is true)"
-                                            },
-                                            "signature_filename": {
-                                                "type": "string",
-                                                "description": "Signature filename (optional, defaults to signature.png)",
-                                                "example": "signature.png"
-                                            },
-                                            "photo_url": {
-                                                "type": "string",
-                                                "format": "uri",
-                                                "description": "URL of delivery proof photo (required if photo_required is true)",
-                                                "example": "https://storage.example.com/photos/delivery_123.jpg"
-                                            },
-                                            "biometric_score": {
-                                                "type": "number",
-                                                "format": "float",
-                                                "minimum": 0,
-                                                "maximum": 1,
-                                                "description": "Biometric verification score (required if biometric_required is true, minimum 0.7)",
-                                                "example": 0.85
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "responses": {
-                            "200": {
-                                "description": "Delivery completed successfully",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "success": {"type": "boolean"},
-                                                "order_id": {"type": "integer"},
-                                                "reference": {"type": "string"},
-                                                "previous_status": {"type": "string"},
-                                                "status": {"type": "string"},
-                                                "message": {"type": "string"},
-                                                "validation": {"type": "object"},
-                                                "billing": {"type": "object"}
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "400": {
-                                "description": "Validation failed - missing or invalid data",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "success": {"type": "boolean"},
-                                                "error": {"type": "string"},
-                                                "code": {"type": "string"},
-                                                "validation_errors": {
-                                                    "type": "array",
-                                                    "items": {"type": "string"}
-                                                },
-                                                "requirements": {"type": "object"}
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "403": {"description": "Order not assigned to this driver"},
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
-                        }
-                    }
-                },
-                "/smart_delivery/api/livreur/orders/{order_id}/start": {
-                    "post": {
-                        "tags": ["Driver"],
-                        "summary": "Start a delivery (change status from assigned to on_way)",
-                        "description": "Allows a driver to start a delivery. Changes the order status from 'assigned' to 'on_way'. The driver is auto-detected from JWT token. Only orders assigned to the authenticated driver can be started.",
-                        "security": [{"bearerAuth": []}],
-                        "parameters": [
-                            {
-                                "name": "order_id",
-                                "in": "path",
-                                "required": True,
-                                "schema": {"type": "integer"},
-                                "description": "Order ID to start"
-                            }
-                        ],
-                        "responses": {
-                            "200": {
-                                "description": "Delivery started successfully",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "success": {"type": "boolean"},
-                                                "order_id": {"type": "integer"},
-                                                "reference": {"type": "string"},
-                                                "previous_status": {"type": "string"},
-                                                "status": {"type": "string"},
-                                                "message": {"type": "string"}
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "400": {"$ref": "#/components/responses/BadRequest"},
-                            "403": {
-                                "description": "Order not assigned to this driver",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {"$ref": "#/components/schemas/Error"}
-                                    }
-                                }
-                            },
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
-                        }
-                    }
-                },
-                "/smart_delivery/api/livreur/my-orders": {
-                    "get": {
-                        "tags": ["Driver"],
-                        "summary": "Get my orders (for authenticated driver)",
-                        "description": "Returns all delivery orders assigned to the authenticated driver. The driver is auto-detected from JWT token. Returns full details including conditions, validation status, and billing information.",
-                        "security": [{"bearerAuth": []}],
-                        "parameters": [
-                            {
-                                "name": "status",
-                                "in": "query",
-                                "required": False,
-                                "schema": {
-                                    "type": "string",
-                                    "enum": ["draft", "assigned", "on_way", "delivered", "failed"]
-                                },
-                                "description": "Filter orders by status"
-                            },
-                            {
-                                "name": "limit",
-                                "in": "query",
-                                "required": False,
-                                "schema": {"type": "integer", "default": 50},
-                                "description": "Maximum number of orders to return"
-                            },
-                            {
-                                "name": "offset",
-                                "in": "query",
-                                "required": False,
-                                "schema": {"type": "integer", "default": 0},
-                                "description": "Number of orders to skip"
-                            }
-                        ],
-                        "responses": {
-                            "200": {
-                                "description": "List of orders assigned to the driver",
-                                "content": {
-                                    "application/json": {
-                                        "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "success": {"type": "boolean"},
-                                                "livreur": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "id": {"type": "integer"},
-                                                        "name": {"type": "string"},
-                                                        "phone": {"type": "string"},
-                                                        "vehicle_type": {"type": "string"},
-                                                        "availability": {"type": "boolean"},
-                                                        "rating": {"type": "number"}
-                                                    }
-                                                },
-                                                "pagination": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "total": {"type": "integer"},
-                                                        "limit": {"type": "integer"},
-                                                        "offset": {"type": "integer"}
-                                                    }
-                                                },
-                                                "orders_count": {"type": "integer"},
-                                                "orders": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "id": {"type": "integer"},
-                                                            "reference": {"type": "string"},
-                                                            "status": {"type": "string"},
-                                                            "sector_type": {"type": "string"},
-                                                            "sender": {"type": "object"},
-                                                            "receiver": {"type": "object"},
-                                                            "pickup": {"type": "object"},
-                                                            "drop": {"type": "object"},
-                                                            "distance_km": {"type": "number"},
-                                                            "conditions": {"type": "object"},
-                                                            "validation": {"type": "object"},
-                                                            "billing": {"type": "object"}
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "404": {"$ref": "#/components/responses/NotFound"},
-                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                            "200": {"description": "Position mise à jour"}
                         }
                     }
                 },
                 "/smart_delivery/api/livreur/stats": {
                     "get": {
-                        "tags": ["Driver"],
-                        "summary": "Get delivery statistics for the authenticated driver",
-                        "description": "Returns delivery statistics including today's deliveries, in progress, delivered, and failed counts. The driver is auto-detected from JWT token.",
+                        "tags": ["7. Driver - Profile"],
+                        "summary": "Obtenir mes statistiques",
                         "security": [{"bearerAuth": []}],
                         "responses": {
                             "200": {
-                                "description": "Driver statistics",
+                                "description": "Statistiques du livreur",
                                 "content": {
                                     "application/json": {
                                         "schema": {
                                             "type": "object",
                                             "properties": {
                                                 "success": {"type": "boolean"},
-                                                "livreur": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "id": {"type": "integer"},
-                                                        "name": {"type": "string"}
-                                                    }
-                                                },
                                                 "stats": {
                                                     "type": "object",
                                                     "properties": {
-                                                        "today": {"type": "integer", "description": "Number of deliveries created today"},
-                                                        "in_progress": {"type": "integer", "description": "Number of deliveries in progress (assigned or on_way)"},
-                                                        "delivered": {"type": "integer", "description": "Total number of delivered orders"},
-                                                        "failed": {"type": "integer", "description": "Total number of failed orders"}
+                                                        "today": {"type": "integer"},
+                                                        "in_progress": {"type": "integer"},
+                                                        "delivered": {"type": "integer"},
+                                                        "failed": {"type": "integer"}
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            },
-                            "401": {"$ref": "#/components/responses/Unauthorized"},
-                            "403": {"description": "Not a driver - access denied"}
+                            }
                         }
                     }
                 }
@@ -1059,14 +1091,44 @@ class SmartDeliveryAPI(http.Controller):
     
     @http.route('/smart_delivery/api/delivery/create', type='http', auth='public', methods=['POST'], csrf=False)
     def create_delivery(self, **kwargs):
-        """POST /smart_delivery/api/delivery/create - Crée une commande de livraison"""
-        auth_error = self._require_auth()
+        """POST /smart_delivery/api/delivery/create - Crée une commande de livraison
+        
+        For Enterprise users: sender_id is automatically set to their company/partner
+        For Admin users: sender_id must be provided
+        """
+        # Require enterprise or admin user
+        user, auth_error = self._require_enterprise_or_admin()
         if auth_error:
             return auth_error
         
         try:
             # Get JSON data from request body
             data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+            
+            user_type = self._get_user_type(user)
+            
+            # For enterprise users, enforce sender_id to be their company
+            if user_type == 'enterprise':
+                # Enterprise users can only create orders for their company
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                
+                # If sender_id is provided, validate it belongs to their company
+                if data.get('sender_id'):
+                    provided_sender_id = int(data['sender_id'])
+                    # Check if provided sender belongs to user's company
+                    sender = request.env['res.partner'].sudo().browse(provided_sender_id)
+                    if sender.exists():
+                        sender_company_id = sender.commercial_partner_id.id if sender.commercial_partner_id else sender.id
+                        if sender_company_id != company_partner_id and sender.parent_id.id != company_partner_id:
+                            return self._json_response({
+                                'error': 'Vous ne pouvez créer des commandes que pour votre entreprise',
+                                'code': 'SENDER_NOT_ALLOWED',
+                                'allowed_company_id': company_partner_id,
+                            }, 403)
+                else:
+                    # Default to company partner
+                    data['sender_id'] = company_partner_id
             
             # Validation des données
             required_fields = ['sector_type', 'sender_id', 'receiver_name', 'receiver_phone',
@@ -1075,8 +1137,8 @@ class SmartDeliveryAPI(http.Controller):
                 if field not in data:
                     return self._json_response({'error': f'Champ requis manquant: {field}'}, 400)
             
-            # Créer la commande
-            order = request.env['delivery.order'].sudo().create({
+            # Préparer les valeurs de création
+            order_vals = {
                 'reference': data.get('reference'),
                 'sector_type': data['sector_type'],
                 'sender_id': data['sender_id'],
@@ -1086,13 +1148,24 @@ class SmartDeliveryAPI(http.Controller):
                 'pickup_long': float(data['pickup_long']),
                 'drop_lat': float(data['drop_lat']),
                 'drop_long': float(data['drop_long']),
-            })
+            }
+            
+            # Ajouter le livreur si spécifié
+            if data.get('livreur_id'):
+                livreur = request.env['delivery.livreur'].sudo().browse(int(data['livreur_id']))
+                if livreur.exists():
+                    order_vals['assigned_livreur_id'] = livreur.id
+            
+            # Créer la commande
+            order = request.env['delivery.order'].sudo().create(order_vals)
             
             response_data = {
                 'success': True,
                 'order_id': order.id,
                 'reference': order.name,
                 'status': order.status,
+                'sender_id': order.sender_id.id,
+                'sender_name': order.sender_id.name,
             }
             
             self._log_api_call('/smart_delivery/api/delivery/create', data, response_data)
@@ -1106,15 +1179,45 @@ class SmartDeliveryAPI(http.Controller):
     
     @http.route('/smart_delivery/api/delivery/status/<int:order_id>', type='http', auth='public', methods=['GET'], csrf=False)
     def get_delivery_status(self, order_id, **kwargs):
-        """GET /smart_delivery/api/delivery/status/<id> - Retourne le statut complet"""
+        """GET /smart_delivery/api/delivery/status/<id> - Retourne le statut complet
+        
+        Enterprise users can only see their own company's orders.
+        Admin users can see all orders.
+        Livreurs can see orders assigned to them.
+        """
         auth_error = self._require_auth()
         if auth_error:
             return auth_error
         
         try:
+            user = self._get_current_user()
+            user_type = self._get_user_type(user)
+            
             order = request.env['delivery.order'].sudo().browse(order_id)
             if not order.exists():
                 return self._json_response({'error': 'Commande non trouvée'}, 404)
+            
+            # Access control based on user type
+            if user_type == 'enterprise':
+                # Enterprise users can only see their company's orders
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                sender_company_id = order.sender_id.commercial_partner_id.id if order.sender_id.commercial_partner_id else order.sender_id.id
+                
+                if sender_company_id != company_partner_id and order.sender_id.parent_id.id != company_partner_id:
+                    return self._json_response({
+                        'error': 'Accès refusé. Cette commande ne vous appartient pas.',
+                        'code': 'ACCESS_DENIED'
+                    }, 403)
+            
+            elif user_type == 'livreur':
+                # Livreurs can only see orders assigned to them
+                livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+                if not livreur or order.assigned_livreur_id.id != livreur.id:
+                    return self._json_response({
+                        'error': 'Accès refusé. Cette commande ne vous est pas assignée.',
+                        'code': 'ORDER_NOT_ASSIGNED_TO_YOU'
+                    }, 403)
             
             response_data = {
                 'order_id': order.id,
@@ -1189,7 +1292,9 @@ class SmartDeliveryAPI(http.Controller):
             if not order.exists():
                 return self._json_response({'error': 'Commande non trouvée'}, 404)
             
-            order.assign_livreur()
+            # Si force=True, écrase le livreur déjà assigné
+            force = data.get('force', False)
+            order.assign_livreur(force=force)
             
             response_data = {
                 'success': True,
@@ -1722,4 +1827,726 @@ class SmartDeliveryAPI(http.Controller):
             _logger.error(f"Erreur récupération statistiques livreur: {e}")
             error_response = {'error': str(e), 'code': 'STATS_ERROR'}
             self._log_api_call('/smart_delivery/api/livreur/stats', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    # ==================== ORDER OTP ENDPOINT (SECURED) ====================
+    
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/otp', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_order_otp(self, order_id, **kwargs):
+        """
+        GET /smart_delivery/api/livreur/orders/{order_id}/otp - Get OTP for an assigned order
+        
+        Only the assigned livreur can see the OTP for their orders.
+        The livreur is automatically detected from JWT token.
+        
+        Response:
+        {
+            "success": true,
+            "order": {
+                "id": 5,
+                "name": "DEL00005",
+                "state": "assigned"
+            },
+            "otp": {
+                "value": "123456",
+                "required": true,
+                "verified": false
+            }
+        }
+        """
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
+        
+        try:
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            
+            if not order.exists():
+                return self._json_response({
+                    'success': False,
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if this order is assigned to THIS livreur
+            if not order.assigned_livreur_id or order.assigned_livreur_id.id != livreur.id:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Cette commande n\'est pas assignée à votre compte',
+                    'code': 'ORDER_NOT_ASSIGNED_TO_YOU'
+                }, 403)
+            
+            # Get the condition record for this order
+            condition = request.env['delivery.condition'].sudo().search([
+                ('order_id', '=', order.id)
+            ], limit=1)
+            
+            otp_data = {
+                'value': None,
+                'required': order.otp_required,
+                'verified': False
+            }
+            
+            if condition:
+                otp_data['value'] = condition.otp_value
+                otp_data['verified'] = condition.otp_verified
+            
+            response_data = {
+                'success': True,
+                'order': {
+                    'id': order.id,
+                    'name': order.name,
+                    'status': order.status,
+                    'receiver_name': order.receiver_name,
+                    'receiver_phone': order.receiver_phone,
+                    'delivery_address': order.delivery_address if hasattr(order, 'delivery_address') else None,
+                },
+                'otp': otp_data,
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/otp', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Error getting OTP for order {order_id}: {e}")
+            error_response = {'success': False, 'error': str(e), 'code': 'OTP_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/otp', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/details', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_order_details(self, order_id, **kwargs):
+        """
+        GET /smart_delivery/api/livreur/orders/{order_id}/details - Get full order details
+        
+        Only the assigned livreur can see details of their orders.
+        The livreur is automatically detected from JWT token.
+        
+        Response:
+        {
+            "success": true,
+            "order": { ... },
+            "requirements": { ... },
+            "condition": { ... }
+        }
+        """
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
+        
+        try:
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            
+            if not order.exists():
+                return self._json_response({
+                    'success': False,
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if this order is assigned to THIS livreur
+            if not order.assigned_livreur_id or order.assigned_livreur_id.id != livreur.id:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Cette commande n\'est pas assignée à votre compte',
+                    'code': 'ORDER_NOT_ASSIGNED_TO_YOU'
+                }, 403)
+            
+            # Get the condition record
+            condition = request.env['delivery.condition'].sudo().search([
+                ('order_id', '=', order.id)
+            ], limit=1)
+            
+            response_data = {
+                'success': True,
+                'order': {
+                    'id': order.id,
+                    'name': order.name,
+                    'status': order.status,
+                    'sector_type': order.sector_type,
+                    'sender': {
+                        'id': order.sender_id.id if order.sender_id else None,
+                        'name': order.sender_id.name if order.sender_id else None,
+                    },
+                    'receiver': {
+                        'name': order.receiver_name,
+                        'phone': order.receiver_phone,
+                    },
+                    'pickup': {
+                        'lat': order.pickup_lat,
+                        'long': order.pickup_long,
+                    },
+                    'delivery': {
+                        'lat': order.drop_lat,
+                        'long': order.drop_long,
+                    },
+                    'distance_km': order.distance_km,
+                },
+                'requirements': {
+                    'otp_required': order.otp_required,
+                    'signature_required': order.signature_required if hasattr(order, 'signature_required') else False,
+                    'photo_required': order.photo_required if hasattr(order, 'photo_required') else False,
+                    'biometric_required': order.biometric_required if hasattr(order, 'biometric_required') else False,
+                },
+                'condition': {
+                    'otp_value': condition.otp_value if condition else None,
+                    'otp_verified': condition.otp_verified if condition else False,
+                    'signature_uploaded': bool(condition.signature_file) if condition else False,
+                    'photo_url': condition.photo_url if condition else None,
+                    'biometric_score': condition.biometric_score if condition else None,
+                    'validated': condition.validated if condition else False,
+                } if condition else None,
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/details', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Error getting details for order {order_id}: {e}")
+            error_response = {'success': False, 'error': str(e), 'code': 'DETAILS_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/details', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    # ==================== ENTERPRISE ENDPOINTS ====================
+    
+    @http.route('/smart_delivery/api/enterprise/my-orders', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_enterprise_orders(self, **kwargs):
+        """
+        GET /smart_delivery/api/enterprise/my-orders - Get all orders for the enterprise
+        
+        The enterprise is automatically detected from the JWT token.
+        
+        Query Parameters:
+            - status (optional): Filter by status (draft, assigned, on_way, delivered, failed)
+            - limit (optional): Maximum number of orders to return (default: 50)
+            - offset (optional): Number of orders to skip (default: 0)
+        
+        Response:
+        {
+            "success": true,
+            "enterprise": {
+                "id": 1,
+                "name": "Company Name"
+            },
+            "orders_count": 10,
+            "orders": [...]
+        }
+        """
+        # Require enterprise or admin user
+        user, auth_error = self._require_enterprise_or_admin()
+        if auth_error:
+            return auth_error
+        
+        try:
+            user_type = self._get_user_type(user)
+            
+            # Get query parameters
+            status_filter = kwargs.get('status')
+            limit = int(kwargs.get('limit', 50))
+            offset = int(kwargs.get('offset', 0))
+            
+            # Build domain based on user type
+            domain = []
+            
+            if user_type == 'enterprise':
+                # Enterprise users can only see their company's orders
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                domain = [
+                    '|',
+                    ('sender_id', '=', company_partner_id),
+                    ('sender_id.parent_id', '=', company_partner_id)
+                ]
+            # Admin can see all orders (no additional domain)
+            
+            if status_filter:
+                domain.append(('status', '=', status_filter))
+            
+            # Get orders
+            orders = request.env['delivery.order'].sudo().search(
+                domain,
+                limit=limit,
+                offset=offset,
+                order='create_date desc'
+            )
+            total_count = request.env['delivery.order'].sudo().search_count(domain)
+            
+            # Build orders list with details
+            orders_data = []
+            for order in orders:
+                order_data = {
+                    'id': order.id,
+                    'reference': order.name,
+                    'external_reference': order.reference,
+                    'status': order.status,
+                    'sector_type': order.sector_type,
+                    'sender': {
+                        'id': order.sender_id.id,
+                        'name': order.sender_id.name,
+                    },
+                    'receiver': {
+                        'name': order.receiver_name,
+                        'phone': order.receiver_phone,
+                    },
+                    'pickup': {
+                        'lat': order.pickup_lat,
+                        'long': order.pickup_long,
+                    },
+                    'drop': {
+                        'lat': order.drop_lat,
+                        'long': order.drop_long,
+                    },
+                    'distance_km': order.distance_km,
+                    'livreur': {
+                        'id': order.assigned_livreur_id.id,
+                        'name': order.assigned_livreur_id.name,
+                    } if order.assigned_livreur_id else None,
+                    'created_at': order.create_date.isoformat() if order.create_date else None,
+                }
+                
+                # Add billing info if exists
+                if order.billing_id:
+                    billing = order.billing_id[0]
+                    order_data['billing'] = {
+                        'base_tariff': billing.base_tariff,
+                        'extra_fee': billing.extra_fee,
+                        'total_amount': billing.total_amount,
+                        'state': billing.state,
+                    }
+                else:
+                    order_data['billing'] = None
+                
+                orders_data.append(order_data)
+            
+            # Enterprise info
+            enterprise_info = None
+            if user_type == 'enterprise':
+                partner = user.partner_id
+                enterprise_info = {
+                    'id': partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id,
+                    'name': partner.commercial_partner_id.name if partner.commercial_partner_id else partner.name,
+                }
+            
+            response_data = {
+                'success': True,
+                'user_type': user_type,
+                'enterprise': enterprise_info,
+                'pagination': {
+                    'total': total_count,
+                    'limit': limit,
+                    'offset': offset,
+                },
+                'orders_count': len(orders_data),
+                'orders': orders_data,
+            }
+            
+            self._log_api_call('/smart_delivery/api/enterprise/my-orders', kwargs, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération commandes entreprise: {e}")
+            error_response = {'error': str(e), 'code': 'ENTERPRISE_ORDERS_ERROR'}
+            self._log_api_call('/smart_delivery/api/enterprise/my-orders', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/enterprise/my-billings', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_enterprise_billings(self, **kwargs):
+        """
+        GET /smart_delivery/api/enterprise/my-billings - Get all billings for the enterprise
+        
+        The enterprise is automatically detected from the JWT token.
+        
+        Query Parameters:
+            - state (optional): Filter by state (draft, confirmed, paid, cancelled)
+            - limit (optional): Maximum number of billings to return (default: 50)
+            - offset (optional): Number of billings to skip (default: 0)
+        
+        Response:
+        {
+            "success": true,
+            "enterprise": {...},
+            "billings_count": 10,
+            "billings": [...]
+        }
+        """
+        # Require enterprise or admin user
+        user, auth_error = self._require_enterprise_or_admin()
+        if auth_error:
+            return auth_error
+        
+        try:
+            user_type = self._get_user_type(user)
+            
+            # Get query parameters
+            state_filter = kwargs.get('state')
+            limit = int(kwargs.get('limit', 50))
+            offset = int(kwargs.get('offset', 0))
+            
+            # Build domain based on user type
+            domain = []
+            
+            if user_type == 'enterprise':
+                # Enterprise users can only see their company's billings
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                domain = [
+                    '|',
+                    ('order_id.sender_id', '=', company_partner_id),
+                    ('order_id.sender_id.parent_id', '=', company_partner_id)
+                ]
+            # Admin can see all billings (no additional domain)
+            
+            if state_filter:
+                domain.append(('state', '=', state_filter))
+            
+            # Get billings
+            billings = request.env['delivery.billing'].sudo().search(
+                domain,
+                limit=limit,
+                offset=offset,
+                order='id desc'
+            )
+            total_count = request.env['delivery.billing'].sudo().search_count(domain)
+            
+            # Build billings list with details
+            billings_data = []
+            for billing in billings:
+                billing_data = {
+                    'id': billing.id,
+                    'order': {
+                        'id': billing.order_id.id,
+                        'reference': billing.order_id.name,
+                        'status': billing.order_id.status,
+                    },
+                    'distance_km': billing.distance_km,
+                    'base_tariff': billing.base_tariff,
+                    'extra_fee': billing.extra_fee,
+                    'total_amount': billing.total_amount,
+                    'commission': billing.commission,
+                    'state': billing.state,
+                    'notes': billing.notes,
+                }
+                billings_data.append(billing_data)
+            
+            # Enterprise info
+            enterprise_info = None
+            if user_type == 'enterprise':
+                partner = user.partner_id
+                enterprise_info = {
+                    'id': partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id,
+                    'name': partner.commercial_partner_id.name if partner.commercial_partner_id else partner.name,
+                }
+            
+            response_data = {
+                'success': True,
+                'user_type': user_type,
+                'enterprise': enterprise_info,
+                'pagination': {
+                    'total': total_count,
+                    'limit': limit,
+                    'offset': offset,
+                },
+                'billings_count': len(billings_data),
+                'billings': billings_data,
+            }
+            
+            self._log_api_call('/smart_delivery/api/enterprise/my-billings', kwargs, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération factures entreprise: {e}")
+            error_response = {'error': str(e), 'code': 'ENTERPRISE_BILLINGS_ERROR'}
+            self._log_api_call('/smart_delivery/api/enterprise/my-billings', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/enterprise/stats', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_enterprise_stats(self, **kwargs):
+        """
+        GET /smart_delivery/api/enterprise/stats - Get delivery statistics for the enterprise
+        
+        The enterprise is automatically detected from JWT token.
+        
+        Response:
+        {
+            "success": true,
+            "enterprise": {...},
+            "stats": {
+                "total_orders": 100,
+                "delivered": 80,
+                "in_progress": 15,
+                "failed": 5,
+                "total_spent": 5000.00
+            }
+        }
+        """
+        # Require enterprise or admin user
+        user, auth_error = self._require_enterprise_or_admin()
+        if auth_error:
+            return auth_error
+        
+        try:
+            user_type = self._get_user_type(user)
+            DeliveryOrder = request.env['delivery.order'].sudo()
+            DeliveryBilling = request.env['delivery.billing'].sudo()
+            
+            # Build domain based on user type
+            base_domain = []
+            
+            if user_type == 'enterprise':
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                base_domain = [
+                    '|',
+                    ('sender_id', '=', company_partner_id),
+                    ('sender_id.parent_id', '=', company_partner_id)
+                ]
+            
+            # Count statistics
+            total_orders = DeliveryOrder.search_count(base_domain)
+            delivered_count = DeliveryOrder.search_count(base_domain + [('status', '=', 'delivered')])
+            in_progress_count = DeliveryOrder.search_count(base_domain + [('status', 'in', ['assigned', 'on_way'])])
+            failed_count = DeliveryOrder.search_count(base_domain + [('status', '=', 'failed')])
+            draft_count = DeliveryOrder.search_count(base_domain + [('status', '=', 'draft')])
+            
+            # Calculate total spent
+            billing_domain = []
+            if user_type == 'enterprise':
+                billing_domain = [
+                    '|',
+                    ('order_id.sender_id', '=', company_partner_id),
+                    ('order_id.sender_id.parent_id', '=', company_partner_id)
+                ]
+            
+            billings = DeliveryBilling.search(billing_domain)
+            total_spent = sum(b.total_amount for b in billings)
+            total_paid = sum(b.total_amount for b in billings if b.state == 'paid')
+            
+            # Enterprise info
+            enterprise_info = None
+            if user_type == 'enterprise':
+                partner = user.partner_id
+                enterprise_info = {
+                    'id': partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id,
+                    'name': partner.commercial_partner_id.name if partner.commercial_partner_id else partner.name,
+                }
+            
+            response_data = {
+                'success': True,
+                'user_type': user_type,
+                'enterprise': enterprise_info,
+                'stats': {
+                    'total_orders': total_orders,
+                    'draft': draft_count,
+                    'in_progress': in_progress_count,
+                    'delivered': delivered_count,
+                    'failed': failed_count,
+                    'total_spent': total_spent,
+                    'total_paid': total_paid,
+                }
+            }
+            
+            self._log_api_call('/smart_delivery/api/enterprise/stats', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération statistiques entreprise: {e}")
+            error_response = {'error': str(e), 'code': 'ENTERPRISE_STATS_ERROR'}
+            self._log_api_call('/smart_delivery/api/enterprise/stats', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/enterprise/livreurs-by-sector', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_livreurs_by_sector(self, **kwargs):
+        """
+        GET /smart_delivery/api/enterprise/livreurs-by-sector - Get livreurs by sector type
+        
+        Only accessible by enterprise or admin users.
+        
+        Query Parameters:
+            - sector (required): Sector type code (standard, premium, express, fragile, medical)
+            - available_only (optional): If true, only return available livreurs (default: true)
+            - verified_only (optional): If true, only return verified livreurs (default: false)
+            - limit (optional): Maximum number of livreurs to return (default: 50)
+            - offset (optional): Number of livreurs to skip (default: 0)
+        
+        Response:
+        {
+            "success": true,
+            "sector": {
+                "sector_type": "express",
+                "description": "..."
+            },
+            "livreurs_count": 5,
+            "livreurs": [...]
+        }
+        """
+        # Require enterprise or admin user
+        user, auth_error = self._require_enterprise_or_admin()
+        if auth_error:
+            return auth_error
+        
+        try:
+            # Get query parameters
+            sector_code = kwargs.get('sector')
+            if not sector_code:
+                return self._json_response({
+                    'error': 'Le paramètre "sector" est requis',
+                    'code': 'MISSING_SECTOR',
+                    'valid_sectors': ['standard', 'premium', 'express', 'fragile', 'medical']
+                }, 400)
+            
+            # Validate sector code
+            valid_sectors = ['standard', 'premium', 'express', 'fragile', 'medical']
+            if sector_code not in valid_sectors:
+                return self._json_response({
+                    'error': f'Secteur invalide: {sector_code}',
+                    'code': 'INVALID_SECTOR',
+                    'valid_sectors': valid_sectors
+                }, 400)
+            
+            available_only = kwargs.get('available_only', 'true').lower() == 'true'
+            verified_only = kwargs.get('verified_only', 'false').lower() == 'true'
+            limit = int(kwargs.get('limit', 50))
+            offset = int(kwargs.get('offset', 0))
+            
+            # Find the sector rule
+            sector_rule = request.env['sector.rule'].sudo().search([('sector_type', '=', sector_code)], limit=1)
+            if not sector_rule:
+                return self._json_response({
+                    'error': f'Règle de secteur non trouvée: {sector_code}',
+                    'code': 'SECTOR_NOT_FOUND'
+                }, 404)
+            
+            # Build domain for livreurs
+            domain = [('sector_ids', 'in', [sector_rule.id])]
+            
+            if available_only:
+                domain.append(('availability', '=', True))
+            
+            if verified_only:
+                domain.append(('verified', '=', True))
+            
+            # Search livreurs
+            livreurs = request.env['delivery.livreur'].sudo().search(
+                domain,
+                limit=limit,
+                offset=offset,
+                order='rating desc, name asc'
+            )
+            total_count = request.env['delivery.livreur'].sudo().search_count(domain)
+            
+            # Build livreurs list
+            livreurs_data = []
+            for livreur in livreurs:
+                livreur_data = {
+                    'id': livreur.id,
+                    'name': livreur.name,
+                    'phone': livreur.phone,
+                    'vehicle_type': livreur.vehicle_type,
+                    'availability': livreur.availability,
+                    'verified': livreur.verified,
+                    'rating': livreur.rating,
+                    'sectors': [s.sector_type for s in livreur.sector_ids],
+                    'current_location': {
+                        'lat': livreur.current_lat,
+                        'long': livreur.current_long,
+                    } if livreur.current_lat and livreur.current_long else None,
+                }
+                livreurs_data.append(livreur_data)
+            
+            response_data = {
+                'success': True,
+                'sector': {
+                    'id': sector_rule.id,
+                    'sector_type': sector_rule.sector_type,
+                    'description': sector_rule.description or '',
+                    'requirements': {
+                        'otp_required': sector_rule.otp_required,
+                        'signature_required': sector_rule.signature_required,
+                        'photo_required': sector_rule.photo_required,
+                        'biometric_required': sector_rule.biometric_required,
+                    },
+                },
+                'filters': {
+                    'available_only': available_only,
+                    'verified_only': verified_only,
+                },
+                'pagination': {
+                    'total': total_count,
+                    'limit': limit,
+                    'offset': offset,
+                },
+                'livreurs_count': len(livreurs_data),
+                'livreurs': livreurs_data,
+            }
+            
+            self._log_api_call('/smart_delivery/api/enterprise/livreurs-by-sector', kwargs, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération livreurs par secteur: {e}")
+            error_response = {'error': str(e), 'code': 'LIVREURS_BY_SECTOR_ERROR'}
+            self._log_api_call('/smart_delivery/api/enterprise/livreurs-by-sector', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/enterprise/sectors', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_sectors(self, **kwargs):
+        """
+        GET /smart_delivery/api/enterprise/sectors - Get all available sector rules
+        
+        Only accessible by enterprise or admin users.
+        
+        Response:
+        {
+            "success": true,
+            "sectors": [
+                {
+                    "id": 1,
+                    "sector_type": "standard",
+                    "description": "Livraison standard...",
+                    "requirements": {...},
+                    "livreur_count": 10
+                }
+            ]
+        }
+        """
+        # Require enterprise or admin user
+        user, auth_error = self._require_enterprise_or_admin()
+        if auth_error:
+            return auth_error
+        
+        try:
+            # Get all sector rules
+            sectors = request.env['sector.rule'].sudo().search([], order='sector_type asc')
+            
+            sectors_data = []
+            for sector in sectors:
+                sectors_data.append({
+                    'id': sector.id,
+                    'sector_type': sector.sector_type,
+                    'description': sector.description or '',
+                    'requirements': {
+                        'otp_required': sector.otp_required,
+                        'signature_required': sector.signature_required,
+                        'photo_required': sector.photo_required,
+                        'biometric_required': sector.biometric_required,
+                    },
+                    'livreur_count': sector.livreur_count,
+                })
+            
+            response_data = {
+                'success': True,
+                'sectors_count': len(sectors_data),
+                'sectors': sectors_data,
+            }
+            
+            self._log_api_call('/smart_delivery/api/enterprise/sectors', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération secteurs: {e}")
+            error_response = {'error': str(e), 'code': 'SECTORS_ERROR'}
+            self._log_api_call('/smart_delivery/api/enterprise/sectors', {}, error_response, 500, e)
             return self._json_response(error_response, 500)

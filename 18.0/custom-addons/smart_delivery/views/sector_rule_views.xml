@@ -10,6 +10,7 @@
                 <field name="signature_required"/>
                 <field name="photo_required"/>
                 <field name="biometric_required"/>
+                <field name="livreur_count"/>
             </list>
         </field>
     </record>
@@ -20,18 +21,41 @@
         <field name="arch" type="xml">
             <form string="Règle de Secteur">
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_livreurs" icon="fa-motorcycle">
+                            <field name="livreur_count" widget="statinfo" string="Livreurs"/>
+                        </button>
+                    </div>
                     <group>
                         <field name="sector_type"/>
                     </group>
                     <group string="Conditions Requises">
-                        <field name="otp_required"/>
-                        <field name="signature_required"/>
-                        <field name="photo_required"/>
-                        <field name="biometric_required"/>
+                        <group>
+                            <field name="otp_required"/>
+                            <field name="signature_required"/>
+                        </group>
+                        <group>
+                            <field name="photo_required"/>
+                            <field name="biometric_required"/>
+                        </group>
                     </group>
                     <group>
                         <field name="description" placeholder="Description de la règle..."/>
                     </group>
+                    <notebook>
+                        <page string="Livreurs" name="livreurs">
+                            <field name="livreur_ids" nolabel="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="phone"/>
+                                    <field name="vehicle_type"/>
+                                    <field name="availability"/>
+                                    <field name="verified"/>
+                                    <field name="rating" widget="progressbar"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
@@ -43,6 +67,10 @@
         <field name="arch" type="xml">
             <search string="Rechercher Règles">
                 <field name="sector_type"/>
+                <filter string="OTP Requis" name="otp" domain="[('otp_required', '=', True)]"/>
+                <filter string="Signature Requise" name="signature" domain="[('signature_required', '=', True)]"/>
+                <filter string="Photo Requise" name="photo" domain="[('photo_required', '=', True)]"/>
+                <filter string="Biométrie Requise" name="biometric" domain="[('biometric_required', '=', True)]"/>
             </search>
         </field>
     </record>
@@ -59,4 +87,3 @@
         </field>
     </record>
 </odoo>
-

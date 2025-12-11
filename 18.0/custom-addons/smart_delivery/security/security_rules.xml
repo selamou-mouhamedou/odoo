@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Record Rules for Smart Delivery Module -->
+    
+    <!-- ============================================================ -->
+    <!-- DELIVERY ORDER RULES -->
+    <!-- ============================================================ -->
+    
+    <!-- Admin: Full access to all orders -->
+    <record id="rule_delivery_order_admin" model="ir.rule">
+        <field name="name">Delivery Order: Admin Full Access</field>
+        <field name="model_id" ref="model_delivery_order"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Enterprise: Access only orders where sender_id.id is in user's partner or parent company -->
+    <record id="rule_delivery_order_enterprise" model="ir.rule">
+        <field name="name">Delivery Order: Enterprise Own Company</field>
+        <field name="model_id" ref="model_delivery_order"/>
+        <field name="domain_force">[
+            '|',
+            ('sender_id', '=', user.partner_id.id),
+            '|',
+            ('sender_id', '=', user.partner_id.commercial_partner_id.id),
+            ('sender_id.parent_id', '=', user.partner_id.commercial_partner_id.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_enterprise'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- DELIVERY BILLING RULES -->
+    <!-- ============================================================ -->
+    
+    <!-- Admin: Full access to all billing -->
+    <record id="rule_delivery_billing_admin" model="ir.rule">
+        <field name="name">Delivery Billing: Admin Full Access</field>
+        <field name="model_id" ref="model_delivery_billing"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Enterprise: Access only billing linked to their orders -->
+    <record id="rule_delivery_billing_enterprise" model="ir.rule">
+        <field name="name">Delivery Billing: Enterprise Own Company</field>
+        <field name="model_id" ref="model_delivery_billing"/>
+        <field name="domain_force">[
+            '|',
+            ('order_id.sender_id', '=', user.partner_id.id),
+            '|',
+            ('order_id.sender_id', '=', user.partner_id.commercial_partner_id.id),
+            ('order_id.sender_id.parent_id', '=', user.partner_id.commercial_partner_id.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_enterprise'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- DELIVERY LIVREUR RULES -->
+    <!-- ============================================================ -->
+    
+    <!-- Admin: Full access to all livreurs -->
+    <record id="rule_delivery_livreur_admin" model="ir.rule">
+        <field name="name">Delivery Livreur: Admin Full Access</field>
+        <field name="model_id" ref="model_delivery_livreur"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Enterprise: Read-only access to all livreurs -->
+    <record id="rule_delivery_livreur_enterprise" model="ir.rule">
+        <field name="name">Delivery Livreur: Enterprise Read-Only</field>
+        <field name="model_id" ref="model_delivery_livreur"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_enterprise'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- DELIVERY CONDITION RULES -->
+    <!-- ============================================================ -->
+    
+    <!-- Admin: Full access -->
+    <record id="rule_delivery_condition_admin" model="ir.rule">
+        <field name="name">Delivery Condition: Admin Full Access</field>
+        <field name="model_id" ref="model_delivery_condition"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Enterprise: Read-only on their orders' conditions -->
+    <record id="rule_delivery_condition_enterprise" model="ir.rule">
+        <field name="name">Delivery Condition: Enterprise Own Company</field>
+        <field name="model_id" ref="model_delivery_condition"/>
+        <field name="domain_force">[
+            '|',
+            ('order_id.sender_id', '=', user.partner_id.id),
+            '|',
+            ('order_id.sender_id', '=', user.partner_id.commercial_partner_id.id),
+            ('order_id.sender_id.parent_id', '=', user.partner_id.commercial_partner_id.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_enterprise'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- SECTOR RULE RULES -->
+    <!-- ============================================================ -->
+    
+    <!-- Admin: Full access -->
+    <record id="rule_sector_rule_admin" model="ir.rule">
+        <field name="name">Sector Rule: Admin Full Access</field>
+        <field name="model_id" ref="model_sector_rule"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Enterprise: Read-only access to sector rules -->
+    <record id="rule_sector_rule_enterprise" model="ir.rule">
+        <field name="name">Sector Rule: Enterprise Read-Only</field>
+        <field name="model_id" ref="model_sector_rule"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_enterprise'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- DELIVERY ROUTE RULES -->
+    <!-- ============================================================ -->
+    
+    <!-- Admin: Full access -->
+    <record id="rule_delivery_route_admin" model="ir.rule">
+        <field name="name">Delivery Route: Admin Full Access</field>
+        <field name="model_id" ref="model_delivery_route"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Enterprise: Read-only on their orders' routes -->
+    <record id="rule_delivery_route_enterprise" model="ir.rule">
+        <field name="name">Delivery Route: Enterprise Own Company</field>
+        <field name="model_id" ref="model_delivery_route"/>
+        <field name="domain_force">[
+            '|',
+            ('order_id.sender_id', '=', user.partner_id.id),
+            '|',
+            ('order_id.sender_id', '=', user.partner_id.commercial_partner_id.id),
+            ('order_id.sender_id.parent_id', '=', user.partner_id.commercial_partner_id.id)
+        ]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_enterprise'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    
+    <!-- ============================================================ -->
+    <!-- API LOG RULES -->
+    <!-- ============================================================ -->
+    
+    <!-- Admin: Full access -->
+    <record id="rule_api_log_admin" model="ir.rule">
+        <field name="name">API Log: Admin Full Access</field>
+        <field name="model_id" ref="model_api_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('smart_delivery.group_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    
+    <!-- Enterprise: No access to API logs (only admin can see) -->
+    
+</odoo>

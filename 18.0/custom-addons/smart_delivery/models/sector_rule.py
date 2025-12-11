@@ -23,6 +23,33 @@ class SectorRule(models.Model):
     
     description = fields.Text(string='Description')
     
+    # Related livreurs
+    livreur_ids = fields.Many2many(
+        'delivery.livreur',
+        'livreur_sector_rule_rel',
+        'sector_rule_id',
+        'livreur_id',
+        string='Livreurs',
+    )
+    livreur_count = fields.Integer(string='Nombre de Livreurs', compute='_compute_livreur_count')
+    
+    @api.depends('livreur_ids')
+    def _compute_livreur_count(self):
+        for record in self:
+            record.livreur_count = len(record.livreur_ids)
+    
+    def action_view_livreurs(self):
+        """Open the livreurs view for this sector"""
+        self.ensure_one()
+        return {
+            'name': f'Livreurs - {self.sector_type}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'delivery.livreur',
+            'view_mode': 'list,form',
+            'domain': [('sector_ids', 'in', [self.id])],
+            'context': {'default_sector_ids': [(4, self.id)]},
+        }
+    
     _sql_constraints = [
         ('sector_type_unique', 'UNIQUE(sector_type)', 
          'Une règle existe déjà pour ce type de secteur!')

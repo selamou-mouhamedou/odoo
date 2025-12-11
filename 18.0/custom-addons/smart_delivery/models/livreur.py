@@ -61,16 +61,26 @@ class DeliveryLivreur(models.Model):
                 ], limit=1)
                 
                 if existing_user:
+                    # Update user to have livreur group
+                    livreur_group = self.env.ref('smart_delivery.group_livreur', raise_if_not_found=False)
+                    if livreur_group:
+                        existing_user.sudo().write({
+                            'groups_id': [(4, livreur_group.id)]
+                        })
                     vals['user_id'] = existing_user.id
                 else:
-                    # Create a new user for this livreur
+                    # Create a new user for this livreur with livreur group
+                    # Livreur group only - no portal or internal user access
+                    livreur_group = self.env.ref('smart_delivery.group_livreur', raise_if_not_found=False)
+                    group_ids = [livreur_group.id] if livreur_group else []
+                    
                     user_vals = {
                         'name': vals.get('name'),
                         'login': vals.get('email'),
                         'email': vals.get('email'),
                         'phone': vals.get('phone'),
                         'password': vals.get('password', 'livreur123'),  # Default password if not provided
-                        'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],  # Portal user
+                        'groups_id': [(6, 0, group_ids)],  # Only livreur group - no backend access
                     }
                     user = self.env['res.users'].sudo().create(user_vals)
                     vals['user_id'] = user.id
@@ -127,6 +137,17 @@ class DeliveryLivreur(models.Model):
         ('truck', 'Camion'),
     ], string='Type de Véhicule', required=True, tracking=True)
     
+    # Sector rules this livreur can handle (multiple selection)
+    sector_ids = fields.Many2many(
+        'sector.rule',
+        'livreur_sector_rule_rel',
+        'livreur_id',
+        'sector_rule_id',
+        string='Types de Secteur',
+        help='Les types de secteurs que ce livreur peut gérer',
+        tracking=True,
+    )
+    
     availability = fields.Boolean(string='Disponible', default=True, tracking=True)
     rating = fields.Float(string='Note', digits=(2, 1), default=0.0, tracking=True)
     
@@ -154,4 +175,23 @@ class DeliveryLivreur(models.Model):
             'domain': [('assigned_livreur_id', '=', self.id)],
             'context': {'default_assigned_livreur_id': self.id},
         }
+    
+    @api.model
+    def _assign_default_sector(self):
+        """Assign default sector (standard) to livreurs that don't have any sector.
+        This is called during module installation/upgrade.
+        """
+        # Get standard sector rule
+        standard_sector = self.env['sector.rule'].search([('sector_type', '=', 'standard')], limit=1)
+        if not standard_sector:
+            return
+        
+        # Find livreurs without any sector
+        livreurs_without_sector = self.search([('sector_ids', '=', False)])
+        
+        # Assign standard sector to them
+        for livreur in livreurs_without_sector:
+            livreur.sector_ids = [(4, standard_sector.id)]
+        
+        return True
 
