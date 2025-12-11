@@ -20414,3 +20414,1478 @@ TypeError: unsupported operand types(s) or combination of types: 'str' and 'None
 2025-12-10 17:06:56,049 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:06:56] "GET /smart_delivery/api/livreur/my-orders?status=on_way&limit=20&offset=0 HTTP/1.1" 200 - 10 0.006 0.010
 2025-12-10 17:06:56,602 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:06:56] "GET /smart_delivery/api/livreur/my-orders?status=assigned&limit=20&offset=0 HTTP/1.1" 200 - 10 0.004 0.003
 2025-12-10 17:06:58,191 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:06:58] "GET /smart_delivery/api/livreur/my-orders?limit=20&offset=0 HTTP/1.1" 200 - 19 0.008 0.005
+2025-12-10 17:10:00,964 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:00] "GET /smart_delivery/api/livreur/my-orders?status=assigned&limit=20&offset=0 HTTP/1.1" 200 - 10 0.015 0.015
+2025-12-10 17:10:00,964 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:00] "GET /smart_delivery/api/livreur/my-orders?status=on_way&limit=20&offset=0 HTTP/1.1" 200 - 10 0.015 0.009
+2025-12-10 17:10:01,440 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:01] "GET /smart_delivery/api/livreur/my-orders?status=delivered&limit=20&offset=0 HTTP/1.1" 200 - 17 0.007 0.011
+2025-12-10 17:10:04,179 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:04] "POST /smart_delivery/api/livreur/location HTTP/1.1" 200 - 9 0.016 0.029
+2025-12-10 17:10:34,228 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:34] "GET /smart_delivery/api/livreur/my-orders?status=assigned&limit=20&offset=0 HTTP/1.1" 200 - 10 0.008 0.011
+2025-12-10 17:10:34,228 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:34] "GET /smart_delivery/api/livreur/my-orders?status=on_way&limit=20&offset=0 HTTP/1.1" 200 - 10 0.008 0.005
+2025-12-10 17:10:34,420 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:34] "GET /smart_delivery/api/livreur/my-orders?limit=20&offset=0 HTTP/1.1" 200 - 19 0.009 0.008
+2025-12-10 17:10:34,709 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:34] "GET /smart_delivery/api/livreur/my-orders?limit=20&offset=0 HTTP/1.1" 200 - 19 0.007 0.012
+2025-12-10 17:10:40,496 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:40] "GET /smart_delivery/api/livreur/my-orders?limit=20&offset=0 HTTP/1.1" 200 - 19 0.011 0.017
+2025-12-10 17:10:41,226 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:41] "GET /smart_delivery/api/livreur/my-orders?status=assigned&limit=20&offset=0 HTTP/1.1" 200 - 10 0.005 0.010
+2025-12-10 17:10:43,999 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:43] "GET /smart_delivery/api/livreur/my-orders?status=on_way&limit=20&offset=0 HTTP/1.1" 200 - 10 0.004 0.007
+2025-12-10 17:10:45,065 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:45] "GET /smart_delivery/api/livreur/my-orders?status=delivered&limit=20&offset=0 HTTP/1.1" 200 - 17 0.009 0.016
+2025-12-10 17:10:47,410 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:47] "POST /smart_delivery/api/livreur/location HTTP/1.1" 200 - 9 0.004 0.010
+2025-12-10 17:10:56,918 18968 INFO odoo werkzeug: 192.168.100.120 - - [10/Dec/2025 17:10:56] "GET /smart_delivery/api/livreur/my-orders?status=failed&limit=20&offset=0 HTTP/1.1" 200 - 16 0.015 0.028
+2025-12-10 17:11:01,489 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 17:11:01,503 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.014s 
+2025-12-10 17:11:01,506 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 17:11:01,516 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 17:26:59,808 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 17:26:59,828 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.017s 
+2025-12-10 17:26:59,831 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 17:26:59,841 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 17:30:59,951 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-10 17:30:59,962 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.010s 
+2025-12-10 17:30:59,969 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-10 17:30:59,974 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-10 17:30:59,980 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-10 17:30:59,997 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.016s 
+2025-12-10 17:30:59,999 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-10 17:31:00,003 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-10 17:31:00,013 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-10 17:31:00,024 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.012s 
+2025-12-10 17:31:00,028 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-10 17:31:00,031 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-10 17:31:00,038 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 17:31:00,044 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.005s 
+2025-12-10 17:31:00,046 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 17:31:00,049 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 17:31:00,054 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-10 17:31:00,061 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.007s 
+2025-12-10 17:31:00,063 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-10 17:31:00,066 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-10 17:31:00,073 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-10 17:31:00,079 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.007s 
+2025-12-10 17:31:00,083 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-10 17:31:00,086 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-10 17:36:00,159 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 17:36:00,171 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-10 17:36:00,174 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 17:36:00,178 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 17:52:57,975 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 17:52:57,993 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.015s 
+2025-12-10 17:52:57,996 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 17:52:58,006 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 18:08:16,409 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 18:08:16,421 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-10 18:08:16,424 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 18:08:16,433 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 18:24:15,328 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 18:24:15,338 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-10 18:24:15,341 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 18:24:15,348 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 18:39:52,367 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-10 18:39:52,376 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.007s 
+2025-12-10 18:39:52,379 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-10 18:39:52,389 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-10 18:39:52,397 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-10 18:39:52,405 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.008s 
+2025-12-10 18:39:52,407 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-10 18:39:52,410 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-10 18:39:52,414 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-10 18:39:52,416 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-10 18:39:52,418 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-10 18:39:52,419 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-10 18:39:52,423 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 18:39:52,427 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-10 18:39:52,428 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 18:39:52,430 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 18:39:52,434 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-10 18:39:52,438 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-10 18:39:52,440 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-10 18:39:52,441 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-10 18:39:52,445 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-10 18:39:52,447 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-10 18:39:52,448 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-10 18:39:52,450 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-10 18:42:27,869 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 18:42:27,881 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-10 18:42:27,884 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 18:42:27,889 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 18:49:34,286 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 18:49:34,289 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.003s 
+2025-12-10 18:49:34,291 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 18:49:34,292 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 19:06:13,803 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 19:06:13,814 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-10 19:06:13,816 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 19:06:13,822 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 19:11:05,635 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 19:11:05,644 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-10 19:11:05,648 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 19:11:05,657 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 19:20:50,768 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 19:20:50,785 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-10 19:20:50,788 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 19:20:50,795 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 19:37:43,904 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-10 19:37:43,915 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.010s 
+2025-12-10 19:37:43,918 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-10 19:37:43,929 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-10 19:37:43,936 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-10 19:37:43,948 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.011s 
+2025-12-10 19:37:43,951 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-10 19:37:43,953 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-10 19:37:43,957 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-10 19:37:43,960 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-10 19:37:43,962 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-10 19:37:43,964 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-10 19:37:43,968 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 19:37:43,973 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-10 19:37:43,974 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 19:37:43,976 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 19:37:43,980 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-10 19:37:43,986 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.006s 
+2025-12-10 19:37:43,988 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-10 19:37:43,990 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-10 19:37:43,994 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-10 19:37:43,996 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-10 19:37:43,997 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-10 19:37:43,999 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-10 19:43:07,800 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 19:43:07,811 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-10 19:43:07,814 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 19:43:07,820 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 19:48:02,862 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 19:48:02,872 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-10 19:48:02,875 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 19:48:02,883 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 20:04:40,597 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 20:04:40,609 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-10 20:04:40,612 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 20:04:40,622 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 20:12:02,632 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 20:12:02,650 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.016s 
+2025-12-10 20:12:02,665 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 20:12:02,668 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 20:28:35,182 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 20:28:35,195 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-10 20:28:35,197 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 20:28:35,205 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 20:44:45,778 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-10 20:44:45,789 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.009s 
+2025-12-10 20:44:45,792 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-10 20:44:45,803 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-10 20:44:45,810 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-10 20:44:45,820 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.010s 
+2025-12-10 20:44:45,823 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-10 20:44:45,825 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-10 20:44:45,829 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-10 20:44:45,832 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-10 20:44:45,834 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-10 20:44:45,836 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-10 20:44:45,840 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 20:44:45,844 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-10 20:44:45,846 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 20:44:45,847 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 20:44:45,851 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-10 20:44:45,856 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-10 20:44:45,857 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-10 20:44:45,859 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-10 20:44:45,863 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-10 20:44:45,865 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-10 20:44:45,866 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-10 20:44:45,868 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-10 21:00:56,052 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 21:00:56,066 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.013s 
+2025-12-10 21:00:56,070 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 21:00:56,078 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 21:13:04,250 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 21:13:04,261 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-10 21:13:04,267 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 21:13:04,276 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 21:30:54,767 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-10 21:30:54,775 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.006s 
+2025-12-10 21:30:54,777 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-10 21:30:54,786 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-10 21:30:54,791 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-10 21:30:54,799 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.008s 
+2025-12-10 21:30:54,802 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-10 21:30:54,804 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-10 21:30:54,808 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-10 21:30:54,811 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-10 21:30:54,812 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-10 21:30:54,814 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-10 21:30:54,818 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 21:30:54,822 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-10 21:30:54,823 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 21:30:54,825 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 21:30:54,829 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-10 21:30:54,833 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-10 21:30:54,834 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-10 21:30:54,836 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-10 21:30:54,840 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-10 21:30:54,842 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-10 21:30:54,844 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-10 21:30:54,845 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-10 21:46:47,897 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 21:46:47,912 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.014s 
+2025-12-10 21:46:47,915 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 21:46:47,923 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 22:03:47,341 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 22:03:47,354 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-10 22:03:47,356 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 22:03:47,364 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 22:14:20,101 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online sync' (25) starting 
+2025-12-10 22:14:20,111 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online sync' (25) done in 0.008s 
+2025-12-10 22:14:20,113 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online sync' (25) processed 0 records, 0 records remaining 
+2025-12-10 22:14:20,123 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online sync' (25) completed 
+2025-12-10 22:14:20,128 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 22:14:20,132 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-10 22:14:20,134 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 22:14:20,136 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 22:30:56,666 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-10 22:30:56,676 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.009s 
+2025-12-10 22:30:56,678 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-10 22:30:56,684 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-10 22:30:56,689 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-10 22:30:56,697 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.008s 
+2025-12-10 22:30:56,698 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-10 22:30:56,700 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-10 22:30:56,704 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-10 22:30:56,707 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-10 22:30:56,708 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-10 22:30:56,710 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-10 22:30:56,714 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 22:30:56,718 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-10 22:30:56,719 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 22:30:56,721 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 22:30:56,725 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-10 22:30:56,728 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-10 22:30:56,730 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-10 22:30:56,731 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-10 22:30:56,735 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-10 22:30:56,737 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-10 22:30:56,738 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-10 22:30:56,740 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-10 22:48:27,715 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 22:48:27,723 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.008s 
+2025-12-10 22:48:27,725 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 22:48:27,730 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 23:06:36,899 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 23:06:36,912 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.013s 
+2025-12-10 23:06:36,915 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 23:06:36,925 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 23:15:18,181 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 23:15:18,193 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-10 23:15:18,196 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 23:15:18,202 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 23:31:27,795 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-10 23:31:27,805 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.009s 
+2025-12-10 23:31:27,809 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-10 23:31:27,820 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-10 23:31:27,828 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-10 23:31:27,837 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.009s 
+2025-12-10 23:31:27,840 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-10 23:31:27,844 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-10 23:31:27,850 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-10 23:31:27,854 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.004s 
+2025-12-10 23:31:27,855 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-10 23:31:27,858 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-10 23:31:27,863 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 23:31:27,868 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-10 23:31:27,869 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 23:31:27,871 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-10 23:31:27,876 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-10 23:31:27,880 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-10 23:31:27,882 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-10 23:31:27,884 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-10 23:31:27,889 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-10 23:31:27,891 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-10 23:31:27,893 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-10 23:31:27,895 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-10 23:47:41,267 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-10 23:47:41,280 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-10 23:47:41,283 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-10 23:47:41,293 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 00:05:13,688 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 00:05:13,701 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 00:05:13,704 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 00:05:13,712 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 00:16:38,087 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 00:16:38,099 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-11 00:16:38,101 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 00:16:38,111 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 00:32:56,761 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 00:32:56,770 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.008s 
+2025-12-11 00:32:56,775 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 00:32:56,789 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 00:32:56,797 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 00:32:56,816 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.019s 
+2025-12-11 00:32:56,819 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 00:32:56,823 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 00:32:56,832 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 00:32:56,837 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.004s 
+2025-12-11 00:32:56,840 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 00:32:56,843 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 00:32:56,850 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 00:32:56,855 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.005s 
+2025-12-11 00:32:56,857 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 00:32:56,861 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 00:32:56,869 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 00:32:56,877 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.008s 
+2025-12-11 00:32:56,879 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 00:32:56,882 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 00:32:56,889 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 00:32:56,892 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.003s 
+2025-12-11 00:32:56,894 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 00:32:56,897 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 00:49:40,516 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 00:49:40,528 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-11 00:49:40,533 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 00:49:40,546 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 01:05:47,518 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 01:05:47,530 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-11 01:05:47,532 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 01:05:47,538 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 01:05:58,891 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 01:05:58,898 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.007s 
+2025-12-11 01:05:58,902 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 01:05:58,906 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 01:16:36,122 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 01:16:36,134 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-11 01:16:36,136 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 01:16:36,142 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 01:33:17,220 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 01:33:17,229 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.008s 
+2025-12-11 01:33:17,232 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 01:33:17,239 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 01:33:17,246 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 01:33:17,256 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.010s 
+2025-12-11 01:33:17,258 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 01:33:17,260 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 01:33:17,264 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 01:33:17,267 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-11 01:33:17,269 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 01:33:17,270 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 01:33:17,274 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 01:33:17,278 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-11 01:33:17,280 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 01:33:17,281 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 01:33:17,285 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 01:33:17,290 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.005s 
+2025-12-11 01:33:17,292 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 01:33:17,293 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 01:33:17,297 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 01:33:17,299 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-11 01:33:17,300 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 01:33:17,302 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 01:51:00,721 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 01:51:00,736 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 01:51:00,738 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 01:51:00,746 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 02:06:40,909 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (18) starting 
+2025-12-11 02:06:40,937 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (18) done in 0.027s 
+2025-12-11 02:06:40,939 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (18) processed 0 records, 0 records remaining 
+2025-12-11 02:06:40,945 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Post draft entries with auto_post enabled and accounting date up to today' (18) completed 
+2025-12-11 02:06:40,950 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 02:06:40,953 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.003s 
+2025-12-11 02:06:40,954 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 02:06:40,956 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 02:06:40,960 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account Report Followup; Execute followup' (30) starting 
+2025-12-11 02:06:40,981 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account Report Followup; Execute followup' (30) done in 0.021s 
+2025-12-11 02:06:40,984 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account Report Followup; Execute followup' (30) processed 0 records, 0 records remaining 
+2025-12-11 02:06:40,987 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account Report Followup; Execute followup' (30) completed 
+2025-12-11 02:33:43,500 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 02:33:43,507 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.006s 
+2025-12-11 02:33:43,509 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 02:33:43,514 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 02:33:43,518 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 02:33:43,523 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.005s 
+2025-12-11 02:33:43,524 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 02:33:43,525 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 02:33:43,528 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 02:33:43,530 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.002s 
+2025-12-11 02:33:43,531 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 02:33:43,532 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 02:33:43,534 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 02:33:43,537 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.003s 
+2025-12-11 02:33:43,538 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 02:33:43,539 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 02:33:43,542 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 02:33:43,544 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.002s 
+2025-12-11 02:33:43,545 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 02:33:43,546 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 02:33:43,549 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 02:33:43,550 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.001s 
+2025-12-11 02:33:43,551 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 02:33:43,552 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 02:51:19,012 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 02:51:19,027 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.013s 
+2025-12-11 02:51:19,029 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 02:51:19,037 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 03:09:20,936 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 03:09:20,947 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-11 03:09:20,950 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 03:09:20,960 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 03:18:50,385 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 03:18:50,395 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.008s 
+2025-12-11 03:18:50,398 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 03:18:50,405 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 03:37:27,721 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 03:37:27,729 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.007s 
+2025-12-11 03:37:27,731 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 03:37:27,739 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 03:37:27,744 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 03:37:27,752 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.008s 
+2025-12-11 03:37:27,755 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 03:37:27,757 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 03:37:27,761 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 03:37:27,764 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-11 03:37:27,766 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 03:37:27,768 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 03:37:27,773 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 03:37:27,777 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-11 03:37:27,779 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 03:37:27,780 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 03:37:27,785 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 03:37:27,789 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-11 03:37:27,790 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 03:37:27,792 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 03:37:27,797 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 03:37:27,799 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-11 03:37:27,800 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 03:37:27,802 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 04:10:22,366 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 04:10:22,380 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 04:10:22,383 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 04:10:22,394 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 04:19:27,510 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 04:19:27,521 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-11 04:19:27,525 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 04:19:27,532 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 04:36:52,929 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 04:36:52,939 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.008s 
+2025-12-11 04:36:52,942 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 04:36:52,952 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 04:36:52,960 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 04:36:52,974 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.014s 
+2025-12-11 04:36:52,977 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 04:36:52,981 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 04:36:52,986 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 04:36:52,990 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.004s 
+2025-12-11 04:36:52,992 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 04:36:52,995 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 04:36:52,999 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 04:36:53,005 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.005s 
+2025-12-11 04:36:53,006 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 04:36:53,008 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 04:36:53,013 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 04:36:53,018 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-11 04:36:53,021 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 04:36:53,023 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 04:36:53,028 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 04:36:53,029 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-11 04:36:53,031 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 04:36:53,033 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 04:52:59,609 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 04:52:59,624 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 04:52:59,626 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 04:52:59,634 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 05:09:05,257 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 05:09:05,271 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-11 05:09:05,273 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 05:09:05,281 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 05:21:07,366 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 05:21:07,382 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.014s 
+2025-12-11 05:21:07,385 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 05:21:07,393 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 05:43:02,304 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 05:43:02,317 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.011s 
+2025-12-11 05:43:02,322 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 05:43:02,330 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 05:43:02,337 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 05:43:02,346 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.009s 
+2025-12-11 05:43:02,349 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 05:43:02,351 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 05:43:02,356 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 05:43:02,359 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-11 05:43:02,361 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 05:43:02,363 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 05:43:02,367 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 05:43:02,372 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.005s 
+2025-12-11 05:43:02,374 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 05:43:02,377 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 05:43:02,382 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 05:43:02,387 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.005s 
+2025-12-11 05:43:02,388 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 05:43:02,391 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 05:43:02,395 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 05:43:02,398 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-11 05:43:02,399 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 05:43:02,401 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 05:46:02,468 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 05:46:02,484 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.013s 
+2025-12-11 05:46:02,488 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 05:46:02,495 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 06:05:17,402 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 06:05:17,412 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-11 06:05:17,414 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 06:05:17,422 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 06:22:05,131 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 06:22:05,144 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 06:22:05,147 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 06:22:05,157 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 06:37:26,328 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 06:37:26,341 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.012s 
+2025-12-11 06:37:26,345 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 06:37:26,355 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 06:37:26,363 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 06:37:26,371 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.008s 
+2025-12-11 06:37:26,373 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 06:37:26,375 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 06:37:26,380 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 06:37:26,383 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-11 06:37:26,385 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 06:37:26,387 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 06:37:26,392 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 06:37:26,395 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-11 06:37:26,397 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 06:37:26,399 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 06:37:26,403 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 06:37:26,408 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.005s 
+2025-12-11 06:37:26,409 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 06:37:26,411 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 06:37:26,416 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 06:37:26,418 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-11 06:37:26,419 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 06:37:26,422 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 06:53:35,702 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 06:53:35,712 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-11 06:53:35,714 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 06:53:35,724 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 07:10:50,197 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 07:10:50,211 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 07:10:50,213 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 07:10:50,221 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 07:11:07,988 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 07:11:07,996 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.007s 
+2025-12-11 07:11:07,999 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 07:11:08,004 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 07:22:40,960 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 07:22:40,974 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 07:22:40,976 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 07:22:40,986 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 07:39:22,185 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 07:39:22,197 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.010s 
+2025-12-11 07:39:22,199 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 07:39:22,207 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 07:39:22,214 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 07:39:22,223 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.009s 
+2025-12-11 07:39:22,224 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 07:39:22,226 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 07:39:22,231 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 07:39:22,234 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.003s 
+2025-12-11 07:39:22,236 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 07:39:22,238 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 07:39:22,242 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 07:39:22,247 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.004s 
+2025-12-11 07:39:22,248 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 07:39:22,250 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 07:39:22,254 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 07:39:22,258 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.004s 
+2025-12-11 07:39:22,260 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 07:39:22,262 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 07:39:22,266 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 07:39:22,268 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.002s 
+2025-12-11 07:39:22,269 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 07:39:22,271 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 07:56:19,685 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 07:56:19,702 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.015s 
+2025-12-11 07:56:19,707 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 07:56:19,717 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:12:04,543 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:12:04,557 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 08:12:04,559 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:12:04,566 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:15:56,941 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:15:56,957 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.015s 
+2025-12-11 08:15:56,961 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:15:56,968 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:20:57,056 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:20:57,067 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-11 08:20:57,071 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:20:57,076 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:25:57,147 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:25:57,160 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-11 08:25:57,164 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:25:57,169 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:30:57,249 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) starting 
+2025-12-11 08:30:57,261 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) done in 0.010s 
+2025-12-11 08:30:57,264 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) processed 0 records, 0 records remaining 
+2025-12-11 08:30:57,270 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Notification: Notify scheduled messages' (8) completed 
+2025-12-11 08:30:57,281 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) starting 
+2025-12-11 08:30:57,299 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) done in 0.017s 
+2025-12-11 08:30:57,301 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) processed 0 records, 0 records remaining 
+2025-12-11 08:30:57,305 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'SMS: SMS Queue Manager' (14) completed 
+2025-12-11 08:30:57,313 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) starting 
+2025-12-11 08:30:57,319 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) done in 0.006s 
+2025-12-11 08:30:57,321 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) processed 0 records, 0 records remaining 
+2025-12-11 08:30:57,324 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Snailmail: process letters queue' (15) completed 
+2025-12-11 08:30:57,330 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:30:57,335 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.005s 
+2025-12-11 08:30:57,337 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:30:57,339 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:30:57,346 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) starting 
+2025-12-11 08:30:57,353 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) done in 0.007s 
+2025-12-11 08:30:57,356 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) processed 0 records, 0 records remaining 
+2025-12-11 08:30:57,359 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Mail: Email Queue Manager' (3) completed 
+2025-12-11 08:30:57,367 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) starting 
+2025-12-11 08:30:57,371 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) done in 0.003s 
+2025-12-11 08:30:57,373 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) processed 0 records, 0 records remaining 
+2025-12-11 08:30:57,376 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Partner Autocomplete: Sync with remote DB' (13) completed 
+2025-12-11 08:35:57,446 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:35:57,457 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.009s 
+2025-12-11 08:35:57,460 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:35:57,467 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:40:57,497 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:40:57,509 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.012s 
+2025-12-11 08:40:57,512 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:40:57,519 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:41:17,175 18968 WARNING odoo odoo.http: CSRF validation failed on path '/web/login' 
+2025-12-11 08:41:17,177 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:17] "POST /web/login HTTP/1.1" 400 - 5 0.015 0.019
+2025-12-11 08:41:20,124 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:20] "GET /web/login HTTP/1.1" 200 - 62 0.049 0.199
+2025-12-11 08:41:20,149 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:20] "GET /web/binary/company_logo HTTP/1.1" 304 - 5 0.002 0.003
+2025-12-11 08:41:25,797 18968 INFO odoo odoo.addons.base.models.res_users: Login successful for db:odoo login:maf674@gmail.com from 127.0.0.1 
+2025-12-11 08:41:25,805 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:25] "POST /web/login HTTP/1.1" 303 - 35 0.039 0.265
+2025-12-11 08:41:25,825 18968 INFO odoo odoo.addons.base.models.res_device: User 2 inserts device log (a2knYrmOZCEpeJ8NheYWTClSZr2jvubzij8YvWB_b7) 
+2025-12-11 08:41:26,126 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:26] "GET /odoo HTTP/1.1" 200 - 91 0.046 0.259
+2025-12-11 08:41:26,261 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:26] "GET /bus/websocket_worker_bundle?v=18.0-7 HTTP/1.1" 304 - 4 0.002 0.003
+2025-12-11 08:41:26,308 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:26] "GET /web/manifest.webmanifest HTTP/1.1" 200 - 9 0.010 0.007
+2025-12-11 08:41:26,313 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:26] "GET /web/image?model=res.users&field=avatar_128&id=2 HTTP/1.1" 304 - 9 0.008 0.013
+2025-12-11 08:41:26,332 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:26] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 1 0.001 0.003
+2025-12-11 08:41:26,387 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:26] "POST /mail/data HTTP/1.1" 200 - 43 0.059 0.026
+2025-12-11 08:41:26,726 18968 INFO ? odoo.addons.bus.models.bus: Bus.loop listen imbus on db postgres 
+2025-12-11 08:41:27,703 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:27] "POST /web/action/load HTTP/1.1" 200 - 10 0.009 0.012
+2025-12-11 08:41:27,791 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:27] "POST /web/dataset/call_kw/delivery.order/get_views HTTP/1.1" 200 - 39 0.026 0.038
+2025-12-11 08:41:27,809 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:27] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 3 0.004 0.004
+2025-12-11 08:41:27,820 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:27] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.005
+2025-12-11 08:41:27,821 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:27] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.005
+2025-12-11 08:41:30,446 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:30] "POST /web/dataset/call_kw/delivery.order/web_read HTTP/1.1" 200 - 12 0.008 0.012
+2025-12-11 08:41:30,532 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:30] "POST /mail/thread/data HTTP/1.1" 200 - 23 0.017 0.011
+2025-12-11 08:41:30,544 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:30] "POST /mail/thread/messages HTTP/1.1" 200 - 22 0.015 0.012
+2025-12-11 08:41:33,649 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:33] "POST /web/dataset/call_button/delivery.order/action_view_billing HTTP/1.1" 200 - 1 0.001 0.005
+2025-12-11 08:41:33,680 18968 WARNING odoo odoo.fields: Couldn't generate a company-dependent domain for field delivery.billing.invoice_id. The model doesn't have a 'company_id' or 'company_ids' field, and isn't company-dependent either. 
+2025-12-11 08:41:33,685 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:33] "POST /web/dataset/call_kw/delivery.billing/get_views HTTP/1.1" 200 - 20 0.010 0.012
+2025-12-11 08:41:33,697 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:33] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.001 0.003
+2025-12-11 08:41:33,698 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:33] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.002 0.004
+2025-12-11 08:41:35,793 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:35] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.002 0.006
+2025-12-11 08:41:39,610 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:39] "POST /web/dataset/call_button/delivery.billing/action_install_chart_of_accounts HTTP/1.1" 200 - 8 0.010 0.014
+2025-12-11 08:41:39,686 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:39] "POST /web/dataset/call_kw/account.account/get_views HTTP/1.1" 200 - 47 0.028 0.040
+2025-12-11 08:41:39,708 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:39] "POST /web/dataset/call_kw/account.account/search_panel_select_range HTTP/1.1" 200 - 4 0.005 0.007
+2025-12-11 08:41:39,712 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:41:39] "POST /web/dataset/call_kw/account.account/web_search_read HTTP/1.1" 200 - 4 0.008 0.006
+2025-12-11 08:41:57,549 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) starting 
+2025-12-11 08:41:57,623 18968 INFO odoo odoo.addons.base.models.ir_attachment: filestore gc 0 checked, 0 removed 
+2025-12-11 08:41:57,684 18968 INFO odoo odoo.addons.base.models.res_users: GC'd 4 user log entries 
+2025-12-11 08:41:57,695 18968 INFO odoo odoo.addons.base.models.res_users: GC 'res.users.apikeys' delete 0 entries 
+2025-12-11 08:41:57,702 18968 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:41:57,704 18968 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:41:57,718 18968 INFO odoo odoo.addons.base.models.res_users: GC 'auth_totp.device' delete 0 entries 
+2025-12-11 08:41:57,724 18968 INFO odoo odoo.models.unlink: User #1 deleted base_import.import records with IDs: [1, 2] 
+2025-12-11 08:41:57,821 18968 INFO odoo odoo.addons.sms.models.sms_sms: GC'd 0 sms marked for deletion 
+2025-12-11 08:41:57,967 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) done in 0.416s 
+2025-12-11 08:41:57,970 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) processed 0 records, 0 records remaining 
+2025-12-11 08:41:57,974 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) completed 
+2025-12-11 08:41:57,980 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Portal Users Deletion' (2) starting 
+2025-12-11 08:41:57,983 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Portal Users Deletion' (2) done in 0.003s 
+2025-12-11 08:41:57,984 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Portal Users Deletion' (2) processed 0 records, 0 records remaining 
+2025-12-11 08:41:57,986 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Portal Users Deletion' (2) completed 
+2025-12-11 08:43:15,767 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:43:15] "GET /web/service-worker.js HTTP/1.1" 200 - 1 0.001 0.011
+2025-12-11 08:45:58,042 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:45:58,061 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.016s 
+2025-12-11 08:45:58,066 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:45:58,074 18968 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:46:40,578 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:46:40] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.004 0.013
+2025-12-11 08:47:21,892 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:47:21] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.002 0.014
+2025-12-11 08:47:24,954 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:47:24] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 2 0.002 0.006
+2025-12-11 08:47:24,973 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:47:24] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.004 0.010
+2025-12-11 08:47:24,975 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:47:24] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.007 0.010
+2025-12-11 08:47:26,488 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:47:26] "POST /web/action/load HTTP/1.1" 200 - 10 0.008 0.019
+2025-12-11 08:47:26,528 18968 WARNING odoo odoo.fields: Couldn't generate a company-dependent domain for field delivery.billing.invoice_id. The model doesn't have a 'company_id' or 'company_ids' field, and isn't company-dependent either. 
+2025-12-11 08:47:26,531 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:47:26] "POST /web/dataset/call_kw/delivery.billing/get_views HTTP/1.1" 200 - 4 0.003 0.020
+2025-12-11 08:47:26,542 18968 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:47:26] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.002 0.004
+2025-12-11 08:47:40,792 18968 INFO odoo odoo.service.server: Initiating shutdown 
+2025-12-11 08:47:40,793 18968 INFO odoo odoo.service.server: Hit CTRL-C again or send a second signal to force the shutdown. 
+2025-12-11 08:47:41,213 18968 INFO odoo odoo.sql_db: ConnectionPool(read/write;used=0/count=0/max=64): Closed 5 connections  
+2025-12-11 08:48:17,912 23860 INFO ? odoo: Odoo version 18.0 
+2025-12-11 08:48:17,913 23860 INFO ? odoo: Using configuration file at /Users/selamou/odoo/18.0/odoo.conf 
+2025-12-11 08:48:17,913 23860 INFO ? odoo: addons paths: ['/Users/selamou/odoo/18.0/odoo/odoo/addons', '/Users/selamou/Library/Application Support/Odoo/addons/18.0', '/Users/selamou/odoo/18.0/odoo/addons', '/Users/selamou/odoo/18.0/enterprise', '/Users/selamou/odoo/18.0/custom-addons'] 
+2025-12-11 08:48:17,913 23860 INFO ? odoo: database: odoo@localhost:5432 
+2025-12-11 08:48:18,074 23860 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltopdf binary at /usr/local/bin/wkhtmltopdf 
+2025-12-11 08:48:19,143 23860 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltoimage binary at /usr/local/bin/wkhtmltoimage 
+2025-12-11 08:48:19,348 23860 INFO ? odoo.service.server: HTTP service (werkzeug) running on 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa:8068 
+2025-12-11 08:48:19,404 23860 INFO odoo odoo.modules.loading: loading 1 modules... 
+2025-12-11 08:48:19,408 23860 INFO odoo odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2025-12-11 08:48:19,423 23860 INFO odoo odoo.modules.loading: updating modules list 
+2025-12-11 08:48:19,425 23860 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via n/a 
+2025-12-11 08:48:21,552 23860 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_upgrade on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 08:48:21,552 23860 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 08:48:23,260 23860 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_install on [] to user __system__ #1 via n/a 
+2025-12-11 08:48:23,343 23860 INFO odoo odoo.modules.loading: loading 74 modules... 
+2025-12-11 08:48:23,993 23860 INFO odoo odoo.modules.loading: Loading module smart_delivery (38/74) 
+2025-12-11 08:48:24,094 23860 WARNING odoo odoo.fields: Field delivery.billing.invoice_id with unknown comodel_name 'account.move' 
+2025-12-11 08:48:24,098 23860 INFO odoo odoo.modules.registry: module smart_delivery: creating or updating database tables 
+2025-12-11 08:48:24,218 23860 INFO odoo odoo.modules.loading: loading smart_delivery/security/ir.model.access.csv 
+2025-12-11 08:48:24,238 23860 INFO odoo odoo.modules.loading: loading smart_delivery/data/delivery_data.xml 
+2025-12-11 08:48:24,244 23860 INFO odoo odoo.modules.loading: loading smart_delivery/views/delivery_order_views.xml 
+2025-12-11 08:48:24,268 23860 WARNING odoo odoo.addons.base.models.ir_ui_view: 'kanban-box' is deprecated, define a 'card' template instead 
+2025-12-11 08:48:24,279 23860 INFO odoo odoo.modules.loading: loading smart_delivery/views/livreur_views.xml 
+2025-12-11 08:48:24,296 23860 INFO odoo odoo.modules.loading: loading smart_delivery/views/condition_views.xml 
+2025-12-11 08:48:24,310 23860 INFO odoo odoo.modules.loading: loading smart_delivery/views/sector_rule_views.xml 
+2025-12-11 08:48:24,326 23860 INFO odoo odoo.modules.loading: loading smart_delivery/views/billing_views.xml 
+2025-12-11 08:48:24,342 23860 INFO odoo odoo.modules.loading: loading smart_delivery/views/api_log_views.xml 
+2025-12-11 08:48:24,356 23860 INFO odoo odoo.modules.loading: loading smart_delivery/views/menu.xml 
+2025-12-11 08:48:24,401 23860 INFO odoo odoo.modules.loading: Module smart_delivery loaded in 0.41s, 372 queries (+372 other) 
+2025-12-11 08:48:24,618 23860 INFO odoo odoo.modules.loading: 74 modules loaded in 1.27s, 372 queries (+372 extra) 
+2025-12-11 08:48:24,884 23860 INFO odoo odoo.modules.registry: verifying fields for every extended model 
+2025-12-11 08:48:25,244 23860 INFO odoo odoo.modules.loading: Modules loaded. 
+2025-12-11 08:48:25,246 23860 INFO odoo odoo.modules.registry: Registry changed, signaling through the database 
+2025-12-11 08:48:25,247 23860 INFO odoo odoo.modules.registry: Registry loaded in 5.898s 
+2025-12-11 08:48:40,481 23860 INFO odoo odoo.addons.base.models.ir_http: Generating routing map for key None 
+2025-12-11 08:48:40,513 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:48:40] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 6 0.005 0.030
+2025-12-11 08:48:40,597 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:48:40] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.001 0.002
+2025-12-11 08:48:40,864 23860 INFO ? odoo.addons.bus.models.bus: Bus.loop listen imbus on db postgres 
+2025-12-11 08:49:25,367 23860 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) starting 
+2025-12-11 08:49:25,412 23860 INFO odoo odoo.addons.base.models.ir_attachment: filestore gc 0 checked, 0 removed 
+2025-12-11 08:49:25,477 23860 INFO odoo odoo.addons.base.models.res_users: GC'd 0 user log entries 
+2025-12-11 08:49:25,486 23860 INFO odoo odoo.addons.base.models.res_users: GC 'res.users.apikeys' delete 0 entries 
+2025-12-11 08:49:25,492 23860 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:49:25,493 23860 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:49:25,520 23860 INFO odoo odoo.addons.base.models.res_users: GC 'auth_totp.device' delete 0 entries 
+2025-12-11 08:49:25,869 23860 INFO odoo odoo.addons.sms.models.sms_sms: GC'd 0 sms marked for deletion 
+2025-12-11 08:49:26,006 23860 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) done in 0.638s 
+2025-12-11 08:49:26,007 23860 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) processed 0 records, 0 records remaining 
+2025-12-11 08:49:26,015 23860 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) completed 
+2025-12-11 08:49:26,224 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "GET /odoo/action-306 HTTP/1.1" 200 - 95 0.187 0.423
+2025-12-11 08:49:26,436 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "GET /web/manifest.webmanifest HTTP/1.1" 200 - 9 0.005 0.005
+2025-12-11 08:49:26,436 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "GET /bus/websocket_worker_bundle?v=18.0-7 HTTP/1.1" 304 - 4 0.003 0.005
+2025-12-11 08:49:26,488 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "GET /web/image?model=res.users&field=avatar_128&id=2 HTTP/1.1" 304 - 9 0.005 0.010
+2025-12-11 08:49:26,489 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 1 0.001 0.004
+2025-12-11 08:49:26,541 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "POST /mail/data HTTP/1.1" 200 - 42 0.044 0.018
+2025-12-11 08:49:26,584 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "POST /web/action/load HTTP/1.1" 200 - 11 0.007 0.102
+2025-12-11 08:49:26,603 23860 WARNING odoo odoo.fields: Couldn't generate a company-dependent domain for field delivery.billing.invoice_id. The model doesn't have a 'company_id' or 'company_ids' field, and isn't company-dependent either. 
+2025-12-11 08:49:26,609 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "POST /web/dataset/call_kw/delivery.billing/get_views HTTP/1.1" 200 - 23 0.013 0.009
+2025-12-11 08:49:26,621 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.001 0.002
+2025-12-11 08:49:26,631 23860 ERROR odoo odoo.http: Exception during request handling. 
+Traceback (most recent call last):
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2576, in __call__
+    response = request._serve_db()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2103, in _serve_db
+    return self._transactioning(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
+    return service_model.retrying(func, env=self.env)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 156, in retrying
+    result = func()
+             ^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2133, in _serve_ir_http
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2381, in dispatch
+    result = self.request.registry['ir.http']._dispatch(endpoint)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_http.py", line 333, in _dispatch
+    result = endpoint(**request.params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 754, in route_wrapper
+    result = endpoint(self, *args, **params_ok)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/controllers/dataset.py", line 36, in call_kw
+    return call_kw(request.env[model], method, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 535, in call_kw
+    result = getattr(recs, name)(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 46, in web_search_read
+    values_records = records.web_read(specification)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 86, in web_read
+    values_list: list[dict] = self.read(fields_to_read, load=None)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 3858, in read
+    return self._read_format(fnames=fields, load=load)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4089, in _read_format
+    vals[name] = convert(record[name], record, use_display_name)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 3307, in convert_to_read
+    return value.id
+           ^^^^^^^^
+AttributeError: '_unknown' object has no attribute 'id'
+2025-12-11 08:49:26,632 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:26] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.002 0.011
+2025-12-11 08:49:28,166 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:28] "GET /web/service-worker.js HTTP/1.1" 200 - 1 0.001 0.006
+2025-12-11 08:49:36,043 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:36] "POST /web/action/load HTTP/1.1" 200 - 10 0.006 0.011
+2025-12-11 08:49:36,097 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:36] "POST /web/dataset/call_kw/sector.rule/get_views HTTP/1.1" 200 - 17 0.009 0.021
+2025-12-11 08:49:36,113 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:36] "POST /web/dataset/call_kw/sector.rule/web_search_read HTTP/1.1" 200 - 3 0.002 0.006
+2025-12-11 08:49:37,010 23860 ERROR odoo odoo.http: Exception during request handling. 
+Traceback (most recent call last):
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2576, in __call__
+    response = request._serve_db()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2103, in _serve_db
+    return self._transactioning(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
+    return service_model.retrying(func, env=self.env)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 156, in retrying
+    result = func()
+             ^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2133, in _serve_ir_http
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2381, in dispatch
+    result = self.request.registry['ir.http']._dispatch(endpoint)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_http.py", line 333, in _dispatch
+    result = endpoint(**request.params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 754, in route_wrapper
+    result = endpoint(self, *args, **params_ok)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/controllers/dataset.py", line 36, in call_kw
+    return call_kw(request.env[model], method, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 535, in call_kw
+    result = getattr(recs, name)(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 46, in web_search_read
+    values_records = records.web_read(specification)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 86, in web_read
+    values_list: list[dict] = self.read(fields_to_read, load=None)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 3858, in read
+    return self._read_format(fnames=fields, load=load)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4089, in _read_format
+    vals[name] = convert(record[name], record, use_display_name)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 3307, in convert_to_read
+    return value.id
+           ^^^^^^^^
+AttributeError: '_unknown' object has no attribute 'id'
+2025-12-11 08:49:37,013 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:37] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 2 0.001 0.009
+2025-12-11 08:49:37,027 23860 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:49:37] "POST /web/dataset/call_kw/sector.rule/web_search_read HTTP/1.1" 200 - 2 0.001 0.003
+2025-12-11 08:50:57,003 23860 INFO odoo odoo.service.server: Initiating shutdown 
+2025-12-11 08:50:57,007 23860 INFO odoo odoo.service.server: Hit CTRL-C again or send a second signal to force the shutdown. 
+2025-12-11 08:50:57,373 23860 INFO odoo odoo.sql_db: ConnectionPool(read/write;used=0/count=0/max=64): Closed 5 connections  
+2025-12-11 08:51:06,033 24155 INFO ? odoo: Odoo version 18.0 
+2025-12-11 08:51:06,033 24155 INFO ? odoo: Using configuration file at /Users/selamou/odoo/18.0/odoo.conf 
+2025-12-11 08:51:06,034 24155 INFO ? odoo: addons paths: ['/Users/selamou/odoo/18.0/odoo/odoo/addons', '/Users/selamou/Library/Application Support/Odoo/addons/18.0', '/Users/selamou/odoo/18.0/odoo/addons', '/Users/selamou/odoo/18.0/enterprise', '/Users/selamou/odoo/18.0/custom-addons'] 
+2025-12-11 08:51:06,034 24155 INFO ? odoo: database: odoo@localhost:5432 
+2025-12-11 08:51:06,168 24155 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltopdf binary at /usr/local/bin/wkhtmltopdf 
+2025-12-11 08:51:07,237 24155 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltoimage binary at /usr/local/bin/wkhtmltoimage 
+2025-12-11 08:51:07,423 24155 INFO ? odoo.service.server: HTTP service (werkzeug) running on 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa:8068 
+2025-12-11 08:51:07,473 24155 INFO odoo odoo.modules.loading: loading 1 modules... 
+2025-12-11 08:51:07,478 24155 INFO odoo odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2025-12-11 08:51:07,495 24155 INFO odoo odoo.modules.loading: updating modules list 
+2025-12-11 08:51:07,497 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via n/a 
+2025-12-11 08:51:10,059 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_upgrade on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 08:51:10,059 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 08:51:12,450 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_install on [] to user __system__ #1 via n/a 
+2025-12-11 08:51:12,530 24155 INFO odoo odoo.modules.loading: loading 74 modules... 
+2025-12-11 08:51:12,801 24155 INFO odoo odoo.modules.loading: Loading module smart_delivery (38/74) 
+2025-12-11 08:51:12,873 24155 WARNING odoo odoo.fields: Field delivery.billing.invoice_id with unknown comodel_name 'account.move' 
+2025-12-11 08:51:12,878 24155 INFO odoo odoo.modules.registry: module smart_delivery: creating or updating database tables 
+2025-12-11 08:51:12,985 24155 INFO odoo odoo.modules.loading: loading smart_delivery/security/ir.model.access.csv 
+2025-12-11 08:51:13,003 24155 INFO odoo odoo.modules.loading: loading smart_delivery/data/delivery_data.xml 
+2025-12-11 08:51:13,008 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/delivery_order_views.xml 
+2025-12-11 08:51:13,029 24155 WARNING odoo odoo.addons.base.models.ir_ui_view: 'kanban-box' is deprecated, define a 'card' template instead 
+2025-12-11 08:51:13,037 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/livreur_views.xml 
+2025-12-11 08:51:13,052 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/condition_views.xml 
+2025-12-11 08:51:13,067 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/sector_rule_views.xml 
+2025-12-11 08:51:13,082 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/billing_views.xml 
+2025-12-11 08:51:13,098 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/api_log_views.xml 
+2025-12-11 08:51:13,113 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/menu.xml 
+2025-12-11 08:51:13,150 24155 INFO odoo odoo.modules.loading: Module smart_delivery loaded in 0.35s, 372 queries (+372 other) 
+2025-12-11 08:51:13,356 24155 INFO odoo odoo.modules.loading: 74 modules loaded in 0.83s, 372 queries (+372 extra) 
+2025-12-11 08:51:13,620 24155 INFO odoo odoo.modules.registry: verifying fields for every extended model 
+2025-12-11 08:51:13,959 24155 INFO odoo odoo.modules.loading: Modules loaded. 
+2025-12-11 08:51:13,963 24155 INFO odoo odoo.modules.registry: Registry changed, signaling through the database 
+2025-12-11 08:51:13,963 24155 INFO odoo odoo.modules.registry: Registry loaded in 6.540s 
+2025-12-11 08:51:13,981 24155 INFO odoo odoo.addons.base.models.ir_http: Generating routing map for key None 
+2025-12-11 08:51:13,997 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:13] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 6 0.002 3.239
+2025-12-11 08:51:14,021 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:14] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.001 0.001
+2025-12-11 08:51:14,343 24155 INFO ? odoo.addons.bus.models.bus: Bus.loop listen imbus on db postgres 
+2025-12-11 08:51:39,765 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:39] "GET /odoo HTTP/1.1" 200 - 95 0.063 0.326
+2025-12-11 08:51:40,007 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "GET /bus/websocket_worker_bundle?v=18.0-7 HTTP/1.1" 304 - 4 0.002 0.006
+2025-12-11 08:51:40,118 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "GET /web/image?model=res.users&field=avatar_128&id=2 HTTP/1.1" 304 - 9 0.006 0.059
+2025-12-11 08:51:40,127 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 1 0.000 0.051
+2025-12-11 08:51:40,131 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "GET /web/manifest.webmanifest HTTP/1.1" 200 - 9 0.008 0.059
+2025-12-11 08:51:40,157 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "POST /mail/data HTTP/1.1" 200 - 42 0.022 0.068
+2025-12-11 08:51:40,817 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "POST /web/action/load HTTP/1.1" 200 - 11 0.007 0.076
+2025-12-11 08:51:40,874 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "POST /web/dataset/call_kw/delivery.order/get_views HTTP/1.1" 200 - 41 0.016 0.020
+2025-12-11 08:51:40,893 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 3 0.003 0.002
+2025-12-11 08:51:40,901 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.003
+2025-12-11 08:51:40,902 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:40] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.004
+2025-12-11 08:51:41,669 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:41] "GET /web/service-worker.js HTTP/1.1" 200 - 1 0.001 0.002
+2025-12-11 08:51:41,999 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:41] "POST /web/action/load HTTP/1.1" 200 - 10 0.003 0.004
+2025-12-11 08:51:42,028 24155 WARNING odoo odoo.fields: Couldn't generate a company-dependent domain for field delivery.billing.invoice_id. The model doesn't have a 'company_id' or 'company_ids' field, and isn't company-dependent either. 
+2025-12-11 08:51:42,031 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:42] "POST /web/dataset/call_kw/delivery.billing/get_views HTTP/1.1" 200 - 17 0.007 0.009
+2025-12-11 08:51:42,041 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:42] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.001 0.002
+2025-12-11 08:51:42,050 24155 ERROR odoo odoo.http: Exception during request handling. 
+Traceback (most recent call last):
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2576, in __call__
+    response = request._serve_db()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2103, in _serve_db
+    return self._transactioning(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
+    return service_model.retrying(func, env=self.env)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 156, in retrying
+    result = func()
+             ^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2133, in _serve_ir_http
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2381, in dispatch
+    result = self.request.registry['ir.http']._dispatch(endpoint)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_http.py", line 333, in _dispatch
+    result = endpoint(**request.params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 754, in route_wrapper
+    result = endpoint(self, *args, **params_ok)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/controllers/dataset.py", line 36, in call_kw
+    return call_kw(request.env[model], method, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 535, in call_kw
+    result = getattr(recs, name)(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 46, in web_search_read
+    values_records = records.web_read(specification)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 86, in web_read
+    values_list: list[dict] = self.read(fields_to_read, load=None)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 3858, in read
+    return self._read_format(fnames=fields, load=load)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4089, in _read_format
+    vals[name] = convert(record[name], record, use_display_name)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 3307, in convert_to_read
+    return value.id
+           ^^^^^^^^
+AttributeError: '_unknown' object has no attribute 'id'
+2025-12-11 08:51:42,051 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:42] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.002 0.011
+2025-12-11 08:51:42,060 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:42] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 2 0.001 0.003
+2025-12-11 08:51:42,067 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:42] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.001 0.003
+2025-12-11 08:51:42,067 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:42] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.003
+2025-12-11 08:51:55,065 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:55] "POST /web/action/load HTTP/1.1" 200 - 10 0.008 0.027
+2025-12-11 08:51:55,161 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:55] "POST /web/dataset/call_kw/ir.module.module/get_views HTTP/1.1" 200 - 50 0.027 0.048
+2025-12-11 08:51:55,173 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:55] "POST /web/dataset/call_kw/ir.module.module/search_panel_select_range HTTP/1.1" 200 - 1 0.001 0.004
+2025-12-11 08:51:55,290 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:55] "POST /web/dataset/call_kw/ir.module.module/web_search_read HTTP/1.1" 200 - 4 0.008 0.112
+2025-12-11 08:51:55,295 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:55] "POST /web/dataset/call_kw/ir.module.module/search_panel_select_range HTTP/1.1" 200 - 58 0.115 0.011
+2025-12-11 08:51:59,355 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:59] "POST /web/dataset/call_kw/ir.module.module/search_panel_select_range HTTP/1.1" 200 - 55 0.035 0.031
+2025-12-11 08:51:59,372 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:51:59] "POST /web/dataset/call_kw/ir.module.module/web_search_read HTTP/1.1" 200 - 3 0.003 0.006
+2025-12-11 08:52:01,720 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_immediate_upgrade on ['Smart Delivery'] to user maf674@gmail.com #2 via 127.0.0.1 
+2025-12-11 08:52:01,722 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_upgrade on ['Smart Delivery'] to user maf674@gmail.com #2 via 127.0.0.1 
+2025-12-11 08:52:01,722 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on ['Smart Delivery'] to user maf674@gmail.com #2 via 127.0.0.1 
+2025-12-11 08:52:04,294 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_install on [] to user maf674@gmail.com #2 via 127.0.0.1 
+2025-12-11 08:52:04,399 24155 INFO odoo odoo.modules.loading: loading 1 modules... 
+2025-12-11 08:52:04,413 24155 INFO odoo odoo.modules.loading: 1 modules loaded in 0.01s, 0 queries (+0 extra) 
+2025-12-11 08:52:04,449 24155 INFO odoo odoo.modules.loading: updating modules list 
+2025-12-11 08:52:04,453 24155 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via 127.0.0.1 
+2025-12-11 08:52:07,332 24155 INFO odoo odoo.modules.loading: loading 74 modules... 
+2025-12-11 08:52:07,356 24155 INFO odoo odoo.modules.loading: Loading module smart_delivery (38/74) 
+2025-12-11 08:52:07,435 24155 INFO odoo odoo.modules.registry: module smart_delivery: creating or updating database tables 
+2025-12-11 08:52:07,542 24155 INFO odoo odoo.modules.loading: loading smart_delivery/security/ir.model.access.csv 
+2025-12-11 08:52:07,559 24155 INFO odoo odoo.modules.loading: loading smart_delivery/data/delivery_data.xml 
+2025-12-11 08:52:07,562 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/delivery_order_views.xml 
+2025-12-11 08:52:07,583 24155 WARNING odoo odoo.addons.base.models.ir_ui_view: 'kanban-box' is deprecated, define a 'card' template instead 
+2025-12-11 08:52:07,592 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/livreur_views.xml 
+2025-12-11 08:52:07,609 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/condition_views.xml 
+2025-12-11 08:52:07,625 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/sector_rule_views.xml 
+2025-12-11 08:52:07,641 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/billing_views.xml 
+2025-12-11 08:52:07,658 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/api_log_views.xml 
+2025-12-11 08:52:07,673 24155 INFO odoo odoo.modules.loading: loading smart_delivery/views/menu.xml 
+2025-12-11 08:52:07,719 24155 INFO odoo odoo.modules.loading: Module smart_delivery loaded in 0.36s, 371 queries (+371 other) 
+2025-12-11 08:52:07,736 24155 INFO odoo odoo.modules.loading: 74 modules loaded in 0.40s, 371 queries (+371 extra) 
+2025-12-11 08:52:08,003 24155 INFO odoo odoo.modules.registry: verifying fields for every extended model 
+2025-12-11 08:52:08,389 24155 INFO odoo odoo.modules.loading: Modules loaded. 
+2025-12-11 08:52:08,392 24155 INFO odoo odoo.modules.registry: Registry changed, signaling through the database 
+2025-12-11 08:52:08,393 24155 INFO odoo odoo.modules.registry: Registry loaded in 4.028s 
+2025-12-11 08:52:08,393 24155 INFO odoo odoo.addons.base.models.ir_module: getting next ir.actions.todo() 
+2025-12-11 08:52:08,395 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:08] "POST /web/dataset/call_button/ir.module.module/button_immediate_upgrade HTTP/1.1" 200 - 7533 4.039 2.644
+2025-12-11 08:52:08,415 24155 INFO odoo odoo.addons.base.models.ir_http: Generating routing map for key None 
+2025-12-11 08:52:08,678 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:08] "GET /odoo HTTP/1.1" 200 - 101 0.023 0.241
+2025-12-11 08:52:08,823 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:08] "GET /web/manifest.webmanifest HTTP/1.1" 200 - 9 0.004 0.003
+2025-12-11 08:52:08,829 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:08] "GET /bus/websocket_worker_bundle?v=18.0-7 HTTP/1.1" 304 - 4 0.008 0.003
+2025-12-11 08:52:08,875 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:08] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 1 0.001 0.006
+2025-12-11 08:52:08,876 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:08] "GET /web/image?model=res.users&field=avatar_128&id=2 HTTP/1.1" 304 - 9 0.006 0.021
+2025-12-11 08:52:08,897 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:08] "POST /mail/data HTTP/1.1" 200 - 42 0.021 0.020
+2025-12-11 08:52:10,296 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:10] "POST /web/action/load HTTP/1.1" 200 - 11 0.008 0.014
+2025-12-11 08:52:10,375 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:10] "POST /web/dataset/call_kw/delivery.order/get_views HTTP/1.1" 200 - 41 0.019 0.039
+2025-12-11 08:52:10,389 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:10] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 3 0.002 0.003
+2025-12-11 08:52:10,404 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:10] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.004
+2025-12-11 08:52:10,405 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:10] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.004
+2025-12-11 08:52:10,406 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:10] "GET /web/service-worker.js HTTP/1.1" 200 - 1 0.001 0.006
+2025-12-11 08:52:11,737 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:11] "POST /web/action/load HTTP/1.1" 200 - 10 0.004 0.009
+2025-12-11 08:52:11,771 24155 WARNING odoo odoo.fields: Couldn't generate a company-dependent domain for field delivery.billing.invoice_id. The model doesn't have a 'company_id' or 'company_ids' field, and isn't company-dependent either. 
+2025-12-11 08:52:11,777 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:11] "POST /web/dataset/call_kw/delivery.billing/get_views HTTP/1.1" 200 - 17 0.009 0.018
+2025-12-11 08:52:11,794 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:11] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.001 0.005
+2025-12-11 08:52:11,798 24155 ERROR odoo odoo.http: Exception during request handling. 
+Traceback (most recent call last):
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2576, in __call__
+    response = request._serve_db()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2103, in _serve_db
+    return self._transactioning(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
+    return service_model.retrying(func, env=self.env)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 156, in retrying
+    result = func()
+             ^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2133, in _serve_ir_http
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2381, in dispatch
+    result = self.request.registry['ir.http']._dispatch(endpoint)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_http.py", line 333, in _dispatch
+    result = endpoint(**request.params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 754, in route_wrapper
+    result = endpoint(self, *args, **params_ok)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/controllers/dataset.py", line 36, in call_kw
+    return call_kw(request.env[model], method, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 535, in call_kw
+    result = getattr(recs, name)(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 46, in web_search_read
+    values_records = records.web_read(specification)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 86, in web_read
+    values_list: list[dict] = self.read(fields_to_read, load=None)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 3858, in read
+    return self._read_format(fnames=fields, load=load)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4089, in _read_format
+    vals[name] = convert(record[name], record, use_display_name)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 3307, in convert_to_read
+    return value.id
+           ^^^^^^^^
+AttributeError: '_unknown' object has no attribute 'id'
+2025-12-11 08:52:11,801 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:11] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.003 0.011
+2025-12-11 08:52:11,814 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:11] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 2 0.001 0.004
+2025-12-11 08:52:11,825 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:11] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.004
+2025-12-11 08:52:11,825 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:52:11] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.004
+2025-12-11 08:52:14,004 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) starting 
+2025-12-11 08:52:14,072 24155 INFO odoo odoo.addons.base.models.ir_attachment: filestore gc 0 checked, 0 removed 
+2025-12-11 08:52:14,131 24155 INFO odoo odoo.addons.base.models.res_users: GC'd 0 user log entries 
+2025-12-11 08:52:14,140 24155 INFO odoo odoo.addons.base.models.res_users: GC 'res.users.apikeys' delete 0 entries 
+2025-12-11 08:52:14,147 24155 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:52:14,149 24155 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:52:14,166 24155 INFO odoo odoo.addons.base.models.res_users: GC 'auth_totp.device' delete 0 entries 
+2025-12-11 08:52:14,251 24155 INFO odoo odoo.addons.sms.models.sms_sms: GC'd 0 sms marked for deletion 
+2025-12-11 08:52:14,385 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) done in 0.380s 
+2025-12-11 08:52:14,387 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) processed 0 records, 0 records remaining 
+2025-12-11 08:52:14,391 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) completed 
+2025-12-11 08:52:14,397 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:52:14,403 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.006s 
+2025-12-11 08:52:14,405 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:52:14,407 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:53:14,444 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) starting 
+2025-12-11 08:53:14,504 24155 INFO odoo odoo.addons.base.models.ir_attachment: filestore gc 0 checked, 0 removed 
+2025-12-11 08:53:14,561 24155 INFO odoo odoo.addons.base.models.res_users: GC'd 0 user log entries 
+2025-12-11 08:53:14,566 24155 INFO odoo odoo.addons.base.models.res_users: GC 'res.users.apikeys' delete 0 entries 
+2025-12-11 08:53:14,569 24155 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:53:14,570 24155 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:53:14,580 24155 INFO odoo odoo.addons.base.models.res_users: GC 'auth_totp.device' delete 0 entries 
+2025-12-11 08:53:14,651 24155 INFO odoo odoo.addons.sms.models.sms_sms: GC'd 0 sms marked for deletion 
+2025-12-11 08:53:14,740 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) done in 0.294s 
+2025-12-11 08:53:14,741 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) processed 0 records, 0 records remaining 
+2025-12-11 08:53:14,746 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) completed 
+2025-12-11 08:53:53,271 24155 ERROR odoo odoo.http: Exception during request handling. 
+Traceback (most recent call last):
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2576, in __call__
+    response = request._serve_db()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2103, in _serve_db
+    return self._transactioning(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
+    return service_model.retrying(func, env=self.env)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 156, in retrying
+    result = func()
+             ^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2133, in _serve_ir_http
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2381, in dispatch
+    result = self.request.registry['ir.http']._dispatch(endpoint)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_http.py", line 333, in _dispatch
+    result = endpoint(**request.params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 754, in route_wrapper
+    result = endpoint(self, *args, **params_ok)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/controllers/dataset.py", line 36, in call_kw
+    return call_kw(request.env[model], method, args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/api.py", line 535, in call_kw
+    result = getattr(recs, name)(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 46, in web_search_read
+    values_records = records.web_read(specification)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/addons/web/models/models.py", line 86, in web_read
+    values_list: list[dict] = self.read(fields_to_read, load=None)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 3858, in read
+    return self._read_format(fnames=fields, load=load)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/models.py", line 4089, in _read_format
+    vals[name] = convert(record[name], record, use_display_name)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/selamou/odoo/18.0/odoo/odoo/fields.py", line 3307, in convert_to_read
+    return value.id
+           ^^^^^^^^
+AttributeError: '_unknown' object has no attribute 'id'
+2025-12-11 08:53:53,274 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:53] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 2 0.003 0.025
+2025-12-11 08:53:53,286 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:53] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 2 0.002 0.004
+2025-12-11 08:53:53,297 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:53] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.005
+2025-12-11 08:53:53,300 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:53] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.007
+2025-12-11 08:53:57,763 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:57] "POST /web/action/load HTTP/1.1" 200 - 10 0.014 0.020
+2025-12-11 08:53:57,871 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:57] "POST /web/dataset/call_kw/account.journal/get_views HTTP/1.1" 200 - 58 0.028 0.055
+2025-12-11 08:53:57,949 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:57] "POST /web/dataset/call_kw/account.journal/web_search_read HTTP/1.1" 200 - 32 0.049 0.023
+2025-12-11 08:53:57,984 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:53:57] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.002 0.006
+2025-12-11 08:54:01,394 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:54:01] "POST /web/action/load HTTP/1.1" 200 - 10 0.004 0.013
+2025-12-11 08:54:01,470 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:54:01] "POST /web/dataset/call_kw/account.fiscal.position/get_views HTTP/1.1" 200 - 33 0.017 0.039
+2025-12-11 08:54:01,491 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:54:01] "POST /web/dataset/call_kw/account.fiscal.position/web_search_read HTTP/1.1" 200 - 7 0.008 0.007
+2025-12-11 08:54:02,636 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:54:02] "POST /web/dataset/call_kw/account.fiscal.position/web_search_read HTTP/1.1" 200 - 3 0.002 0.006
+2025-12-11 08:54:03,351 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:54:03] "POST /web/dataset/call_kw/account.fiscal.position/onchange HTTP/1.1" 200 - 4 0.003 0.009
+2025-12-11 08:54:55,298 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:54:55] "POST /web/dataset/call_kw/account.fiscal.position/web_search_read HTTP/1.1" 200 - 3 0.003 0.014
+2025-12-11 08:56:14,809 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 08:56:14,832 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
+2025-12-11 08:56:14,833 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 08:56:14,837 24155 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 08:56:16,706 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:16] "POST /web/dataset/call_kw/account.fiscal.position/onchange HTTP/1.1" 200 - 3 0.009 0.011
+2025-12-11 08:56:31,106 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:31] "POST /web/dataset/call_kw/res.country/name_search HTTP/1.1" 200 - 3 0.002 0.005
+2025-12-11 08:56:32,275 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:32] "POST /web/dataset/call_kw/res.country/name_search HTTP/1.1" 200 - 2 0.002 0.007
+2025-12-11 08:56:32,600 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:32] "POST /web/dataset/call_kw/res.country/name_search HTTP/1.1" 200 - 3 0.002 0.005
+2025-12-11 08:56:34,656 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:34] "POST /web/dataset/call_kw/res.country/name_search HTTP/1.1" 200 - 2 0.002 0.005
+2025-12-11 08:56:35,628 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:35] "POST /web/dataset/call_kw/account.fiscal.position/onchange HTTP/1.1" 200 - 2 0.005 0.008
+2025-12-11 08:56:41,358 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:41] "POST /web/dataset/call_kw/account.fiscal.position.tax/onchange HTTP/1.1" 200 - 2 0.002 0.008
+2025-12-11 08:56:46,474 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:46] "POST /web/dataset/call_kw/account.fiscal.position/web_save HTTP/1.1" 200 - 16 0.017 0.022
+2025-12-11 08:56:48,248 24155 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:56:48] "POST /web/dataset/call_kw/account.fiscal.position/web_search_read HTTP/1.1" 200 - 4 0.002 0.006
+2025-12-11 08:57:15,197 24155 INFO odoo odoo.service.server: Initiating shutdown 
+2025-12-11 08:57:15,198 24155 INFO odoo odoo.service.server: Hit CTRL-C again or send a second signal to force the shutdown. 
+2025-12-11 08:57:15,417 24155 INFO odoo odoo.sql_db: ConnectionPool(read/write;used=0/count=0/max=64): Closed 5 connections  
+2025-12-11 08:57:17,957 24502 INFO ? odoo: Odoo version 18.0 
+2025-12-11 08:57:17,957 24502 INFO ? odoo: Using configuration file at /Users/selamou/odoo/18.0/odoo.conf 
+2025-12-11 08:57:17,957 24502 INFO ? odoo: addons paths: ['/Users/selamou/odoo/18.0/odoo/odoo/addons', '/Users/selamou/Library/Application Support/Odoo/addons/18.0', '/Users/selamou/odoo/18.0/odoo/addons', '/Users/selamou/odoo/18.0/enterprise', '/Users/selamou/odoo/18.0/custom-addons'] 
+2025-12-11 08:57:17,957 24502 INFO ? odoo: database: odoo@localhost:5432 
+2025-12-11 08:57:18,089 24502 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltopdf binary at /usr/local/bin/wkhtmltopdf 
+2025-12-11 08:57:19,358 24502 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltoimage binary at /usr/local/bin/wkhtmltoimage 
+2025-12-11 08:57:19,617 24502 INFO ? odoo.service.server: HTTP service (werkzeug) running on 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa:8068 
+2025-12-11 08:57:19,661 24502 INFO odoo odoo.modules.loading: loading 1 modules... 
+2025-12-11 08:57:19,665 24502 INFO odoo odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2025-12-11 08:57:19,679 24502 INFO odoo odoo.modules.loading: updating modules list 
+2025-12-11 08:57:19,681 24502 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via n/a 
+2025-12-11 08:57:22,407 24502 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_upgrade on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 08:57:22,408 24502 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 08:57:25,041 24502 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_install on [] to user __system__ #1 via n/a 
+2025-12-11 08:57:25,121 24502 INFO odoo odoo.modules.loading: loading 74 modules... 
+2025-12-11 08:57:25,443 24502 INFO odoo odoo.modules.loading: Loading module smart_delivery (38/74) 
+2025-12-11 08:57:25,541 24502 INFO odoo odoo.modules.registry: module smart_delivery: creating or updating database tables 
+2025-12-11 08:57:25,674 24502 INFO odoo odoo.modules.loading: loading smart_delivery/security/ir.model.access.csv 
+2025-12-11 08:57:25,695 24502 INFO odoo odoo.modules.loading: loading smart_delivery/data/delivery_data.xml 
+2025-12-11 08:57:25,700 24502 INFO odoo odoo.modules.loading: loading smart_delivery/views/delivery_order_views.xml 
+2025-12-11 08:57:25,730 24502 WARNING odoo odoo.addons.base.models.ir_ui_view: 'kanban-box' is deprecated, define a 'card' template instead 
+2025-12-11 08:57:25,740 24502 INFO odoo odoo.modules.loading: loading smart_delivery/views/livreur_views.xml 
+2025-12-11 08:57:25,760 24502 INFO odoo odoo.modules.loading: loading smart_delivery/views/condition_views.xml 
+2025-12-11 08:57:25,773 24502 INFO odoo odoo.modules.loading: loading smart_delivery/views/sector_rule_views.xml 
+2025-12-11 08:57:25,785 24502 INFO odoo odoo.modules.loading: loading smart_delivery/views/billing_views.xml 
+2025-12-11 08:57:25,802 24502 INFO odoo odoo.modules.loading: loading smart_delivery/views/api_log_views.xml 
+2025-12-11 08:57:25,817 24502 INFO odoo odoo.modules.loading: loading smart_delivery/views/menu.xml 
+2025-12-11 08:57:25,851 24502 INFO odoo odoo.modules.loading: Module smart_delivery loaded in 0.41s, 388 queries (+388 other) 
+2025-12-11 08:57:26,104 24502 INFO odoo odoo.modules.loading: 74 modules loaded in 0.98s, 388 queries (+388 extra) 
+2025-12-11 08:57:26,367 24502 INFO odoo odoo.addons.base.models.ir_model: Deleting 6461@ir.model.fields (smart_delivery.field_delivery_billing__invoice_id) 
+2025-12-11 08:57:26,390 24502 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [28977] 
+2025-12-11 08:57:26,391 24502 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields records with IDs: [6461] 
+2025-12-11 08:57:26,394 24502 INFO odoo odoo.modules.registry: verifying fields for every extended model 
+2025-12-11 08:57:26,731 24502 INFO odoo odoo.modules.loading: Modules loaded. 
+2025-12-11 08:57:26,734 24502 INFO odoo odoo.modules.registry: Registry changed, signaling through the database 
+2025-12-11 08:57:26,734 24502 INFO odoo odoo.modules.registry: Registry loaded in 7.116s 
+2025-12-11 08:57:26,735 24502 INFO odoo odoo.addons.base.models.ir_http: Generating routing map for key None 
+2025-12-11 08:57:26,770 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:26] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 6 0.001 5.374
+2025-12-11 08:57:26,779 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:26] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.001 0.001
+2025-12-11 08:57:27,127 24502 INFO ? odoo.addons.bus.models.bus: Bus.loop listen imbus on db postgres 
+2025-12-11 08:57:27,576 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:27] "GET /odoo HTTP/1.1" 200 - 96 0.047 0.318
+2025-12-11 08:57:27,713 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:27] "GET /bus/websocket_worker_bundle?v=18.0-7 HTTP/1.1" 304 - 4 0.002 0.003
+2025-12-11 08:57:27,756 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:27] "GET /web/manifest.webmanifest HTTP/1.1" 200 - 9 0.005 0.006
+2025-12-11 08:57:27,762 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:27] "GET /web/image?model=res.users&field=avatar_128&id=2 HTTP/1.1" 304 - 9 0.008 0.007
+2025-12-11 08:57:27,771 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:27] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 1 0.001 0.006
+2025-12-11 08:57:27,809 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:27] "POST /mail/data HTTP/1.1" 200 - 42 0.037 0.017
+2025-12-11 08:57:28,981 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:28] "POST /web/action/load HTTP/1.1" 200 - 11 0.009 0.073
+2025-12-11 08:57:29,052 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:29] "POST /web/dataset/call_kw/delivery.order/get_views HTTP/1.1" 200 - 41 0.020 0.029
+2025-12-11 08:57:29,064 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:29] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 3 0.004 0.002
+2025-12-11 08:57:29,073 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:29] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.003
+2025-12-11 08:57:29,074 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:29] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.004 0.004
+2025-12-11 08:57:29,307 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:29] "GET /web/service-worker.js HTTP/1.1" 200 - 1 0.001 0.004
+2025-12-11 08:57:30,032 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:30] "POST /web/action/load HTTP/1.1" 200 - 10 0.006 0.013
+2025-12-11 08:57:30,082 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:30] "POST /web/dataset/call_kw/delivery.billing/get_views HTTP/1.1" 200 - 17 0.009 0.019
+2025-12-11 08:57:30,099 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:30] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.001 0.006
+2025-12-11 08:57:30,103 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:30] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 4 0.005 0.006
+2025-12-11 08:57:32,495 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:32] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.002 0.010
+2025-12-11 08:57:33,972 24502 WARNING odoo odoo.http: No Chart of Accounts found.
+
+To create invoices, please configure your accounting:
+1. Go to Settings > General Settings
+2. Find "Fiscal Localization" section
+3. Select your country package
+4. Save
+
+Or go to Accounting and set up a Chart of Accounts. 
+2025-12-11 08:57:33,972 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:57:33] "POST /web/dataset/call_button/delivery.billing/action_create_invoice HTTP/1.1" 200 - 9 0.010 0.026
+2025-12-11 08:57:48,859 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 08:57:48] "POST /smart_delivery/api/auth/login HTTP/1.1" 400 - 2 0.002 0.008
+2025-12-11 08:58:26,845 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) starting 
+2025-12-11 08:58:26,912 24502 INFO odoo odoo.addons.base.models.ir_attachment: filestore gc 0 checked, 0 removed 
+2025-12-11 08:58:26,979 24502 INFO odoo odoo.addons.base.models.res_users: GC'd 0 user log entries 
+2025-12-11 08:58:26,989 24502 INFO odoo odoo.addons.base.models.res_users: GC 'res.users.apikeys' delete 0 entries 
+2025-12-11 08:58:26,995 24502 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:58:26,997 24502 INFO odoo odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2025-12-11 08:58:27,014 24502 INFO odoo odoo.addons.base.models.res_users: GC 'auth_totp.device' delete 0 entries 
+2025-12-11 08:58:27,117 24502 INFO odoo odoo.addons.sms.models.sms_sms: GC'd 0 sms marked for deletion 
+2025-12-11 08:58:27,250 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) done in 0.404s 
+2025-12-11 08:58:27,253 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) processed 0 records, 0 records remaining 
+2025-12-11 08:58:27,257 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) completed 
+2025-12-11 08:58:42,951 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:42] "POST /web/action/load HTTP/1.1" 200 - 10 0.010 0.023
+2025-12-11 08:58:43,134 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:43] "POST /web/dataset/call_kw/account.journal/get_views HTTP/1.1" 200 - 55 0.025 0.137
+2025-12-11 08:58:43,195 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:43] "POST /web/dataset/call_kw/account.journal/web_search_read HTTP/1.1" 200 - 28 0.030 0.019
+2025-12-11 08:58:43,221 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:43] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.001 0.002
+2025-12-11 08:58:51,441 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:51] "POST /web/dataset/call_kw/onboarding.onboarding.step/action_open_step_chart_of_accounts HTTP/1.1" 200 - 11 0.005 0.009
+2025-12-11 08:58:51,517 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:51] "POST /web/dataset/call_kw/account.account/get_views HTTP/1.1" 200 - 49 0.027 0.043
+2025-12-11 08:58:51,537 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:51] "POST /web/dataset/call_kw/account.account/web_search_read HTTP/1.1" 200 - 4 0.006 0.006
+2025-12-11 08:58:51,539 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:51] "POST /web/dataset/call_kw/account.account/search_panel_select_range HTTP/1.1" 200 - 4 0.007 0.009
+2025-12-11 08:58:55,425 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:58:55] "POST /web/dataset/call_kw/account.account/onchange HTTP/1.1" 200 - 5 0.008 0.015
+2025-12-11 08:59:02,323 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:02] "POST /web/dataset/call_kw/account.account/onchange HTTP/1.1" 200 - 4 0.003 0.014
+2025-12-11 08:59:12,967 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:12] "POST /web/dataset/call_kw/res.currency/name_search HTTP/1.1" 200 - 2 0.003 0.016
+2025-12-11 08:59:22,928 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:22] "POST /web/dataset/call_kw/account.tax/name_search HTTP/1.1" 200 - 3 0.006 0.009
+2025-12-11 08:59:26,837 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:26] "POST /web/dataset/call_kw/account.tax/name_search HTTP/1.1" 200 - 3 0.003 0.007
+2025-12-11 08:59:27,352 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:27] "POST /web/dataset/call_kw/account.tax/name_search HTTP/1.1" 200 - 3 0.002 0.006
+2025-12-11 08:59:28,195 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:28] "POST /web/dataset/call_kw/account.tax/name_search HTTP/1.1" 200 - 3 0.002 0.007
+2025-12-11 08:59:29,353 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:29] "POST /web/dataset/call_kw/account.tax/get_views HTTP/1.1" 200 - 36 0.031 0.068
+2025-12-11 08:59:29,400 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:29] "POST /web/dataset/call_kw/account.tax/onchange HTTP/1.1" 200 - 12 0.018 0.020
+2025-12-11 08:59:55,549 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:55] "POST /web/dataset/call_kw/account.tax.group/name_search HTTP/1.1" 200 - 7 0.011 0.023
+2025-12-11 08:59:59,091 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:59] "POST /web/dataset/call_kw/account.tax.group/name_search HTTP/1.1" 200 - 3 0.004 0.007
+2025-12-11 08:59:59,735 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 08:59:59] "POST /web/dataset/call_kw/account.tax.group/name_search HTTP/1.1" 200 - 3 0.003 0.007
+2025-12-11 09:00:01,648 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:01] "POST /web/dataset/call_kw/account.tax.group/get_views HTTP/1.1" 200 - 10 0.010 0.023
+2025-12-11 09:00:01,664 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:01] "POST /web/dataset/call_kw/account.tax.group/onchange HTTP/1.1" 200 - 4 0.004 0.007
+2025-12-11 09:00:10,579 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:10] "POST /web/dataset/call_kw/account.account/web_search_read HTTP/1.1" 200 - 4 0.006 0.027
+2025-12-11 09:00:13,596 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:13] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 2 0.001 0.004
+2025-12-11 09:00:13,609 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:13] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.006
+2025-12-11 09:00:13,609 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:13] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.003 0.006
+2025-12-11 09:00:15,226 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:15] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.001 0.005
+2025-12-11 09:00:16,536 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:16] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.001 0.004
+2025-12-11 09:00:18,769 24502 WARNING odoo odoo.http: No Chart of Accounts found.
+
+To create invoices, please configure your accounting:
+1. Go to Settings > General Settings
+2. Find "Fiscal Localization" section
+3. Select your country package
+4. Save
+
+Or go to Accounting and set up a Chart of Accounts. 
+2025-12-11 09:00:18,769 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:18] "POST /web/dataset/call_button/delivery.billing/action_create_invoice HTTP/1.1" 200 - 5 0.002 0.010
+2025-12-11 09:00:31,139 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:31] "POST /web/dataset/call_kw/account.journal/web_search_read HTTP/1.1" 200 - 20 0.012 0.022
+2025-12-11 09:00:36,403 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:36] "POST /web/action/load HTTP/1.1" 200 - 11 0.004 0.006
+2025-12-11 09:00:36,437 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:36] "POST /web/dataset/call_kw/account.account/get_views HTTP/1.1" 200 - 9 0.004 0.017
+2025-12-11 09:00:36,456 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:36] "POST /web/dataset/call_kw/account.account/web_search_read HTTP/1.1" 200 - 4 0.005 0.003
+2025-12-11 09:00:36,460 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:36] "POST /web/dataset/call_kw/account.account/search_panel_select_range HTTP/1.1" 200 - 4 0.005 0.008
+2025-12-11 09:00:44,303 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:00:44] "POST /web/dataset/call_kw/account.account/onchange HTTP/1.1" 200 - 4 0.005 0.028
+2025-12-11 09:00:59,958 24502 WARNING odoo py.warnings: /Users/selamou/odoo/18.0/custom-addons/smart_delivery/utils/jwt_auth.py:73: DeprecationWarning: Use directly odoo.modules.registry.Registry
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 1009, in _bootstrap
+    self._bootstrap_inner()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 1052, in _bootstrap_inner
+    self.run()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/threading.py", line 989, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/server.py", line 128, in __init__
+    super().__init__(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/socketserver.py", line 761, in __init__
+    self.handle()
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/werkzeug/serving.py", line 390, in handle
+    super().handle()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/server.py", line 436, in handle
+    self.handle_one_request()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/server.py", line 424, in handle_one_request
+    method()
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/werkzeug/serving.py", line 362, in run_wsgi
+    execute(self.server.app)
+  File "/Users/selamou/odoo/18.0/venv/lib/python3.12/site-packages/werkzeug/serving.py", line 323, in execute
+    application_iter = app(environ, start_response)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2576, in __call__
+    response = request._serve_db()
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2103, in _serve_db
+    return self._transactioning(
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2166, in _transactioning
+    return service_model.retrying(func, env=self.env)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/service/model.py", line 156, in retrying
+    result = func()
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2133, in _serve_ir_http
+    response = self.dispatcher.dispatch(rule.endpoint, args)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 2294, in dispatch
+    return self.request.registry['ir.http']._dispatch(endpoint)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/addons/base/models/ir_http.py", line 333, in _dispatch
+    result = endpoint(**request.params)
+  File "/Users/selamou/odoo/18.0/odoo/odoo/http.py", line 754, in route_wrapper
+    result = endpoint(self, *args, **params_ok)
+  File "/Users/selamou/odoo/18.0/custom-addons/smart_delivery/controllers/api.py", line 217, in login
+    user = JWTAuth.authenticate_user(request.env, login, password)
+  File "/Users/selamou/odoo/18.0/custom-addons/smart_delivery/utils/jwt_auth.py", line 73, in authenticate_user
+    registry_instance = registry(db)
+ 
+2025-12-11 09:01:00,210 24502 INFO odoo odoo.addons.base.models.res_users: Login failed for db:odoo login:ms@gmail.com from 192.168.100.120 
+2025-12-11 09:01:00,210 24502 WARNING odoo odoo.addons.smart_delivery.utils.jwt_auth: Authentication failed for login: ms@gmail.com 
+2025-12-11 09:01:00,419 24502 INFO odoo odoo.addons.base.models.res_users: Login failed for db:odoo login:ms@gmail.com from 192.168.100.120 
+2025-12-11 09:01:00,419 24502 WARNING odoo odoo.addons.smart_delivery.utils.jwt_auth: Authentication failed for login: ms@gmail.com 
+2025-12-11 09:01:00,424 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:00] "POST /smart_delivery/api/auth/login HTTP/1.1" 401 - 15 0.012 0.476
+2025-12-11 09:01:05,873 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:05] "POST /web/dataset/call_kw/account.journal/web_search_read HTTP/1.1" 200 - 20 0.012 0.021
+2025-12-11 09:01:06,544 24502 INFO odoo odoo.addons.base.models.res_users: Login successful for db:odoo login:ms@gmail.com from 192.168.100.120 
+2025-12-11 09:01:06,591 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:06] "POST /smart_delivery/api/auth/login HTTP/1.1" 200 - 20 0.040 0.391
+2025-12-11 09:01:06,738 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:06] "GET /smart_delivery/api/livreur/stats HTTP/1.1" 200 - 12 0.004 0.006
+2025-12-11 09:01:08,702 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:08] "GET /smart_delivery/api/livreur/my-orders?status=delivered&limit=20&offset=0 HTTP/1.1" 200 - 17 0.008 0.013
+2025-12-11 09:01:10,743 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:10] "POST /web/dataset/call_kw/account.account/web_search_read HTTP/1.1" 200 - 4 0.005 0.008
+2025-12-11 09:01:10,743 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:10] "POST /web/dataset/call_kw/account.account/search_panel_select_range HTTP/1.1" 200 - 4 0.004 0.010
+2025-12-11 09:01:16,240 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:16] "POST /smart_delivery/api/livreur/location HTTP/1.1" 200 - 15 0.013 0.026
+2025-12-11 09:01:21,588 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:21] "GET /smart_delivery/api/livreur/my-orders?status=on_way&limit=20&offset=0 HTTP/1.1" 200 - 10 0.005 0.013
+2025-12-11 09:01:22,039 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:22] "GET /smart_delivery/api/livreur/my-orders?status=assigned&limit=20&offset=0 HTTP/1.1" 200 - 10 0.003 0.003
+2025-12-11 09:01:22,565 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:01:22] "GET /smart_delivery/api/livreur/my-orders?limit=20&offset=0 HTTP/1.1" 200 - 19 0.009 0.005
+2025-12-11 09:01:27,292 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-11 09:01:27,307 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.015s 
+2025-12-11 09:01:27,311 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-11 09:01:27,317 24502 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-11 09:01:27,750 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:27] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 2 0.001 0.005
+2025-12-11 09:01:27,762 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:27] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.005
+2025-12-11 09:01:27,762 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:27] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.005
+2025-12-11 09:01:28,890 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:28] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.001 0.004
+2025-12-11 09:01:30,368 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:30] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.001 0.004
+2025-12-11 09:01:31,606 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:31] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.001 0.004
+2025-12-11 09:01:32,488 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:32] "POST /web/dataset/call_kw/delivery.billing/onchange HTTP/1.1" 200 - 2 0.001 0.004
+2025-12-11 09:01:45,531 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:45] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.002 0.007
+2025-12-11 09:01:47,285 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:47] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.001 0.004
+2025-12-11 09:01:48,549 24502 WARNING odoo odoo.http: No Chart of Accounts found.
+
+To create invoices, please configure your accounting:
+1. Go to Settings > General Settings
+2. Find "Fiscal Localization" section
+3. Select your country package
+4. Save
+
+Or go to Accounting and set up a Chart of Accounts. 
+2025-12-11 09:01:48,550 24502 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:01:48] "POST /web/dataset/call_button/delivery.billing/action_create_invoice HTTP/1.1" 200 - 5 0.004 0.012
+2025-12-11 09:03:24,387 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:03:24] "POST /smart_delivery/api/livreur/location HTTP/1.1" 200 - 9 0.016 0.025
+2025-12-11 09:03:28,009 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:03:28] "GET /smart_delivery/api/livreur/my-orders?status=failed&limit=20&offset=0 HTTP/1.1" 200 - 16 0.008 0.017
+2025-12-11 09:03:30,461 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:03:30] "GET /smart_delivery/api/livreur/my-orders?status=failed&limit=20&offset=0 HTTP/1.1" 200 - 16 0.007 0.015
+2025-12-11 09:03:34,331 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:03:34] "GET /smart_delivery/api/livreur/my-orders?limit=20&offset=0 HTTP/1.1" 200 - 19 0.009 0.006
+2025-12-11 09:03:52,723 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:03:52] "POST /smart_delivery/api/auth/login HTTP/1.1" 400 - 2 0.001 0.004
+2025-12-11 09:03:58,898 24502 INFO odoo werkzeug: 192.168.100.120 - - [11/Dec/2025 09:03:58] "POST /smart_delivery/api/auth/login HTTP/1.1" 400 - 2 0.005 0.008
+2025-12-11 09:04:33,807 24502 INFO odoo odoo.service.server: Initiating shutdown 
+2025-12-11 09:04:33,808 24502 INFO odoo odoo.service.server: Hit CTRL-C again or send a second signal to force the shutdown. 
+2025-12-11 09:04:34,139 24502 INFO odoo odoo.sql_db: ConnectionPool(read/write;used=0/count=0/max=64): Closed 5 connections  
+2025-12-11 09:04:36,633 24846 INFO ? odoo: Odoo version 18.0 
+2025-12-11 09:04:36,633 24846 INFO ? odoo: Using configuration file at /Users/selamou/odoo/18.0/odoo.conf 
+2025-12-11 09:04:36,633 24846 INFO ? odoo: addons paths: ['/Users/selamou/odoo/18.0/odoo/odoo/addons', '/Users/selamou/Library/Application Support/Odoo/addons/18.0', '/Users/selamou/odoo/18.0/odoo/addons', '/Users/selamou/odoo/18.0/enterprise', '/Users/selamou/odoo/18.0/custom-addons'] 
+2025-12-11 09:04:36,633 24846 INFO ? odoo: database: odoo@localhost:5432 
+2025-12-11 09:04:36,769 24846 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltopdf binary at /usr/local/bin/wkhtmltopdf 
+2025-12-11 09:04:38,195 24846 INFO ? odoo.addons.base.models.ir_actions_report: Will use the Wkhtmltoimage binary at /usr/local/bin/wkhtmltoimage 
+2025-12-11 09:04:38,414 24846 INFO ? odoo.service.server: HTTP service (werkzeug) running on 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa:8068 
+2025-12-11 09:04:38,461 24846 INFO odoo odoo.modules.loading: loading 1 modules... 
+2025-12-11 09:04:38,465 24846 INFO odoo odoo.modules.loading: 1 modules loaded in 0.00s, 0 queries (+0 extra) 
+2025-12-11 09:04:38,478 24846 INFO odoo odoo.modules.loading: updating modules list 
+2025-12-11 09:04:38,480 24846 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via n/a 
+2025-12-11 09:04:40,686 24846 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_upgrade on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 09:04:40,687 24846 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.update_list on ['Smart Delivery'] to user __system__ #1 via n/a 
+2025-12-11 09:04:41,254 24846 INFO odoo odoo.addons.base.models.ir_module: ALLOW access to module.button_install on [] to user __system__ #1 via n/a 
+2025-12-11 09:04:41,279 24846 INFO odoo odoo.modules.loading: loading 74 modules... 
+2025-12-11 09:04:41,598 24846 INFO odoo odoo.modules.loading: Loading module smart_delivery (38/74) 
+2025-12-11 09:04:41,690 24846 WARNING odoo odoo.fields: Field delivery.billing.state: unknown parameter 'tracking', if this is an actual parameter you may want to override the method _valid_field_parameter on the relevant model in order to allow it 
+2025-12-11 09:04:41,695 24846 INFO odoo odoo.modules.registry: module smart_delivery: creating or updating database tables 
+2025-12-11 09:04:41,830 24846 INFO odoo odoo.modules.loading: loading smart_delivery/security/ir.model.access.csv 
+2025-12-11 09:04:41,881 24846 INFO odoo odoo.modules.loading: loading smart_delivery/data/delivery_data.xml 
+2025-12-11 09:04:41,885 24846 INFO odoo odoo.modules.loading: loading smart_delivery/views/delivery_order_views.xml 
+2025-12-11 09:04:41,913 24846 WARNING odoo odoo.addons.base.models.ir_ui_view: 'kanban-box' is deprecated, define a 'card' template instead 
+2025-12-11 09:04:41,923 24846 INFO odoo odoo.modules.loading: loading smart_delivery/views/livreur_views.xml 
+2025-12-11 09:04:41,943 24846 INFO odoo odoo.modules.loading: loading smart_delivery/views/condition_views.xml 
+2025-12-11 09:04:41,961 24846 INFO odoo odoo.modules.loading: loading smart_delivery/views/sector_rule_views.xml 
+2025-12-11 09:04:41,975 24846 INFO odoo odoo.modules.loading: loading smart_delivery/views/billing_views.xml 
+2025-12-11 09:04:41,994 24846 INFO odoo odoo.modules.loading: loading smart_delivery/views/api_log_views.xml 
+2025-12-11 09:04:42,014 24846 INFO odoo odoo.modules.loading: loading smart_delivery/views/menu.xml 
+2025-12-11 09:04:42,046 24846 INFO odoo odoo.modules.loading: Module smart_delivery loaded in 0.45s, 393 queries (+393 other) 
+2025-12-11 09:04:42,274 24846 INFO odoo odoo.modules.loading: 74 modules loaded in 1.00s, 393 queries (+393 extra) 
+2025-12-11 09:04:42,347 24846 WARNING odoo odoo.fields: Field delivery.billing.state: unknown parameter 'tracking', if this is an actual parameter you may want to override the method _valid_field_parameter on the relevant model in order to allow it 
+2025-12-11 09:04:42,416 24846 WARNING odoo odoo.fields: Field delivery.billing.state: unknown parameter 'tracking', if this is an actual parameter you may want to override the method _valid_field_parameter on the relevant model in order to allow it 
+2025-12-11 09:04:42,542 24846 INFO odoo odoo.addons.base.models.ir_model: Deleting 1906@ir.model.fields.selection (smart_delivery.selection__delivery_billing__invoice_state__none) 
+2025-12-11 09:04:42,560 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [46992] 
+2025-12-11 09:04:42,560 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields.selection records with IDs: [1906] 
+2025-12-11 09:04:42,560 24846 INFO odoo odoo.addons.base.models.ir_model: Deleting 8102@ir.model.fields (smart_delivery.field_delivery_billing__invoice_ref_id) 
+2025-12-11 09:04:42,579 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [46962] 
+2025-12-11 09:04:42,580 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields records with IDs: [8102] 
+2025-12-11 09:04:42,580 24846 INFO odoo odoo.addons.base.models.ir_model: Deleting 1905@ir.model.fields.selection (smart_delivery.selection__delivery_billing__invoice_state__cancel) 
+2025-12-11 09:04:42,583 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [41594] 
+2025-12-11 09:04:42,583 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields.selection records with IDs: [1905] 
+2025-12-11 09:04:42,583 24846 INFO odoo odoo.addons.base.models.ir_model: Deleting 1904@ir.model.fields.selection (smart_delivery.selection__delivery_billing__invoice_state__posted) 
+2025-12-11 09:04:42,585 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [41593] 
+2025-12-11 09:04:42,585 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields.selection records with IDs: [1904] 
+2025-12-11 09:04:42,586 24846 INFO odoo odoo.addons.base.models.ir_model: Deleting 1903@ir.model.fields.selection (smart_delivery.selection__delivery_billing__invoice_state__draft) 
+2025-12-11 09:04:42,588 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [41592] 
+2025-12-11 09:04:42,588 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields.selection records with IDs: [1903] 
+2025-12-11 09:04:42,588 24846 INFO odoo odoo.addons.base.models.ir_model: Deleting 8097@ir.model.fields (smart_delivery.field_delivery_billing__has_account_module) 
+2025-12-11 09:04:42,603 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [41560] 
+2025-12-11 09:04:42,603 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields records with IDs: [8097] 
+2025-12-11 09:04:42,603 24846 INFO odoo odoo.addons.base.models.ir_model: Deleting 6462@ir.model.fields (smart_delivery.field_delivery_billing__invoice_state) 
+2025-12-11 09:04:42,618 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.data records with IDs: [28978] 
+2025-12-11 09:04:42,618 24846 INFO odoo odoo.models.unlink: User #1 deleted ir.model.fields records with IDs: [6462] 
+2025-12-11 09:04:42,621 24846 INFO odoo odoo.modules.registry: verifying fields for every extended model 
+2025-12-11 09:04:42,978 24846 INFO odoo odoo.modules.loading: Modules loaded. 
+2025-12-11 09:04:42,981 24846 INFO odoo odoo.modules.registry: Registry changed, signaling through the database 
+2025-12-11 09:04:42,982 24846 INFO odoo odoo.modules.registry: Registry loaded in 4.567s 
+2025-12-11 09:04:42,983 24846 INFO odoo odoo.addons.base.models.ir_http: Generating routing map for key None 
+2025-12-11 09:04:43,027 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:43] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 6 0.001 2.528
+2025-12-11 09:04:43,036 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:43] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.001 0.001
+2025-12-11 09:04:43,371 24846 INFO ? odoo.addons.bus.models.bus: Bus.loop listen imbus on db postgres 
+2025-12-11 09:04:44,886 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:44] "GET /odoo HTTP/1.1" 200 - 95 0.047 0.342
+2025-12-11 09:04:45,151 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:45] "GET /web/manifest.webmanifest HTTP/1.1" 200 - 9 0.005 0.032
+2025-12-11 09:04:45,157 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:45] "GET /bus/websocket_worker_bundle?v=18.0-7 HTTP/1.1" 304 - 4 0.002 0.035
+2025-12-11 09:04:45,232 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:45] "GET /web/image?model=res.users&field=avatar_128&id=2 HTTP/1.1" 304 - 9 0.005 0.056
+2025-12-11 09:04:45,237 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:45] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 1 0.002 0.046
+2025-12-11 09:04:45,255 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:45] "POST /mail/data HTTP/1.1" 200 - 42 0.047 0.027
+2025-12-11 09:04:46,407 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:46] "POST /web/action/load HTTP/1.1" 200 - 11 0.006 0.076
+2025-12-11 09:04:46,482 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:46] "POST /web/dataset/call_kw/delivery.order/get_views HTTP/1.1" 200 - 41 0.022 0.022
+2025-12-11 09:04:46,498 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:46] "POST /web/dataset/call_kw/delivery.order/web_read_group HTTP/1.1" 200 - 3 0.003 0.002
+2025-12-11 09:04:46,506 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:46] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.003
+2025-12-11 09:04:46,507 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:46] "POST /web/dataset/call_kw/delivery.order/web_search_read HTTP/1.1" 200 - 3 0.002 0.003
+2025-12-11 09:04:46,753 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:46] "GET /web/service-worker.js HTTP/1.1" 200 - 1 0.001 0.004
+2025-12-11 09:04:47,574 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:47] "POST /web/action/load HTTP/1.1" 200 - 10 0.006 0.011
+2025-12-11 09:04:47,612 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:47] "POST /web/dataset/call_kw/delivery.billing/get_views HTTP/1.1" 200 - 17 0.009 0.020
+2025-12-11 09:04:47,630 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:47] "POST /web/dataset/call_kw/res.users/has_group HTTP/1.1" 200 - 1 0.001 0.004
+2025-12-11 09:04:47,636 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:47] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 4 0.003 0.009
+2025-12-11 09:04:56,556 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:04:56] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.001 0.005
+2025-12-11 09:05:01,540 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:05:01] "POST /web/dataset/call_button/delivery.billing/action_confirm HTTP/1.1" 200 - 4 0.002 0.005
+2025-12-11 09:05:01,552 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:05:01] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.002 0.006
+2025-12-11 09:05:06,035 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:05:06] "POST /web/dataset/call_button/delivery.billing/action_mark_paid HTTP/1.1" 200 - 3 0.002 0.006
+2025-12-11 09:05:06,048 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:05:06] "POST /web/dataset/call_kw/delivery.billing/web_read HTTP/1.1" 200 - 3 0.002 0.006
+2025-12-11 09:05:09,114 24846 INFO odoo werkzeug: 127.0.0.1 - - [11/Dec/2025 09:05:09] "POST /web/dataset/call_kw/delivery.billing/web_search_read HTTP/1.1" 200 - 3 0.007 0.021

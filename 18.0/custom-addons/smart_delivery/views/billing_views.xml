@@ -4,15 +4,21 @@
         <field name="name">delivery.billing.tree</field>
         <field name="model">delivery.billing</field>
         <field name="arch" type="xml">
-            <list string="Facturation" decoration-success="invoice_state=='posted'">
+            <list string="Facturation" 
+                  decoration-success="state == 'paid'" 
+                  decoration-info="state == 'confirmed'"
+                  decoration-muted="state == 'cancelled'">
                 <field name="order_id"/>
                 <field name="distance_km"/>
                 <field name="base_tariff"/>
                 <field name="extra_fee"/>
-                <field name="total_amount"/>
-                <field name="commission"/>
-                <field name="invoice_id" optional="hide"/>
-                <field name="invoice_state" optional="hide"/>
+                <field name="total_amount" sum="Total"/>
+                <field name="commission" sum="Total Commission"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state == 'draft'"
+                       decoration-primary="state == 'confirmed'"
+                       decoration-success="state == 'paid'"
+                       decoration-danger="state == 'cancelled'"/>
             </list>
         </field>
     </record>
@@ -23,26 +29,45 @@
         <field name="arch" type="xml">
             <form string="Facturation">
                 <header>
-                    <button name="action_create_invoice" string="Créer Facture" type="object" class="oe_highlight" invisible="invoice_id or not has_account_module"/>
-                    <button name="action_view_invoice" string="Voir Facture" type="object" invisible="not invoice_id or not has_account_module"/>
-                    <button name="action_install_chart_of_accounts" string="Installer Plan Comptable" type="object" invisible="invoice_id or not has_account_module" class="btn-secondary"/>
+                    <button name="action_confirm" 
+                            string="Confirmer" 
+                            type="object" 
+                            class="oe_highlight"
+                            invisible="state != 'draft'"/>
+                    <button name="action_mark_paid" 
+                            string="Marquer Payé" 
+                            type="object" 
+                            class="oe_highlight"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_cancel" 
+                            string="Annuler" 
+                            type="object"
+                            invisible="state in ('paid', 'cancelled')"/>
+                    <button name="action_reset_draft" 
+                            string="Remettre en Brouillon" 
+                            type="object"
+                            invisible="state not in ('confirmed', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,paid"/>
                 </header>
                 <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="order_id" readonly="1" options="{'no_open': False}"/>
+                        </h1>
+                    </div>
                     <group>
-                        <group>
-                            <field name="order_id"/>
+                        <group string="Détails de Livraison">
                             <field name="distance_km"/>
                             <field name="base_tariff"/>
-                        </group>
-                        <group>
                             <field name="extra_fee"/>
+                        </group>
+                        <group string="Montants">
                             <field name="total_amount"/>
                             <field name="commission"/>
                         </group>
                     </group>
-                    <group string="Facture" invisible="not has_account_module">
-                        <field name="invoice_id"/>
-                        <field name="invoice_state"/>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1" placeholder="Notes additionnelles..."/>
                     </group>
                 </sheet>
             </form>
@@ -55,20 +80,34 @@
         <field name="arch" type="xml">
             <search string="Rechercher Facturation">
                 <field name="order_id"/>
-                <filter string="Avec Facture" name="with_invoice" domain="[('invoice_id', '!=', False)]"/>
-                <filter string="Sans Facture" name="without_invoice" domain="[('invoice_id', '=', False)]"/>
+                <field name="notes"/>
+                <separator/>
+                <filter string="Brouillon" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmé" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="Payé" name="paid" domain="[('state', '=', 'paid')]"/>
+                <filter string="Annulé" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <group expand="0" string="Grouper par">
+                    <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Commande" name="group_order" context="{'group_by': 'order_id'}"/>
+                </group>
             </search>
         </field>
     </record>
 
-    <!-- Force update to clear any customized context -->
-    <data noupdate="0">
-        <record id="action_delivery_billing" model="ir.actions.act_window">
-            <field name="name">Facturation</field>
-            <field name="res_model">delivery.billing</field>
-            <field name="view_mode">list,form</field>
-            <field name="search_view_id" ref="view_delivery_billing_search"/>
-            <field name="context">{}</field>
-        </record>
-    </data>
+    <record id="action_delivery_billing" model="ir.actions.act_window">
+        <field name="name">Facturation</field>
+        <field name="res_model">delivery.billing</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_delivery_billing_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer une nouvelle facturation
+            </p>
+            <p>
+                Suivez les coûts de livraison: distance, tarifs, frais et commissions.
+            </p>
+        </field>
+    </record>
 </odoo>
