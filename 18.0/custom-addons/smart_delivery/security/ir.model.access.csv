@@ -6,6 +6,9 @@ access_sector_rule_admin,sector.rule.admin,model_sector_rule,smart_delivery.grou
 access_delivery_billing_admin,delivery.billing.admin,model_delivery_billing,smart_delivery.group_admin,1,1,1,1
 access_delivery_route_admin,delivery.route.admin,model_delivery_route,smart_delivery.group_admin,1,1,1,1
 access_api_log_admin,api.log.admin,model_api_log,smart_delivery.group_admin,1,1,1,1
+access_livreur_reject_wizard_admin,livreur.reject.wizard.admin,model_livreur_reject_wizard,smart_delivery.group_admin,1,1,1,1
+access_delivery_enterprise_admin,delivery.enterprise.admin,model_delivery_enterprise,smart_delivery.group_admin,1,1,1,1
+access_enterprise_reject_wizard_admin,enterprise.reject.wizard.admin,model_enterprise_reject_wizard,smart_delivery.group_admin,1,1,1,1
 access_delivery_order_enterprise,delivery.order.enterprise,model_delivery_order,smart_delivery.group_enterprise,1,1,1,0
 access_delivery_livreur_enterprise,delivery.livreur.enterprise,model_delivery_livreur,smart_delivery.group_enterprise,1,0,0,0
 access_delivery_condition_enterprise,delivery.condition.enterprise,model_delivery_condition,smart_delivery.group_enterprise,1,0,0,0

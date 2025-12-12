@@ -4,14 +4,22 @@
         <field name="name">delivery.livreur.tree</field>
         <field name="model">delivery.livreur</field>
         <field name="arch" type="xml">
-            <list string="Livreurs" decoration-success="availability==True" decoration-muted="availability==False">
+            <list string="Livreurs" 
+                  decoration-success="registration_status=='approved' and availability==True" 
+                  decoration-warning="registration_status=='pending'"
+                  decoration-danger="registration_status=='rejected'"
+                  decoration-muted="registration_status=='approved' and availability==False">
                 <field name="name"/>
+                <field name="nni"/>
                 <field name="email"/>
                 <field name="phone"/>
                 <field name="vehicle_type"/>
                 <field name="sector_ids" widget="many2many_tags"/>
+                <field name="registration_status" widget="badge" 
+                       decoration-success="registration_status=='approved'"
+                       decoration-warning="registration_status=='pending'"
+                       decoration-danger="registration_status=='rejected'"/>
                 <field name="availability"/>
-                <field name="rating" widget="progressbar"/>
                 <field name="verified"/>
                 <field name="order_count"/>
             </list>
@@ -23,6 +31,20 @@
         <field name="model">delivery.livreur</field>
         <field name="arch" type="xml">
             <form string="Livreur">
+                <header>
+                    <button name="action_approve_registration" type="object" 
+                            string="Approuver l'inscription" class="btn-success"
+                            invisible="registration_status != 'pending'"/>
+                    <button name="action_reject_registration" type="object" 
+                            string="Rejeter l'inscription" class="btn-danger"
+                            invisible="registration_status != 'pending'"/>
+                    <button name="action_set_pending" type="object" 
+                            string="Remettre en attente" class="btn-warning"
+                            invisible="registration_status == 'pending'"
+                            confirm="Voulez-vous vraiment remettre cette inscription en attente de vérification?"/>
+                    <field name="registration_status" widget="statusbar" 
+                           statusbar_visible="pending,approved"/>
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-truck">
@@ -31,16 +53,32 @@
                         <button name="action_reset_password" type="object" class="oe_stat_button" icon="fa-key"
                                 string="Réinitialiser MDP" invisible="not user_id"/>
                     </div>
+                    <widget name="web_ribbon" title="En attente" bg_color="text-bg-warning" 
+                            invisible="registration_status != 'pending'"/>
+                    <widget name="web_ribbon" title="Rejeté" bg_color="text-bg-danger" 
+                            invisible="registration_status != 'rejected'"/>
+                    <div class="oe_title">
+                        <field name="livreur_photo" widget="image" class="oe_avatar" 
+                               options="{'preview_image': 'livreur_photo', 'size': [128, 128]}"/>
+                        <h1>
+                            <field name="name" placeholder="Nom du livreur"/>
+                        </h1>
+                    </div>
                     <group>
                         <group string="Informations Personnelles">
-                            <field name="name"/>
-                            <field name="phone"/>
+                            <field name="phone" widget="phone"/>
                             <field name="vehicle_type"/>
+                            <field name="nni"/>
                         </group>
                         <group string="Compte Utilisateur">
                             <field name="email"/>
                             <field name="password" password="True" invisible="user_id"/>
                             <field name="user_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group invisible="registration_status != 'rejected'">
+                        <group string="Motif du rejet" colspan="2">
+                            <field name="rejection_reason" nolabel="1" readonly="1"/>
                         </group>
                     </group>
                     <group>
@@ -63,7 +101,33 @@
                         <field name="current_long"/>
                     </group>
                     <notebook>
-                        <page string="Commandes">
+                        <page string="Documents d'identification" name="documents">
+                            <group>
+                                <group string="Photo NNI">
+                                    <field name="nni_photo" widget="image" nolabel="1"
+                                           options="{'preview_image': 'nni_photo', 'size': [300, 200]}"/>
+                                    <field name="nni_photo_filename" invisible="1"/>
+                                </group>
+                                <group string="Carte Grise">
+                                    <field name="carte_grise_photo" widget="image" nolabel="1"
+                                           options="{'preview_image': 'carte_grise_photo', 'size': [300, 200]}"/>
+                                    <field name="carte_grise_photo_filename" invisible="1"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Assurance">
+                                    <field name="assurance_photo" widget="image" nolabel="1"
+                                           options="{'preview_image': 'assurance_photo', 'size': [300, 200]}"/>
+                                    <field name="assurance_photo_filename" invisible="1"/>
+                                </group>
+                                <group string="Photo du Livreur">
+                                    <field name="livreur_photo" widget="image" nolabel="1"
+                                           options="{'preview_image': 'livreur_photo', 'size': [300, 200]}"/>
+                                    <field name="livreur_photo_filename" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Commandes" name="orders">
                             <field name="order_ids" nolabel="1">
                                 <list>
                                     <field name="name"/>
@@ -80,6 +144,24 @@
             </form>
         </field>
     </record>
+    
+    <!-- Wizard view for rejection -->
+    <record id="view_livreur_reject_wizard_form" model="ir.ui.view">
+        <field name="name">livreur.reject.wizard.form</field>
+        <field name="model">livreur.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rejeter l'inscription">
+                <group>
+                    <field name="livreur_id" readonly="1"/>
+                    <field name="rejection_reason" placeholder="Expliquez la raison du rejet..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" type="object" string="Confirmer le rejet" class="btn-danger"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 
     <record id="view_livreur_search" model="ir.ui.view">
         <field name="name">delivery.livreur.search</field>
@@ -87,9 +169,18 @@
         <field name="arch" type="xml">
             <search string="Rechercher Livreurs">
                 <field name="name"/>
+                <field name="nni"/>
                 <field name="email"/>
                 <field name="phone"/>
                 <field name="sector_ids"/>
+                <separator/>
+                <filter string="En attente de vérification" name="pending" 
+                        domain="[('registration_status', '=', 'pending')]"/>
+                <filter string="Approuvés" name="approved" 
+                        domain="[('registration_status', '=', 'approved')]"/>
+                <filter string="Rejetés" name="rejected" 
+                        domain="[('registration_status', '=', 'rejected')]"/>
+                <separator/>
                 <filter string="Disponible" name="available" domain="[('availability', '=', True)]"/>
                 <filter string="Vérifié" name="verified" domain="[('verified', '=', True)]"/>
                 <separator/>
@@ -102,6 +193,7 @@
                 <filter string="Fragile" name="sector_fragile" domain="[('sector_ids.sector_type', '=', 'fragile')]"/>
                 <filter string="Médical" name="sector_medical" domain="[('sector_ids.sector_type', '=', 'medical')]"/>
                 <group expand="0" string="Grouper par">
+                    <filter string="Statut d'inscription" name="group_registration" context="{'group_by': 'registration_status'}"/>
                     <filter string="Type de Véhicule" name="group_vehicle" context="{'group_by': 'vehicle_type'}"/>
                     <filter string="Disponibilité" name="group_availability" context="{'group_by': 'availability'}"/>
                 </group>

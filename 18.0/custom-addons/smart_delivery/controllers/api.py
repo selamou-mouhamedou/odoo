@@ -288,19 +288,41 @@ class SmartDeliveryAPI(http.Controller):
                         'phone': livreur.phone,
                         'vehicle_type': livreur.vehicle_type,
                         'availability': livreur.availability,
+                        'registration_status': livreur.registration_status,
+                        'verified': livreur.verified,
+                        'nni': livreur.nni,
                     }
+                    # If livreur is not approved, include rejection reason if rejected
+                    if livreur.registration_status == 'rejected':
+                        livreur_info['rejection_reason'] = livreur.rejection_reason
             
             # Get enterprise info if user is enterprise
             enterprise_info = None
             if user_type == 'enterprise':
-                partner = user.partner_id
-                if partner:
+                # First try to find delivery.enterprise record
+                enterprise = request.env['delivery.enterprise'].sudo().search([('user_id', '=', user.id)], limit=1)
+                if enterprise:
                     enterprise_info = {
-                        'id': partner.id,
-                        'name': partner.name,
-                        'company_id': partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id,
-                        'company_name': partner.commercial_partner_id.name if partner.commercial_partner_id else partner.name,
+                        'id': enterprise.id,
+                        'name': enterprise.name,
+                        'email': enterprise.email,
+                        'phone': enterprise.phone,
+                        'registration_status': enterprise.registration_status,
+                        'partner_id': enterprise.partner_id.id if enterprise.partner_id else None,
                     }
+                    if enterprise.registration_status == 'rejected':
+                        enterprise_info['rejection_reason'] = enterprise.rejection_reason
+                else:
+                    # Fallback to partner info
+                    partner = user.partner_id
+                    if partner:
+                        enterprise_info = {
+                            'id': partner.id,
+                            'name': partner.name,
+                            'company_id': partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id,
+                            'company_name': partner.commercial_partner_id.name if partner.commercial_partner_id else partner.name,
+                            'registration_status': 'approved',  # Legacy enterprises are considered approved
+                        }
             
             response_data = {
                 'success': True,
@@ -374,6 +396,402 @@ class SmartDeliveryAPI(http.Controller):
             _logger.error(f"Erreur logout: {e}")
             error_response = {'error': str(e), 'code': 'LOGOUT_ERROR'}
             self._log_api_call('/smart_delivery/api/auth/logout', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    # ==================== LIVREUR REGISTRATION (NO AUTH REQUIRED) ====================
+    
+    @http.route('/smart_delivery/api/livreur/register', type='http', auth='public', methods=['POST'], csrf=False)
+    def register_livreur(self, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/register - Register a new livreur account (NO AUTH REQUIRED)
+        
+        This endpoint allows livreurs to create their own account from the mobile app.
+        The account will be created with 'pending' status and needs admin approval.
+        
+        Request Body (multipart/form-data):
+        {
+            "name": "Nom du livreur",           # Required
+            "phone": "+222XXXXXXXX",            # Required
+            "email": "livreur@example.com",     # Required
+            "password": "password123",          # Required (min 6 chars)
+            "vehicle_type": "motorcycle",       # Required: motorcycle, car, bicycle, truck
+            "nni": "1234567890",               # Required: Numéro National d'Identification
+            "nni_photo": <file>,               # Required: Photo du NNI (base64 or file)
+            "livreur_photo": <file>,           # Required: Photo d'identité du livreur
+            "carte_grise_photo": <file>,       # Required: Photo de la carte grise
+            "assurance_photo": <file>          # Required: Photo de l'assurance
+        }
+        
+        Response (success):
+        {
+            "success": true,
+            "message": "Inscription réussie. Votre compte est en attente de vérification.",
+            "livreur": {
+                "id": 1,
+                "name": "Nom du livreur",
+                "email": "livreur@example.com",
+                "registration_status": "pending"
+            }
+        }
+        
+        Response (error):
+        {
+            "success": false,
+            "error": "Description de l'erreur",
+            "code": "ERROR_CODE"
+        }
+        """
+        try:
+            # Get data from request - support both JSON and multipart form data
+            if request.httprequest.content_type and 'application/json' in request.httprequest.content_type:
+                data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+            else:
+                # Multipart form data
+                data = dict(request.httprequest.form)
+            
+            # Required fields validation
+            required_fields = ['name', 'phone', 'email', 'password', 'vehicle_type', 'nni']
+            missing_fields = [f for f in required_fields if not data.get(f)]
+            
+            if missing_fields:
+                return self._json_response({
+                    'success': False,
+                    'error': f'Champs requis manquants: {", ".join(missing_fields)}',
+                    'code': 'MISSING_FIELDS',
+                    'missing_fields': missing_fields
+                }, 400)
+            
+            # Validate email format
+            email = data.get('email', '').strip()
+            if '@' not in email or '.' not in email.split('@')[-1]:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Format email invalide',
+                    'code': 'INVALID_EMAIL'
+                }, 400)
+            
+            # Validate password length
+            password = data.get('password', '')
+            if len(password) < 6:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Le mot de passe doit contenir au moins 6 caractères',
+                    'code': 'PASSWORD_TOO_SHORT'
+                }, 400)
+            
+            # Validate vehicle type
+            valid_vehicle_types = ['motorcycle', 'car', 'bicycle', 'truck']
+            vehicle_type = data.get('vehicle_type', '').lower()
+            if vehicle_type not in valid_vehicle_types:
+                return self._json_response({
+                    'success': False,
+                    'error': f'Type de véhicule invalide. Valeurs acceptées: {", ".join(valid_vehicle_types)}',
+                    'code': 'INVALID_VEHICLE_TYPE'
+                }, 400)
+            
+            # Check if email already exists
+            existing_livreur = request.env['delivery.livreur'].sudo().search([
+                ('email', '=', email)
+            ], limit=1)
+            if existing_livreur:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Cet email est déjà utilisé par un autre livreur',
+                    'code': 'EMAIL_EXISTS'
+                }, 400)
+            
+            # Check if NNI already exists
+            nni = data.get('nni', '').strip()
+            existing_nni = request.env['delivery.livreur'].sudo().search([
+                ('nni', '=', nni)
+            ], limit=1)
+            if existing_nni:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Ce NNI est déjà utilisé par un autre livreur',
+                    'code': 'NNI_EXISTS'
+                }, 400)
+            
+            # Check if user with this email/login already exists
+            existing_user = request.env['res.users'].sudo().search([
+                '|', ('login', '=', email), ('email', '=', email)
+            ], limit=1)
+            if existing_user:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Un compte utilisateur existe déjà avec cet email',
+                    'code': 'USER_EXISTS'
+                }, 400)
+            
+            # Process photo uploads
+            photo_fields = ['nni_photo', 'livreur_photo', 'carte_grise_photo', 'assurance_photo']
+            photos = {}
+            
+            for field in photo_fields:
+                photo_data = None
+                filename = None
+                
+                # Check for file upload in multipart form
+                if field in request.httprequest.files:
+                    file = request.httprequest.files[field]
+                    if file and file.filename:
+                        import base64
+                        photo_data = base64.b64encode(file.read()).decode('utf-8')
+                        filename = file.filename
+                
+                # Check for base64 data in JSON/form data
+                elif data.get(field):
+                    photo_data = data.get(field)
+                    # If it already contains data: prefix, extract base64 part
+                    if isinstance(photo_data, str) and 'base64,' in photo_data:
+                        photo_data = photo_data.split('base64,')[1]
+                    filename = data.get(f'{field}_filename', f'{field}.jpg')
+                
+                if not photo_data:
+                    return self._json_response({
+                        'success': False,
+                        'error': f'Photo requise: {field}',
+                        'code': 'MISSING_PHOTO',
+                        'field': field
+                    }, 400)
+                
+                photos[field] = photo_data
+                photos[f'{field}_filename'] = filename
+            
+            # Create livreur record
+            livreur_vals = {
+                'name': data.get('name', '').strip(),
+                'phone': data.get('phone', '').strip(),
+                'email': email,
+                'password': password,
+                'vehicle_type': vehicle_type,
+                'nni': nni,
+                'nni_photo': photos.get('nni_photo'),
+                'nni_photo_filename': photos.get('nni_photo_filename'),
+                'livreur_photo': photos.get('livreur_photo'),
+                'livreur_photo_filename': photos.get('livreur_photo_filename'),
+                'carte_grise_photo': photos.get('carte_grise_photo'),
+                'carte_grise_photo_filename': photos.get('carte_grise_photo_filename'),
+                'assurance_photo': photos.get('assurance_photo'),
+                'assurance_photo_filename': photos.get('assurance_photo_filename'),
+                'registration_status': 'pending',
+                'verified': False,
+                'availability': False,  # Not available until approved
+            }
+            
+            # Create the livreur (this will also create the user)
+            livreur = request.env['delivery.livreur'].sudo().create(livreur_vals)
+            
+            response_data = {
+                'success': True,
+                'message': 'Inscription réussie. Votre compte est en attente de vérification par un administrateur.',
+                'livreur': {
+                    'id': livreur.id,
+                    'name': livreur.name,
+                    'email': livreur.email,
+                    'phone': livreur.phone,
+                    'vehicle_type': livreur.vehicle_type,
+                    'registration_status': livreur.registration_status,
+                }
+            }
+            
+            self._log_api_call('/smart_delivery/api/livreur/register', 
+                             {'name': data.get('name'), 'email': email, 'phone': data.get('phone')}, 
+                             response_data)
+            return self._json_response(response_data, 201)
+            
+        except ValidationError as e:
+            _logger.error(f"Validation error during livreur registration: {e}")
+            error_response = {
+                'success': False,
+                'error': str(e),
+                'code': 'VALIDATION_ERROR'
+            }
+            self._log_api_call('/smart_delivery/api/livreur/register', data if 'data' in dir() else {}, 
+                             error_response, 400, e)
+            return self._json_response(error_response, 400)
+            
+        except Exception as e:
+            _logger.error(f"Error during livreur registration: {e}")
+            error_response = {
+                'success': False,
+                'error': str(e),
+                'code': 'REGISTRATION_ERROR'
+            }
+            self._log_api_call('/smart_delivery/api/livreur/register', data if 'data' in dir() else {}, 
+                             error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    # ==================== ENTERPRISE REGISTRATION (NO AUTH REQUIRED) ====================
+    
+    @http.route('/smart_delivery/api/enterprise/register', type='http', auth='public', methods=['POST'], csrf=False)
+    def register_enterprise(self, **kwargs):
+        """
+        POST /smart_delivery/api/enterprise/register - Register a new enterprise account (NO AUTH REQUIRED)
+        
+        This endpoint allows enterprises to create their own account from web/mobile app.
+        The account will be created with 'pending' status and needs admin approval.
+        
+        Request Body (multipart/form-data or JSON):
+        {
+            "name": "Nom de l'entreprise",       # Required
+            "email": "contact@entreprise.com",   # Required
+            "phone": "+222XXXXXXXX",             # Required
+            "password": "password123",           # Required (min 6 chars)
+            "logo": <file or base64>,            # Optional: Logo de l'entreprise
+            "address": "Adresse complète",       # Optional
+            "city": "Ville",                     # Optional
+            "website": "https://...",            # Optional
+            "description": "Description..."      # Optional
+        }
+        
+        Response (success):
+        {
+            "success": true,
+            "message": "Inscription réussie. Votre compte est en attente de vérification.",
+            "enterprise": {
+                "id": 1,
+                "name": "Nom de l'entreprise",
+                "email": "contact@entreprise.com",
+                "registration_status": "pending"
+            }
+        }
+        """
+        try:
+            # Get data from request - support both JSON and multipart form data
+            if request.httprequest.content_type and 'application/json' in request.httprequest.content_type:
+                data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+            else:
+                # Multipart form data
+                data = dict(request.httprequest.form)
+            
+            # Required fields validation
+            required_fields = ['name', 'email', 'phone', 'password']
+            missing_fields = [f for f in required_fields if not data.get(f)]
+            
+            if missing_fields:
+                return self._json_response({
+                    'success': False,
+                    'error': f'Champs requis manquants: {", ".join(missing_fields)}',
+                    'code': 'MISSING_FIELDS',
+                    'missing_fields': missing_fields
+                }, 400)
+            
+            # Validate email format
+            email = data.get('email', '').strip()
+            if '@' not in email or '.' not in email.split('@')[-1]:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Format email invalide',
+                    'code': 'INVALID_EMAIL'
+                }, 400)
+            
+            # Validate password length
+            password = data.get('password', '')
+            if len(password) < 6:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Le mot de passe doit contenir au moins 6 caractères',
+                    'code': 'PASSWORD_TOO_SHORT'
+                }, 400)
+            
+            # Check if email already exists in enterprise
+            existing_enterprise = request.env['delivery.enterprise'].sudo().search([
+                ('email', '=', email)
+            ], limit=1)
+            if existing_enterprise:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Cet email est déjà utilisé par une autre entreprise',
+                    'code': 'EMAIL_EXISTS'
+                }, 400)
+            
+            # Check if user with this email/login already exists
+            existing_user = request.env['res.users'].sudo().search([
+                '|', ('login', '=', email), ('email', '=', email)
+            ], limit=1)
+            if existing_user:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Un compte utilisateur existe déjà avec cet email',
+                    'code': 'USER_EXISTS'
+                }, 400)
+            
+            # Process logo if provided
+            logo_data = None
+            logo_filename = None
+            
+            # Check for file upload in multipart form
+            if 'logo' in request.httprequest.files:
+                file = request.httprequest.files['logo']
+                if file and file.filename:
+                    import base64
+                    logo_data = base64.b64encode(file.read()).decode('utf-8')
+                    logo_filename = file.filename
+            
+            # Check for base64 data in JSON/form data
+            elif data.get('logo'):
+                logo_data = data.get('logo')
+                # If it already contains data: prefix, extract base64 part
+                if isinstance(logo_data, str) and 'base64,' in logo_data:
+                    logo_data = logo_data.split('base64,')[1]
+                logo_filename = data.get('logo_filename', 'logo.png')
+            
+            # Create enterprise record
+            enterprise_vals = {
+                'name': data.get('name', '').strip(),
+                'email': email,
+                'phone': data.get('phone', '').strip(),
+                'password': password,
+                'logo': logo_data,
+                'logo_filename': logo_filename,
+                'address': data.get('address', '').strip() if data.get('address') else None,
+                'city': data.get('city', '').strip() if data.get('city') else None,
+                'website': data.get('website', '').strip() if data.get('website') else None,
+                'description': data.get('description', '').strip() if data.get('description') else None,
+                'registration_status': 'pending',
+            }
+            
+            # Create the enterprise (this will also create the partner and user)
+            enterprise = request.env['delivery.enterprise'].sudo().create(enterprise_vals)
+            
+            response_data = {
+                'success': True,
+                'message': 'Inscription réussie. Votre compte est en attente de vérification par un administrateur.',
+                'enterprise': {
+                    'id': enterprise.id,
+                    'name': enterprise.name,
+                    'email': enterprise.email,
+                    'phone': enterprise.phone,
+                    'registration_status': enterprise.registration_status,
+                }
+            }
+            
+            self._log_api_call('/smart_delivery/api/enterprise/register', 
+                             {'name': data.get('name'), 'email': email, 'phone': data.get('phone')}, 
+                             response_data)
+            return self._json_response(response_data, 201)
+            
+        except ValidationError as e:
+            _logger.error(f"Validation error during enterprise registration: {e}")
+            error_response = {
+                'success': False,
+                'error': str(e),
+                'code': 'VALIDATION_ERROR'
+            }
+            self._log_api_call('/smart_delivery/api/enterprise/register', data if 'data' in dir() else {}, 
+                             error_response, 400, e)
+            return self._json_response(error_response, 400)
+            
+        except Exception as e:
+            _logger.error(f"Error during enterprise registration: {e}")
+            error_response = {
+                'success': False,
+                'error': str(e),
+                'code': 'REGISTRATION_ERROR'
+            }
+            self._log_api_call('/smart_delivery/api/enterprise/register', data if 'data' in dir() else {}, 
+                             error_response, 500, e)
             return self._json_response(error_response, 500)
     
     # ==================== SWAGGER DOCUMENTATION ====================
@@ -570,6 +988,195 @@ Authorization: Bearer <token>
                         "security": [{"bearerAuth": []}],
                         "responses": {
                             "200": {"description": "Déconnexion réussie"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/register": {
+                    "post": {
+                        "tags": ["1. Authentication"],
+                        "summary": "Inscription livreur (sans authentification)",
+                        "description": """Permet aux livreurs de créer leur compte depuis l'application mobile.
+                        
+**Aucune authentification requise.**
+
+Le compte sera créé avec le statut 'pending' (en attente) et nécessite une approbation par un administrateur.
+
+Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-data.""",
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "multipart/form-data": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["name", "phone", "email", "password", "vehicle_type", "nni", "nni_photo", "livreur_photo", "carte_grise_photo", "assurance_photo"],
+                                        "properties": {
+                                            "name": {"type": "string", "description": "Nom complet du livreur", "example": "Mohamed Diallo"},
+                                            "phone": {"type": "string", "description": "Numéro de téléphone", "example": "+22212345678"},
+                                            "email": {"type": "string", "format": "email", "description": "Email (sera utilisé comme identifiant)", "example": "mohamed@example.com"},
+                                            "password": {"type": "string", "format": "password", "minLength": 6, "description": "Mot de passe (min 6 caractères)"},
+                                            "vehicle_type": {"type": "string", "enum": ["motorcycle", "car", "bicycle", "truck"], "description": "Type de véhicule"},
+                                            "nni": {"type": "string", "description": "Numéro National d'Identification", "example": "1234567890"},
+                                            "nni_photo": {"type": "string", "format": "binary", "description": "Photo du document NNI"},
+                                            "livreur_photo": {"type": "string", "format": "binary", "description": "Photo d'identité du livreur"},
+                                            "carte_grise_photo": {"type": "string", "format": "binary", "description": "Photo de la carte grise du véhicule"},
+                                            "assurance_photo": {"type": "string", "format": "binary", "description": "Photo du document d'assurance"}
+                                        }
+                                    }
+                                },
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["name", "phone", "email", "password", "vehicle_type", "nni", "nni_photo", "livreur_photo", "carte_grise_photo", "assurance_photo"],
+                                        "properties": {
+                                            "name": {"type": "string", "example": "Mohamed Diallo"},
+                                            "phone": {"type": "string", "example": "+22212345678"},
+                                            "email": {"type": "string", "format": "email", "example": "mohamed@example.com"},
+                                            "password": {"type": "string", "format": "password"},
+                                            "vehicle_type": {"type": "string", "enum": ["motorcycle", "car", "bicycle", "truck"]},
+                                            "nni": {"type": "string", "example": "1234567890"},
+                                            "nni_photo": {"type": "string", "description": "Photo NNI en base64"},
+                                            "livreur_photo": {"type": "string", "description": "Photo livreur en base64"},
+                                            "carte_grise_photo": {"type": "string", "description": "Photo carte grise en base64"},
+                                            "assurance_photo": {"type": "string", "description": "Photo assurance en base64"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "201": {
+                                "description": "Inscription réussie",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": True},
+                                                "message": {"type": "string", "example": "Inscription réussie. Votre compte est en attente de vérification."},
+                                                "livreur": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "name": {"type": "string"},
+                                                        "email": {"type": "string"},
+                                                        "phone": {"type": "string"},
+                                                        "vehicle_type": {"type": "string"},
+                                                        "registration_status": {"type": "string", "enum": ["pending", "approved", "rejected"]}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Erreur de validation",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "INVALID_VEHICLE_TYPE", "EMAIL_EXISTS", "NNI_EXISTS", "USER_EXISTS", "MISSING_PHOTO"]}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "/smart_delivery/api/enterprise/register": {
+                    "post": {
+                        "tags": ["1. Authentication"],
+                        "summary": "Inscription entreprise (sans authentification)",
+                        "description": """Permet aux entreprises de créer leur compte depuis le web ou l'application mobile.
+                        
+**Aucune authentification requise.**
+
+Le compte sera créé avec le statut 'pending' (en attente) et nécessite une approbation par un administrateur.
+
+Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "multipart/form-data": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["name", "email", "phone", "password"],
+                                        "properties": {
+                                            "name": {"type": "string", "description": "Nom de l'entreprise", "example": "Transport Express SARL"},
+                                            "email": {"type": "string", "format": "email", "description": "Email (sera utilisé comme identifiant)", "example": "contact@transport-express.mr"},
+                                            "phone": {"type": "string", "description": "Numéro de téléphone", "example": "+22212345678"},
+                                            "password": {"type": "string", "format": "password", "minLength": 6, "description": "Mot de passe (min 6 caractères)"},
+                                            "logo": {"type": "string", "format": "binary", "description": "Logo de l'entreprise (optionnel)"},
+                                            "address": {"type": "string", "description": "Adresse complète (optionnel)"},
+                                            "city": {"type": "string", "description": "Ville (optionnel)", "example": "Nouakchott"},
+                                            "website": {"type": "string", "description": "Site web (optionnel)", "example": "https://transport-express.mr"},
+                                            "description": {"type": "string", "description": "Description de l'activité (optionnel)"}
+                                        }
+                                    }
+                                },
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["name", "email", "phone", "password"],
+                                        "properties": {
+                                            "name": {"type": "string", "example": "Transport Express SARL"},
+                                            "email": {"type": "string", "format": "email", "example": "contact@transport-express.mr"},
+                                            "phone": {"type": "string", "example": "+22212345678"},
+                                            "password": {"type": "string", "format": "password"},
+                                            "logo": {"type": "string", "description": "Logo en base64 (optionnel)"},
+                                            "address": {"type": "string"},
+                                            "city": {"type": "string"},
+                                            "website": {"type": "string"},
+                                            "description": {"type": "string"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "201": {
+                                "description": "Inscription réussie",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": True},
+                                                "message": {"type": "string", "example": "Inscription réussie. Votre compte est en attente de vérification."},
+                                                "enterprise": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "name": {"type": "string"},
+                                                        "email": {"type": "string"},
+                                                        "phone": {"type": "string"},
+                                                        "registration_status": {"type": "string", "enum": ["pending", "approved", "rejected"]}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Erreur de validation",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "EMAIL_EXISTS", "USER_EXISTS"]}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -971,6 +1578,145 @@ Authorization: Bearer <token>
                                                         "failed": {"type": "integer"}
                                                     }
                                                 }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/change-password": {
+                    "post": {
+                        "tags": ["7. Driver - Profile"],
+                        "summary": "Changer mon mot de passe",
+                        "description": "Permet au livreur de changer son mot de passe. Nécessite le mot de passe actuel pour validation.",
+                        "security": [{"bearerAuth": []}],
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["current_password", "new_password"],
+                                        "properties": {
+                                            "current_password": {"type": "string", "format": "password", "description": "Mot de passe actuel"},
+                                            "new_password": {"type": "string", "format": "password", "minLength": 6, "description": "Nouveau mot de passe (min 6 caractères)"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Mot de passe modifié avec succès",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": True},
+                                                "message": {"type": "string", "example": "Mot de passe modifié avec succès"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Erreur de validation",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "PASSWORD_TOO_SHORT"]}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "description": "Mot de passe actuel incorrect",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "example": "INVALID_CURRENT_PASSWORD"}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/update-profile": {
+                    "post": {
+                        "tags": ["7. Driver - Profile"],
+                        "summary": "Mettre à jour mon profil",
+                        "description": "Permet au livreur de modifier son nom et/ou sa photo de profil. Au moins un champ doit être fourni.",
+                        "security": [{"bearerAuth": []}],
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "multipart/form-data": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {"type": "string", "description": "Nouveau nom du livreur"},
+                                            "livreur_photo": {"type": "string", "format": "binary", "description": "Nouvelle photo du livreur"}
+                                        }
+                                    }
+                                },
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {"type": "string", "description": "Nouveau nom du livreur"},
+                                            "livreur_photo": {"type": "string", "description": "Photo en base64"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Profil mis à jour avec succès",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": True},
+                                                "message": {"type": "string", "example": "Profil mis à jour avec succès"},
+                                                "livreur": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "name": {"type": "string"},
+                                                        "has_photo": {"type": "boolean"}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Erreur de validation",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "example": "NO_FIELDS_PROVIDED"}
                                             }
                                         }
                                     }
@@ -1827,6 +2573,196 @@ Authorization: Bearer <token>
             _logger.error(f"Erreur récupération statistiques livreur: {e}")
             error_response = {'error': str(e), 'code': 'STATS_ERROR'}
             self._log_api_call('/smart_delivery/api/livreur/stats', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    # ==================== LIVREUR PROFILE MANAGEMENT ====================
+    
+    @http.route('/smart_delivery/api/livreur/change-password', type='http', auth='public', methods=['POST'], csrf=False)
+    def livreur_change_password(self, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/change-password - Change livreur password
+        
+        The livreur is automatically detected from JWT token.
+        
+        Request Body:
+        {
+            "current_password": "oldpassword",
+            "new_password": "newpassword123"
+        }
+        
+        Response:
+        {
+            "success": true,
+            "message": "Mot de passe modifié avec succès"
+        }
+        """
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
+        
+        try:
+            # Get JSON data from request body
+            data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+            
+            current_password = data.get('current_password')
+            new_password = data.get('new_password')
+            
+            if not current_password or not new_password:
+                return self._json_response({
+                    'success': False,
+                    'error': 'current_password et new_password sont requis',
+                    'code': 'MISSING_FIELDS'
+                }, 400)
+            
+            if len(new_password) < 6:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Le nouveau mot de passe doit contenir au moins 6 caractères',
+                    'code': 'PASSWORD_TOO_SHORT'
+                }, 400)
+            
+            # Verify current password
+            user = livreur.user_id
+            if not user:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Compte utilisateur non trouvé',
+                    'code': 'USER_NOT_FOUND'
+                }, 400)
+            
+            # Try to authenticate with current password
+            try:
+                from ..utils.jwt_auth import JWTAuth
+                auth_user = JWTAuth.authenticate_user(request.env, user.login, current_password)
+                if not auth_user:
+                    return self._json_response({
+                        'success': False,
+                        'error': 'Mot de passe actuel incorrect',
+                        'code': 'INVALID_CURRENT_PASSWORD'
+                    }, 401)
+            except Exception as e:
+                _logger.error(f"Password verification error: {e}")
+                return self._json_response({
+                    'success': False,
+                    'error': 'Mot de passe actuel incorrect',
+                    'code': 'INVALID_CURRENT_PASSWORD'
+                }, 401)
+            
+            # Update password
+            user.sudo().write({'password': new_password})
+            
+            response_data = {
+                'success': True,
+                'message': 'Mot de passe modifié avec succès'
+            }
+            
+            self._log_api_call('/smart_delivery/api/livreur/change-password', 
+                             {'livreur_id': livreur.id}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Error changing livreur password: {e}")
+            error_response = {'success': False, 'error': str(e), 'code': 'PASSWORD_CHANGE_ERROR'}
+            self._log_api_call('/smart_delivery/api/livreur/change-password', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/update-profile', type='http', auth='public', methods=['POST'], csrf=False)
+    def livreur_update_profile(self, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/update-profile - Update livreur profile (name and/or photo)
+        
+        The livreur is automatically detected from JWT token.
+        
+        Request Body (JSON or multipart/form-data):
+        {
+            "name": "Nouveau Nom",           # Optional
+            "livreur_photo": "<base64>"      # Optional: Photo d'identité du livreur
+        }
+        
+        Response:
+        {
+            "success": true,
+            "message": "Profil mis à jour avec succès",
+            "livreur": {
+                "id": 1,
+                "name": "Nouveau Nom",
+                "has_photo": true
+            }
+        }
+        """
+        # Check auth and get livreur
+        livreur, error = self._require_livreur()
+        if error:
+            return error
+        
+        try:
+            # Get data from request - support both JSON and multipart form data
+            if request.httprequest.content_type and 'application/json' in request.httprequest.content_type:
+                data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+            else:
+                # Multipart form data
+                data = dict(request.httprequest.form)
+            
+            # Check if at least one field is provided
+            name = data.get('name', '').strip() if data.get('name') else None
+            photo_data = None
+            photo_filename = None
+            
+            # Check for file upload in multipart form
+            if 'livreur_photo' in request.httprequest.files:
+                file = request.httprequest.files['livreur_photo']
+                if file and file.filename:
+                    import base64
+                    photo_data = base64.b64encode(file.read()).decode('utf-8')
+                    photo_filename = file.filename
+            
+            # Check for base64 data in JSON/form data
+            elif data.get('livreur_photo'):
+                photo_data = data.get('livreur_photo')
+                # If it already contains data: prefix, extract base64 part
+                if isinstance(photo_data, str) and 'base64,' in photo_data:
+                    photo_data = photo_data.split('base64,')[1]
+                photo_filename = data.get('livreur_photo_filename', 'photo.jpg')
+            
+            if not name and not photo_data:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Au moins un champ (name ou livreur_photo) doit être fourni',
+                    'code': 'NO_FIELDS_PROVIDED'
+                }, 400)
+            
+            # Prepare update values
+            update_vals = {}
+            if name:
+                update_vals['name'] = name
+            if photo_data:
+                update_vals['livreur_photo'] = photo_data
+                if photo_filename:
+                    update_vals['livreur_photo_filename'] = photo_filename
+            
+            # Update livreur
+            livreur.sudo().write(update_vals)
+            
+            response_data = {
+                'success': True,
+                'message': 'Profil mis à jour avec succès',
+                'livreur': {
+                    'id': livreur.id,
+                    'name': livreur.name,
+                    'has_photo': bool(livreur.livreur_photo),
+                }
+            }
+            
+            self._log_api_call('/smart_delivery/api/livreur/update-profile', 
+                             {'livreur_id': livreur.id, 'updated_fields': list(update_vals.keys())}, 
+                             response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Error updating livreur profile: {e}")
+            error_response = {'success': False, 'error': str(e), 'code': 'PROFILE_UPDATE_ERROR'}
+            self._log_api_call('/smart_delivery/api/livreur/update-profile', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
     # ==================== ORDER OTP ENDPOINT (SECURED) ====================

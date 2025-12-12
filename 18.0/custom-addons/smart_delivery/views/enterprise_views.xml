@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Enterprise Tree View -->
+    <record id="view_enterprise_tree" model="ir.ui.view">
+        <field name="name">delivery.enterprise.tree</field>
+        <field name="model">delivery.enterprise</field>
+        <field name="arch" type="xml">
+            <list string="Entreprises" 
+                  decoration-success="registration_status=='approved'" 
+                  decoration-warning="registration_status=='pending'"
+                  decoration-danger="registration_status=='rejected'">
+                <header>
+                    <button name="action_migrate_existing_users" type="object" 
+                            string="🔄 Migrer utilisateurs existants" class="btn-secondary"/>
+                </header>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="city"/>
+                <field name="registration_status" widget="badge" 
+                       decoration-success="registration_status=='approved'"
+                       decoration-warning="registration_status=='pending'"
+                       decoration-danger="registration_status=='rejected'"/>
+                <field name="order_count"/>
+                <field name="create_date" string="Date d'inscription"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Enterprise Form View -->
+    <record id="view_enterprise_form" model="ir.ui.view">
+        <field name="name">delivery.enterprise.form</field>
+        <field name="model">delivery.enterprise</field>
+        <field name="arch" type="xml">
+            <form string="Entreprise">
+                <header>
+                    <button name="action_approve_registration" type="object" 
+                            string="Approuver l'inscription" class="btn-success"
+                            invisible="registration_status != 'pending'"/>
+                    <button name="action_reject_registration" type="object" 
+                            string="Rejeter l'inscription" class="btn-danger"
+                            invisible="registration_status != 'pending'"/>
+                    <button name="action_set_pending" type="object" 
+                            string="Remettre en attente" class="btn-warning"
+                            invisible="registration_status == 'pending'"
+                            confirm="Voulez-vous vraiment remettre cette inscription en attente? Le compte utilisateur sera désactivé."/>
+                    <field name="registration_status" widget="statusbar" 
+                           statusbar_visible="pending,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-truck">
+                            <field name="order_count" widget="statinfo" string="Commandes"/>
+                        </button>
+                        <button name="action_reset_password" type="object" class="oe_stat_button" icon="fa-key"
+                                string="Réinitialiser MDP" invisible="not user_id"/>
+                    </div>
+                    <widget name="web_ribbon" title="En attente" bg_color="text-bg-warning" 
+                            invisible="registration_status != 'pending'"/>
+                    <widget name="web_ribbon" title="Rejeté" bg_color="text-bg-danger" 
+                            invisible="registration_status != 'rejected'"/>
+                    <field name="logo" widget="image" class="oe_avatar" 
+                           options="{'preview_image': 'logo', 'size': [128, 128]}"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom de l'entreprise"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informations de Contact">
+                            <field name="email" widget="email"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="website" widget="url"/>
+                        </group>
+                        <group string="Compte Utilisateur">
+                            <field name="password" password="True" invisible="user_id"/>
+                            <field name="user_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group invisible="registration_status != 'rejected'">
+                        <group string="Motif du rejet" colspan="2">
+                            <field name="rejection_reason" nolabel="1" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Adresse">
+                            <field name="address"/>
+                            <field name="city"/>
+                        </group>
+                        <group string="Description">
+                            <field name="description" nolabel="1" placeholder="Description de l'activité..."/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Logo" name="logo_page">
+                            <group>
+                                <group string="Logo de l'entreprise">
+                                    <field name="logo" widget="image" nolabel="1"
+                                           options="{'preview_image': 'logo', 'size': [300, 300]}"/>
+                                    <field name="logo_filename" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Enterprise Search View -->
+    <record id="view_enterprise_search" model="ir.ui.view">
+        <field name="name">delivery.enterprise.search</field>
+        <field name="model">delivery.enterprise</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Entreprises">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="city"/>
+                <separator/>
+                <filter string="En attente de vérification" name="pending" 
+                        domain="[('registration_status', '=', 'pending')]"/>
+                <filter string="Approuvées" name="approved" 
+                        domain="[('registration_status', '=', 'approved')]"/>
+                <filter string="Rejetées" name="rejected" 
+                        domain="[('registration_status', '=', 'rejected')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Statut d'inscription" name="group_registration" context="{'group_by': 'registration_status'}"/>
+                    <filter string="Ville" name="group_city" context="{'group_by': 'city'}"/>
+                    <filter string="Date d'inscription" name="group_date" context="{'group_by': 'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Enterprise Kanban View -->
+    <record id="view_enterprise_kanban" model="ir.ui.view">
+        <field name="name">delivery.enterprise.kanban</field>
+        <field name="model">delivery.enterprise</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="registration_status" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="logo"/>
+                <field name="registration_status"/>
+                <field name="order_count"/>
+                <templates>
+                    <t t-name="card">
+                        <aside>
+                            <field name="logo" widget="image" options="{'size': [48, 48]}"/>
+                        </aside>
+                        <main>
+                            <field name="name" class="fw-bold fs-5"/>
+                            <field name="email" widget="email"/>
+                            <field name="phone" widget="phone"/>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span><i class="fa fa-truck me-1"/>
+                                    <field name="order_count"/> commandes
+                                </span>
+                                <field name="registration_status" widget="badge"
+                                       decoration-success="registration_status=='approved'"
+                                       decoration-warning="registration_status=='pending'"
+                                       decoration-danger="registration_status=='rejected'"/>
+                            </div>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Enterprise Reject Wizard View -->
+    <record id="view_enterprise_reject_wizard_form" model="ir.ui.view">
+        <field name="name">enterprise.reject.wizard.form</field>
+        <field name="model">enterprise.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rejeter l'inscription">
+                <group>
+                    <field name="enterprise_id" readonly="1"/>
+                    <field name="rejection_reason" placeholder="Expliquez la raison du rejet..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" type="object" string="Confirmer le rejet" class="btn-danger"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Enterprise Action -->
+    <record id="action_enterprise" model="ir.actions.act_window">
+        <field name="name">Entreprises</field>
+        <field name="res_model">delivery.enterprise</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_enterprise_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune entreprise inscrite
+            </p>
+            <p>
+                Les entreprises peuvent s'inscrire via l'API publique.
+                Vous pouvez approuver ou rejeter leurs inscriptions ici.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Server Action to Migrate Existing Users -->
+    <record id="action_migrate_enterprise_users" model="ir.actions.server">
+        <field name="name">Migrer les utilisateurs existants</field>
+        <field name="model_id" ref="model_delivery_enterprise"/>
+        <field name="binding_model_id" ref="model_delivery_enterprise"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = model.action_migrate_existing_users()</field>
+    </record>
+</odoo>

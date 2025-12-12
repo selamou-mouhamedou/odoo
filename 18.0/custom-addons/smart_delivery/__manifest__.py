@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Smart Delivery',
-    'version': '18.0.1.0.1',
+    'version': '18.0.1.0.6',
     'category': 'Delivery',
     'summary': 'Système de livraison intelligent avec dispatching automatique',
     'description': """
@@ -28,6 +28,7 @@
         # Views
         'views/delivery_order_views.xml',
         'views/livreur_views.xml',
+        'views/enterprise_views.xml',
         'views/condition_views.xml',
         'views/sector_rule_views.xml',
         'views/billing_views.xml',

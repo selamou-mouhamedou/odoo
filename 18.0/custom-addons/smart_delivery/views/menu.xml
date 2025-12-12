@@ -50,6 +50,15 @@
         sequence="100"
         groups="smart_delivery.group_admin"/>
     
+    <!-- Enterprise Management -->
+    <menuitem 
+        id="menu_enterprise_management" 
+        name="Entreprises" 
+        parent="menu_administration" 
+        action="action_enterprise"
+        sequence="5"
+        groups="smart_delivery.group_admin"/>
+    
     <!-- User Management -->
     <menuitem 
         id="menu_user_management" 

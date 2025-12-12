@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import base64
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -17,6 +18,35 @@ class DeliveryLivreur(models.Model):
     password = fields.Char(string='Mot de passe', compute='_compute_password', 
                            inverse='_inverse_password', store=False,
                            help='Mot de passe pour la connexion API (non stocké)')
+    
+    # ==================== REQUIRED IDENTIFICATION DOCUMENTS ====================
+    nni = fields.Char(string='NNI (Numéro National d\'Identification)', required=True, 
+                      tracking=True, help='Numéro National d\'Identification du livreur')
+    nni_photo = fields.Binary(string='Photo NNI', required=True, 
+                              help='Photo du document NNI')
+    nni_photo_filename = fields.Char(string='Nom fichier NNI')
+    livreur_photo = fields.Binary(string='Photo du Livreur', required=True, 
+                                  help='Photo d\'identité du livreur')
+    livreur_photo_filename = fields.Char(string='Nom fichier photo livreur')
+    carte_grise_photo = fields.Binary(string='Photo Carte Grise', required=True, 
+                                      help='Photo de la carte grise du véhicule')
+    carte_grise_photo_filename = fields.Char(string='Nom fichier carte grise')
+    assurance_photo = fields.Binary(string='Photo Assurance', required=True, 
+                                    help='Photo du document d\'assurance')
+    assurance_photo_filename = fields.Char(string='Nom fichier assurance')
+    
+    # Registration status for pending approvals
+    registration_status = fields.Selection([
+        ('pending', 'En attente de vérification'),
+        ('approved', 'Approuvé'),
+        ('rejected', 'Rejeté'),
+    ], string='Statut d\'inscription', default='pending', tracking=True,
+       help='Statut de vérification du dossier livreur')
+    rejection_reason = fields.Text(string='Motif de rejet', tracking=True)
+    
+    _sql_constraints = [
+        ('nni_unique', 'UNIQUE(nni)', 'Ce NNI est déjà utilisé par un autre livreur!'),
+    ]
     
     def _compute_password(self):
         """Password is never read from database"""
@@ -194,4 +224,65 @@ class DeliveryLivreur(models.Model):
             livreur.sector_ids = [(4, standard_sector.id)]
         
         return True
+    
+    # ==================== REGISTRATION APPROVAL ACTIONS ====================
+    
+    def action_approve_registration(self):
+        """Approve livreur registration - sets status to approved and enables the account"""
+        self.ensure_one()
+        if self.registration_status != 'pending':
+            raise ValidationError(_('Seules les inscriptions en attente peuvent être approuvées.'))
+        
+        self.write({
+            'registration_status': 'approved',
+            'verified': True,
+            'availability': True,
+            'rejection_reason': False,
+        })
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Inscription Approuvée'),
+                'message': _('L\'inscription du livreur %s a été approuvée.') % self.name,
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+    
+    def action_reject_registration(self):
+        """Open wizard to reject livreur registration with a reason"""
+        self.ensure_one()
+        if self.registration_status != 'pending':
+            raise ValidationError(_('Seules les inscriptions en attente peuvent être rejetées.'))
+        
+        return {
+            'name': _('Rejeter l\'inscription'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'livreur.reject.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_livreur_id': self.id},
+        }
+    
+    def action_set_pending(self):
+        """Reset registration status to pending (for re-review)"""
+        self.ensure_one()
+        self.write({
+            'registration_status': 'pending',
+            'verified': False,
+            'availability': False,
+        })
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Statut modifié'),
+                'message': _('L\'inscription du livreur %s est maintenant en attente de vérification.') % self.name,
+                'type': 'warning',
+                'sticky': False,
+            }
+        }
 
