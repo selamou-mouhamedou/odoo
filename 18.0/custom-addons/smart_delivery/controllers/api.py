@@ -512,11 +512,17 @@ class SmartDeliveryAPI(http.Controller):
                     'code': 'NNI_EXISTS'
                 }, 400)
             
-            # Check if user with this email/login already exists
-            existing_user = request.env['res.users'].sudo().search([
+            # Check if user with this email/login already exists (including archived users)
+            existing_user = request.env['res.users'].sudo().with_context(active_test=False).search([
                 '|', ('login', '=', email), ('email', '=', email)
             ], limit=1)
             if existing_user:
+                if not existing_user.active:
+                    return self._json_response({
+                        'success': False,
+                        'error': 'Un compte utilisateur archivé existe avec cet email. Contactez l\'administrateur.',
+                        'code': 'USER_ARCHIVED'
+                    }, 400)
                 return self._json_response({
                     'success': False,
                     'error': 'Un compte utilisateur existe déjà avec cet email',
@@ -706,11 +712,17 @@ class SmartDeliveryAPI(http.Controller):
                     'code': 'EMAIL_EXISTS'
                 }, 400)
             
-            # Check if user with this email/login already exists
-            existing_user = request.env['res.users'].sudo().search([
+            # Check if user with this email/login already exists (including archived users)
+            existing_user = request.env['res.users'].sudo().with_context(active_test=False).search([
                 '|', ('login', '=', email), ('email', '=', email)
             ], limit=1)
             if existing_user:
+                if not existing_user.active:
+                    return self._json_response({
+                        'success': False,
+                        'error': 'Un compte utilisateur archivé existe avec cet email. Contactez l\'administrateur.',
+                        'code': 'USER_ARCHIVED'
+                    }, 400)
                 return self._json_response({
                     'success': False,
                     'error': 'Un compte utilisateur existe déjà avec cet email',
@@ -1078,7 +1090,7 @@ Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-d
                                             "properties": {
                                                 "success": {"type": "boolean", "example": False},
                                                 "error": {"type": "string"},
-                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "INVALID_VEHICLE_TYPE", "EMAIL_EXISTS", "NNI_EXISTS", "USER_EXISTS", "MISSING_PHOTO"]}
+                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "INVALID_VEHICLE_TYPE", "EMAIL_EXISTS", "NNI_EXISTS", "USER_EXISTS", "USER_ARCHIVED", "MISSING_PHOTO"]}
                                             }
                                         }
                                     }
@@ -1171,7 +1183,7 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                                             "properties": {
                                                 "success": {"type": "boolean", "example": False},
                                                 "error": {"type": "string"},
-                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "EMAIL_EXISTS", "USER_EXISTS"]}
+                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "EMAIL_EXISTS", "USER_EXISTS", "USER_ARCHIVED"]}
                                             }
                                         }
                                     }
@@ -1196,7 +1208,10 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                     "post": {
                         "tags": ["2. Enterprise - Orders"],
                         "summary": "Créer une nouvelle commande",
-                        "description": "Crée une commande de livraison. Pour les entreprises, le sender_id est automatiquement défini sur leur société.",
+                        "description": """Crée une commande de livraison pour l'entreprise connectée.
+
+L'expéditeur (sender) est **automatiquement** défini sur l'entreprise de l'utilisateur connecté.
+Pas besoin de fournir sender_id - il est ignoré.""",
                         "security": [{"bearerAuth": []}],
                         "requestBody": {
                             "required": True,
@@ -1204,17 +1219,16 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                                 "application/json": {
                                     "schema": {
                                         "type": "object",
-                                        "required": ["sector_type", "receiver_name", "receiver_phone", "pickup_lat", "pickup_long", "drop_lat", "drop_long"],
+                                        "required": ["sector_type", "receiver_phone", "pickup_lat", "pickup_long", "drop_lat", "drop_long"],
                                         "properties": {
-                                            "reference": {"type": "string", "description": "Référence externe"},
+                                            "reference": {"type": "string", "description": "Référence externe (optionnel)"},
                                             "sector_type": {"$ref": "#/components/schemas/SectorType"},
-                                            "sender_id": {"type": "integer", "description": "ID du partenaire expéditeur (auto pour enterprise)"},
-                                            "receiver_name": {"type": "string"},
-                                            "receiver_phone": {"type": "string"},
-                                            "pickup_lat": {"type": "number"},
-                                            "pickup_long": {"type": "number"},
-                                            "drop_lat": {"type": "number"},
-                                            "drop_long": {"type": "number"},
+                                            "receiver_name": {"type": "string", "description": "Nom du destinataire (optionnel)", "example": "Jean Dupont"},
+                                            "receiver_phone": {"type": "string", "description": "Téléphone du destinataire", "example": "+22212345678"},
+                                            "pickup_lat": {"type": "number", "description": "Latitude du point de ramassage", "example": 18.0735},
+                                            "pickup_long": {"type": "number", "description": "Longitude du point de ramassage", "example": -15.9582},
+                                            "drop_lat": {"type": "number", "description": "Latitude du point de livraison", "example": 18.0894},
+                                            "drop_long": {"type": "number", "description": "Longitude du point de livraison", "example": -15.9785},
                                             "livreur_id": {"type": "integer", "description": "ID du livreur à assigner (optionnel)"}
                                         }
                                     }
@@ -1222,9 +1236,26 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                             }
                         },
                         "responses": {
-                            "200": {"description": "Commande créée"},
+                            "200": {
+                                "description": "Commande créée avec succès",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "order_id": {"type": "integer"},
+                                                "reference": {"type": "string"},
+                                                "status": {"type": "string"},
+                                                "sender_id": {"type": "integer"},
+                                                "sender_name": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
                             "400": {"$ref": "#/components/responses/BadRequest"},
-                            "403": {"$ref": "#/components/responses/Forbidden"}
+                            "401": {"$ref": "#/components/responses/Unauthorized"}
                         }
                     }
                 },
@@ -1248,13 +1279,85 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                 "/smart_delivery/api/delivery/status/{order_id}": {
                     "get": {
                         "tags": ["2. Enterprise - Orders"],
-                        "summary": "Obtenir le statut d'une commande",
+                        "summary": "Obtenir les détails d'une commande",
+                        "description": "Retourne les détails complets d'une commande (même format que my-orders).",
                         "security": [{"bearerAuth": []}],
                         "parameters": [
-                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}}
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
                         ],
                         "responses": {
-                            "200": {"description": "Statut de la commande"},
+                            "200": {
+                                "description": "Détails de la commande",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "order": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "reference": {"type": "string"},
+                                                        "external_reference": {"type": "string"},
+                                                        "status": {"type": "string"},
+                                                        "sector_type": {"type": "string"},
+                                                        "sender": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "id": {"type": "integer"},
+                                                                "name": {"type": "string"}
+                                                            }
+                                                        },
+                                                        "receiver": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "name": {"type": "string"},
+                                                                "phone": {"type": "string"}
+                                                            }
+                                                        },
+                                                        "pickup": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "lat": {"type": "number"},
+                                                                "long": {"type": "number"}
+                                                            }
+                                                        },
+                                                        "drop": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "lat": {"type": "number"},
+                                                                "long": {"type": "number"}
+                                                            }
+                                                        },
+                                                        "distance_km": {"type": "number"},
+                                                        "livreur": {
+                                                            "type": "object",
+                                                            "nullable": True,
+                                                            "properties": {
+                                                                "id": {"type": "integer"},
+                                                                "name": {"type": "string"},
+                                                                "phone": {"type": "string"}
+                                                            }
+                                                        },
+                                                        "created_at": {"type": "string", "format": "date-time"},
+                                                        "billing": {
+                                                            "type": "object",
+                                                            "nullable": True,
+                                                            "properties": {
+                                                                "base_tariff": {"type": "number"},
+                                                                "extra_fee": {"type": "number"},
+                                                                "total_amount": {"type": "number"},
+                                                                "state": {"type": "string"}
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
                             "403": {"$ref": "#/components/responses/Forbidden"},
                             "404": {"$ref": "#/components/responses/NotFound"}
                         }
@@ -1839,10 +1942,9 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
     def create_delivery(self, **kwargs):
         """POST /smart_delivery/api/delivery/create - Crée une commande de livraison
         
-        For Enterprise users: sender_id is automatically set to their company/partner
-        For Admin users: sender_id must be provided
+        For Enterprise users only: sender_id is automatically set to their company/partner
         """
-        # Require enterprise or admin user
+        # Require enterprise user
         user, auth_error = self._require_enterprise_or_admin()
         if auth_error:
             return auth_error
@@ -1851,33 +1953,15 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
             # Get JSON data from request body
             data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
             
-            user_type = self._get_user_type(user)
+            # Get the enterprise's partner (sender)
+            partner = user.partner_id
+            company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
             
-            # For enterprise users, enforce sender_id to be their company
-            if user_type == 'enterprise':
-                # Enterprise users can only create orders for their company
-                partner = user.partner_id
-                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
-                
-                # If sender_id is provided, validate it belongs to their company
-                if data.get('sender_id'):
-                    provided_sender_id = int(data['sender_id'])
-                    # Check if provided sender belongs to user's company
-                    sender = request.env['res.partner'].sudo().browse(provided_sender_id)
-                    if sender.exists():
-                        sender_company_id = sender.commercial_partner_id.id if sender.commercial_partner_id else sender.id
-                        if sender_company_id != company_partner_id and sender.parent_id.id != company_partner_id:
-                            return self._json_response({
-                                'error': 'Vous ne pouvez créer des commandes que pour votre entreprise',
-                                'code': 'SENDER_NOT_ALLOWED',
-                                'allowed_company_id': company_partner_id,
-                            }, 403)
-                else:
-                    # Default to company partner
-                    data['sender_id'] = company_partner_id
+            # Always set sender_id to their company - enterprise users can only create orders for themselves
+            data['sender_id'] = company_partner_id
             
             # Validation des données
-            required_fields = ['sector_type', 'sender_id', 'receiver_name', 'receiver_phone',
+            required_fields = ['sector_type', 'sender_id', 'receiver_phone',
                              'pickup_lat', 'pickup_long', 'drop_lat', 'drop_long']
             for field in required_fields:
                 if field not in data:
@@ -1965,9 +2049,11 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                         'code': 'ORDER_NOT_ASSIGNED_TO_YOU'
                     }, 403)
             
-            response_data = {
-                'order_id': order.id,
+            # Build response in same format as enterprise/my-orders
+            order_data = {
+                'id': order.id,
                 'reference': order.name,
+                'external_reference': order.reference,
                 'status': order.status,
                 'sector_type': order.sector_type,
                 'sender': {
@@ -1986,29 +2072,52 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                     'lat': order.drop_lat,
                     'long': order.drop_long,
                 },
+                'distance_km': order.distance_km,
                 'livreur': {
                     'id': order.assigned_livreur_id.id,
                     'name': order.assigned_livreur_id.name,
+                    'phone': order.assigned_livreur_id.phone,
                 } if order.assigned_livreur_id else None,
-                'distance_km': order.distance_km,
-                'conditions': {
-                    'otp_required': order.otp_required,
-                    'signature_required': order.signature_required,
-                    'photo_required': order.photo_required,
-                    'biometric_required': order.biometric_required,
-                },
+                'created_at': order.create_date.isoformat() if order.create_date else None,
             }
             
-            # Ajouter les conditions validées
+            # Add billing info if exists
+            if order.billing_id:
+                billing = order.billing_id[0]
+                order_data['billing'] = {
+                    'base_tariff': billing.base_tariff,
+                    'extra_fee': billing.extra_fee,
+                    'total_amount': billing.total_amount,
+                    'state': billing.state,
+                }
+            else:
+                order_data['billing'] = None
+            
+            # Add validation conditions
+            order_data['conditions'] = {
+                'otp_required': order.otp_required,
+                'signature_required': order.signature_required,
+                'photo_required': order.photo_required,
+                'biometric_required': order.biometric_required,
+            }
+            
+            # Add validation status if conditions exist
             if order.condition_ids:
                 condition = order.condition_ids[0]
-                response_data['validation'] = {
+                order_data['validation'] = {
                     'otp_verified': condition.otp_verified,
                     'signature_provided': bool(condition.signature_file),
                     'photo_provided': bool(condition.photo_url),
                     'biometric_score': condition.biometric_score,
                     'validated': condition.validated,
                 }
+            else:
+                order_data['validation'] = None
+            
+            response_data = {
+                'success': True,
+                'order': order_data,
+            }
             
             self._log_api_call(f'/smart_delivery/api/delivery/status/{order_id}', {}, response_data)
             return self._json_response(response_data)
@@ -3039,6 +3148,7 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                     'livreur': {
                         'id': order.assigned_livreur_id.id,
                         'name': order.assigned_livreur_id.name,
+                        'phone': order.assigned_livreur_id.phone,
                     } if order.assigned_livreur_id else None,
                     'created_at': order.create_date.isoformat() if order.create_date else None,
                 }
@@ -3054,6 +3164,27 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                     }
                 else:
                     order_data['billing'] = None
+                
+                # Add validation conditions
+                order_data['conditions'] = {
+                    'otp_required': order.otp_required,
+                    'signature_required': order.signature_required,
+                    'photo_required': order.photo_required,
+                    'biometric_required': order.biometric_required,
+                }
+                
+                # Add validation status if conditions exist
+                if order.condition_ids:
+                    condition = order.condition_ids[0]
+                    order_data['validation'] = {
+                        'otp_verified': condition.otp_verified,
+                        'signature_provided': bool(condition.signature_file),
+                        'photo_provided': bool(condition.photo_url),
+                        'biometric_score': condition.biometric_score,
+                        'validated': condition.validated,
+                    }
+                else:
+                    order_data['validation'] = None
                 
                 orders_data.append(order_data)
             

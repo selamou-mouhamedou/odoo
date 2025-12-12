@@ -34,13 +34,15 @@ class DeliveryEnterprise(models.Model):
         """Set password on the linked user"""
         for record in self:
             if record.password and record.user_id:
-                record.user_id.sudo().write({'password': record.password})
+                record.user_id.sudo().with_context(active_test=False).write({'password': record.password})
     
-    # Linked user
+    # Linked user (context allows viewing archived users for pending registrations)
     user_id = fields.Many2one('res.users', string='Utilisateur Système', readonly=True,
-                              tracking=True, help='Utilisateur système créé automatiquement')
+                              tracking=True, help='Utilisateur système créé automatiquement',
+                              context={'active_test': False})
     partner_id = fields.Many2one('res.partner', string='Partenaire', readonly=True,
-                                 tracking=True, help='Contact partenaire créé automatiquement')
+                                 tracking=True, help='Contact partenaire créé automatiquement',
+                                 context={'active_test': False})
     
     # Registration status
     registration_status = fields.Selection([
@@ -87,13 +89,16 @@ class DeliveryEnterprise(models.Model):
             if vals.get('email') and not vals.get('user_id'):
                 email = vals['email']
                 
-                # Check if a user with this email already exists
-                existing_user = self.env['res.users'].sudo().search([
+                # Check if a user with this email already exists (including archived)
+                existing_user = self.env['res.users'].sudo().with_context(active_test=False).search([
                     '|', ('login', '=', email), ('email', '=', email)
                 ], limit=1)
                 
                 if existing_user:
-                    raise ValidationError(_('Un utilisateur existe déjà avec cet email: %s') % email)
+                    if existing_user.active:
+                        raise ValidationError(_('Un utilisateur existe déjà avec cet email: %s') % email)
+                    else:
+                        raise ValidationError(_('Un utilisateur archivé existe avec cet email: %s. Contactez l\'administrateur pour le réactiver.') % email)
                 
                 # Create partner first
                 partner_vals = {
@@ -119,6 +124,11 @@ class DeliveryEnterprise(models.Model):
                 if base_user_group:
                     group_ids.append(base_user_group.id)
                 
+                # Get the Smart Delivery home action for enterprise users
+                home_action = self.env.ref('smart_delivery.action_delivery_order', raise_if_not_found=False)
+                
+                # Create user as active first, then deactivate if pending
+                # (Odoo restricts operations on users created with active=False)
                 user_vals = {
                     'name': vals.get('name'),
                     'login': email,
@@ -127,10 +137,18 @@ class DeliveryEnterprise(models.Model):
                     'password': vals.get('password', 'enterprise123'),
                     'partner_id': partner.id,
                     'groups_id': [(6, 0, group_ids)],
-                    'active': vals.get('registration_status', 'pending') == 'approved',
+                    'active': True,  # Create as active first
                 }
+                # Set home action to Smart Delivery orders
+                if home_action:
+                    user_vals['action_id'] = home_action.id
+                
                 user = self.env['res.users'].sudo().create(user_vals)
                 vals['user_id'] = user.id
+                
+                # Deactivate user if registration is pending
+                if vals.get('registration_status', 'pending') != 'approved':
+                    user.sudo().write({'active': False})
                 
                 # Clear password from vals (we don't store it)
                 vals.pop('password', None)
@@ -145,7 +163,7 @@ class DeliveryEnterprise(models.Model):
         if vals.get('password'):
             for enterprise in self:
                 if enterprise.user_id:
-                    enterprise.user_id.sudo().write({'password': vals['password']})
+                    enterprise.user_id.sudo().with_context(active_test=False).write({'password': vals['password']})
         
         # Sync changes to partner and user
         for enterprise in self:
@@ -171,7 +189,7 @@ class DeliveryEnterprise(models.Model):
                 if partner_updates:
                     enterprise.partner_id.sudo().write(partner_updates)
             
-            # Update user
+            # Update user (with context to handle archived users)
             if enterprise.user_id:
                 user_updates = {}
                 if vals.get('name'):
@@ -182,7 +200,7 @@ class DeliveryEnterprise(models.Model):
                 if vals.get('phone'):
                     user_updates['phone'] = vals['phone']
                 if user_updates:
-                    enterprise.user_id.sudo().write(user_updates)
+                    enterprise.user_id.sudo().with_context(active_test=False).write(user_updates)
         
         return result
     
@@ -199,9 +217,9 @@ class DeliveryEnterprise(models.Model):
             'rejection_reason': False,
         })
         
-        # Activate the user
+        # Activate the user (need to use context to access archived user)
         if self.user_id:
-            self.user_id.sudo().write({'active': True})
+            self.user_id.sudo().with_context(active_test=False).write({'active': True})
         
         return {
             'type': 'ir.actions.client',
@@ -238,7 +256,7 @@ class DeliveryEnterprise(models.Model):
         
         # Deactivate user until re-approved
         if self.user_id:
-            self.user_id.sudo().write({'active': False})
+            self.user_id.sudo().with_context(active_test=False).write({'active': False})
         
         return {
             'type': 'ir.actions.client',
@@ -271,7 +289,7 @@ class DeliveryEnterprise(models.Model):
         """Send password reset email to enterprise"""
         self.ensure_one()
         if self.user_id:
-            self.user_id.action_reset_password()
+            self.user_id.sudo().with_context(active_test=False).action_reset_password()
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',

@@ -10,4 +10,6 @@ from . import billing
 from . import delivery_route
 from . import api_log
 from . import res_users
+from . import res_partner
+from . import ir_http
 

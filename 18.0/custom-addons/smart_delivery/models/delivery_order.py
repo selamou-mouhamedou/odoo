@@ -36,8 +36,10 @@ class DeliveryOrder(models.Model):
                 self.photo_required = sector_rule.photo_required
                 self.biometric_required = sector_rule.biometric_required
     
-    sender_id = fields.Many2one('res.partner', string='Expéditeur', required=True, tracking=True)
-    receiver_name = fields.Char(string='Nom du Destinataire', required=True, tracking=True)
+    sender_id = fields.Many2one('res.partner', string='Expéditeur', required=True, tracking=True,
+                                 domain="[('is_delivery_enterprise', '=', True)]",
+                                 help="L'entreprise qui envoie le colis. Seules les entreprises inscrites sont affichées.")
+    receiver_name = fields.Char(string='Nom du Destinataire', tracking=True)
     receiver_phone = fields.Char(string='Téléphone Destinataire', required=True, tracking=True)
     
     pickup_lat = fields.Float(string='Latitude Pickup', required=True, digits=(10, 7))
@@ -45,7 +47,8 @@ class DeliveryOrder(models.Model):
     drop_lat = fields.Float(string='Latitude Livraison', required=True, digits=(10, 7))
     drop_long = fields.Float(string='Longitude Livraison', required=True, digits=(10, 7))
     
-    assigned_livreur_id = fields.Many2one('delivery.livreur', string='Livreur Assigné', tracking=True)
+    assigned_livreur_id = fields.Many2one('delivery.livreur', string='Livreur Assigné', tracking=True,
+                                          help="Seuls les livreurs ayant le type de secteur sélectionné sont affichés")
     
     status = fields.Selection([
         ('draft', 'Brouillon'),
@@ -69,11 +72,53 @@ class DeliveryOrder(models.Model):
     # Champs calculés
     distance_km = fields.Float(string='Distance (km)', compute='_compute_distance', store=True)
     
+    @api.model
+    def default_get(self, fields_list):
+        """Set default sender_id for enterprise users"""
+        defaults = super().default_get(fields_list)
+        
+        # Check if current user is an enterprise user (not admin)
+        user = self.env.user
+        admin_group = self.env.ref('smart_delivery.group_admin', raise_if_not_found=False)
+        enterprise_group = self.env.ref('smart_delivery.group_enterprise', raise_if_not_found=False)
+        
+        if enterprise_group and enterprise_group in user.groups_id:
+            if not admin_group or admin_group not in user.groups_id:
+                # Enterprise user - set default sender_id to their company
+                partner = user.partner_id
+                company_partner = partner.commercial_partner_id if partner.commercial_partner_id else partner
+                defaults['sender_id'] = company_partner.id
+        
+        return defaults
+    
     @api.model_create_multi
     def create(self, vals_list):
+        # Check enterprise user permissions
+        user = self.env.user
+        admin_group = self.env.ref('smart_delivery.group_admin', raise_if_not_found=False)
+        enterprise_group = self.env.ref('smart_delivery.group_enterprise', raise_if_not_found=False)
+        
+        is_enterprise_only = (
+            enterprise_group and enterprise_group in user.groups_id and
+            (not admin_group or admin_group not in user.groups_id)
+        )
+        
         for vals in vals_list:
             if vals.get('name', _('New')) == _('New'):
                 vals['name'] = self.env['ir.sequence'].next_by_code('delivery.order') or _('New')
+            
+            # Enterprise users can only create orders for their own company
+            if is_enterprise_only and vals.get('sender_id'):
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                
+                sender = self.env['res.partner'].browse(vals['sender_id'])
+                if sender.exists():
+                    sender_company_id = sender.commercial_partner_id.id if sender.commercial_partner_id else sender.id
+                    if sender_company_id != company_partner_id and sender.parent_id.id != company_partner_id:
+                        raise ValidationError(
+                            _('Vous ne pouvez créer des commandes que pour votre entreprise: %s') % partner.commercial_partner_id.name
+                        )
             
             # Appliquer les règles du secteur
             if vals.get('sector_type'):

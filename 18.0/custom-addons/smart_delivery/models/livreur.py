@@ -57,10 +57,11 @@ class DeliveryLivreur(models.Model):
         """Set password on the linked user"""
         for record in self:
             if record.password and record.user_id:
-                record.user_id.sudo().write({'password': record.password})
+                record.user_id.sudo().with_context(active_test=False).write({'password': record.password})
     
     user_id = fields.Many2one('res.users', string='Utilisateur Système', readonly=True, 
-                              tracking=True, help='Utilisateur système créé automatiquement')
+                              tracking=True, help='Utilisateur système créé automatiquement',
+                              context={'active_test': False})
     
     _sql_constraints = [
         ('user_unique', 'UNIQUE(user_id)', 'Un utilisateur ne peut être associé qu\'à un seul livreur!'),
@@ -85,35 +86,44 @@ class DeliveryLivreur(models.Model):
         for vals in vals_list:
             # Only create user if email is provided and user_id not already set
             if vals.get('email') and not vals.get('user_id'):
-                # Check if a user with this email already exists
-                existing_user = self.env['res.users'].sudo().search([
+                # Check if a user with this email already exists (including archived)
+                existing_user = self.env['res.users'].sudo().with_context(active_test=False).search([
                     '|', ('login', '=', vals['email']), ('email', '=', vals['email'])
                 ], limit=1)
                 
                 if existing_user:
-                    # Update user to have livreur group
-                    livreur_group = self.env.ref('smart_delivery.group_livreur', raise_if_not_found=False)
-                    if livreur_group:
-                        existing_user.sudo().write({
-                            'groups_id': [(4, livreur_group.id)]
-                        })
-                    vals['user_id'] = existing_user.id
+                    if existing_user.active:
+                        # Update user to have livreur group
+                        livreur_group = self.env.ref('smart_delivery.group_livreur', raise_if_not_found=False)
+                        if livreur_group:
+                            existing_user.sudo().write({
+                                'groups_id': [(4, livreur_group.id)]
+                            })
+                        vals['user_id'] = existing_user.id
+                    else:
+                        raise ValidationError(_('Un utilisateur archivé existe avec cet email: %s. Contactez l\'administrateur.') % vals['email'])
                 else:
                     # Create a new user for this livreur with livreur group
                     # Livreur group only - no portal or internal user access
                     livreur_group = self.env.ref('smart_delivery.group_livreur', raise_if_not_found=False)
                     group_ids = [livreur_group.id] if livreur_group else []
                     
+                    # Create user as active first, then deactivate if pending
                     user_vals = {
                         'name': vals.get('name'),
                         'login': vals.get('email'),
                         'email': vals.get('email'),
                         'phone': vals.get('phone'),
-                        'password': vals.get('password', 'livreur123'),  # Default password if not provided
-                        'groups_id': [(6, 0, group_ids)],  # Only livreur group - no backend access
+                        'password': vals.get('password', 'livreur123'),
+                        'groups_id': [(6, 0, group_ids)],
+                        'active': True,  # Create as active first
                     }
                     user = self.env['res.users'].sudo().create(user_vals)
                     vals['user_id'] = user.id
+                    
+                    # Deactivate user if registration is pending
+                    if vals.get('registration_status', 'pending') != 'approved':
+                        user.sudo().write({'active': False})
                 
                 # Clear password from vals (we don't store it in livreur)
                 vals.pop('password', None)
@@ -128,7 +138,7 @@ class DeliveryLivreur(models.Model):
         if vals.get('password'):
             for livreur in self:
                 if livreur.user_id:
-                    livreur.user_id.sudo().write({'password': vals['password']})
+                    livreur.user_id.sudo().with_context(active_test=False).write({'password': vals['password']})
         
         # Update user email/name if changed
         if vals.get('email') or vals.get('name'):
@@ -141,7 +151,7 @@ class DeliveryLivreur(models.Model):
                     if vals.get('name'):
                         update_vals['name'] = vals['name']
                     if update_vals:
-                        livreur.user_id.sudo().write(update_vals)
+                        livreur.user_id.sudo().with_context(active_test=False).write(update_vals)
         
         return result
     
@@ -240,12 +250,16 @@ class DeliveryLivreur(models.Model):
             'rejection_reason': False,
         })
         
+        # Activate the user account
+        if self.user_id:
+            self.user_id.sudo().with_context(active_test=False).write({'active': True})
+        
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Inscription Approuvée'),
-                'message': _('L\'inscription du livreur %s a été approuvée.') % self.name,
+                'message': _('L\'inscription du livreur %s a été approuvée. Le compte utilisateur est maintenant actif.') % self.name,
                 'type': 'success',
                 'sticky': False,
             }
