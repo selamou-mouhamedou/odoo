@@ -290,7 +290,7 @@ class DeliveryOrder(models.Model):
         
         # Valider photo
         if self.photo_required:
-            if not condition.photo_url:
+            if not condition.photo:
                 errors.append(_('Photo manquante'))
         
         # Valider biométrie

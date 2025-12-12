@@ -31687,3 +31687,17 @@ View error context:
 2025-12-12 12:01:01,359 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.010s 
 2025-12-12 12:01:01,362 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
 2025-12-12 12:01:01,369 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-12 12:03:46,823 47193 INFO odoo werkzeug: 127.0.0.1 - - [12/Dec/2025 12:03:46] "GET /websocket?version=18.0-7 HTTP/1.1" 101 - 1 0.001 0.015
+2025-12-12 12:03:46,892 47193 INFO odoo werkzeug: 127.0.0.1 - - [12/Dec/2025 12:03:46] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.002 0.003
+2025-12-12 12:07:29,206 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-12 12:07:29,218 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.011s 
+2025-12-12 12:07:29,223 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-12 12:07:29,229 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-12 12:10:59,367 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-12 12:10:59,376 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.007s 
+2025-12-12 12:10:59,380 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-12 12:10:59,386 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 
+2025-12-12 12:15:59,447 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) starting 
+2025-12-12 12:15:59,455 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) done in 0.007s 
+2025-12-12 12:15:59,456 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) processed 0 records, 0 records remaining 
+2025-12-12 12:15:59,461 47193 INFO odoo odoo.addons.base.models.ir_cron: Job 'Account: Journal online Waiting Synchronization' (26) completed 

@@ -79,7 +79,7 @@
                                 <list>
                                     <field name="otp_verified"/>
                                     <field name="signature_file" filename="signature_filename"/>
-                                    <field name="photo_url"/>
+                                    <field name="photo" filename="photo_filename" widget="image"/>
                                     <field name="biometric_score"/>
                                     <field name="validated"/>
                                 </list>

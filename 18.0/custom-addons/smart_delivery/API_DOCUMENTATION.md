@@ -222,7 +222,8 @@ The system automatically selects the best driver based on:
   "otp_value": "123456",                    // Optional: OTP code if required
   "signature": "base64_encoded_image",      // Optional: Signature image (base64)
   "signature_filename": "signature.png",    // Optional: Signature filename
-  "photo_url": "https://example.com/photo.jpg",  // Optional: Photo URL
+  "photo": "base64_encoded_image",          // Optional: Delivery photo (base64)
+  "photo_filename": "delivery_photo.jpg",   // Optional: Photo filename
   "biometric_score": 0.85                    // Optional: Biometric verification score (0-1)
 }
 ```
@@ -264,7 +265,8 @@ curl -X POST http://localhost:8069/smart_delivery/api/delivery/validate/42 \
     "otp_value": "123456",
     "signature": "iVBORw0KGgoAAAANSUhEUgAA...",
     "signature_filename": "signature.png",
-    "photo_url": "https://example.com/delivery_photo.jpg",
+    "photo": "iVBORw0KGgoAAAANSUhEUgAA...",
+    "photo_filename": "delivery_photo.jpg",
     "biometric_score": 0.92
   }'
 ```
@@ -417,7 +419,7 @@ POST /smart_delivery/api/delivery/validate/42
 {
   "otp_value": "123456",
   "signature": "base64_image",
-  "photo_url": "https://example.com/photo.jpg"
+  "photo": "base64_image"
 }
 ```
 

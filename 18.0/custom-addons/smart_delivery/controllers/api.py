@@ -398,6 +398,69 @@ class SmartDeliveryAPI(http.Controller):
             self._log_api_call('/smart_delivery/api/auth/logout', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
+    # ==================== PUBLIC SECTORS API (NO AUTH REQUIRED) ====================
+    
+    @http.route('/smart_delivery/api/sectors', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_public_sectors(self, **kwargs):
+        """
+        GET /smart_delivery/api/sectors - Get all available sectors (NO AUTH REQUIRED)
+        
+        This endpoint is public and can be used by mobile apps during registration
+        to show available sector types for livreur selection.
+        
+        Response:
+        {
+            "success": true,
+            "sectors": [
+                {
+                    "id": 1,
+                    "sector_type": "standard",
+                    "name": "Standard",
+                    "description": "Livraison standard",
+                    "requirements": {
+                        "otp_required": false,
+                        "signature_required": false,
+                        "photo_required": false,
+                        "biometric_required": false
+                    }
+                },
+                ...
+            ]
+        }
+        """
+        try:
+            sectors = request.env['sector.rule'].sudo().search([])
+            
+            sectors_data = []
+            for sector in sectors:
+                sectors_data.append({
+                    'id': sector.id,
+                    'sector_type': sector.sector_type,
+                    'name': sector.name,
+                    'description': sector.description or '',
+                    'requirements': {
+                        'otp_required': sector.otp_required,
+                        'signature_required': sector.signature_required,
+                        'photo_required': sector.photo_required,
+                        'biometric_required': sector.biometric_required,
+                    }
+                })
+            
+            response_data = {
+                'success': True,
+                'count': len(sectors_data),
+                'sectors': sectors_data,
+            }
+            
+            self._log_api_call('/smart_delivery/api/sectors', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Error getting sectors: {e}")
+            error_response = {'success': False, 'error': str(e), 'code': 'SECTORS_ERROR'}
+            self._log_api_call('/smart_delivery/api/sectors', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
     # ==================== LIVREUR REGISTRATION (NO AUTH REQUIRED) ====================
     
     @http.route('/smart_delivery/api/livreur/register', type='http', auth='public', methods=['POST'], csrf=False)
@@ -407,6 +470,8 @@ class SmartDeliveryAPI(http.Controller):
         
         This endpoint allows livreurs to create their own account from the mobile app.
         The account will be created with 'pending' status and needs admin approval.
+        
+        Use GET /smart_delivery/api/sectors to get available sectors first.
         
         Request Body (multipart/form-data):
         {
@@ -419,7 +484,8 @@ class SmartDeliveryAPI(http.Controller):
             "nni_photo": <file>,               # Required: Photo du NNI (base64 or file)
             "livreur_photo": <file>,           # Required: Photo d'identité du livreur
             "carte_grise_photo": <file>,       # Required: Photo de la carte grise
-            "assurance_photo": <file>          # Required: Photo de l'assurance
+            "assurance_photo": <file>,         # Required: Photo de l'assurance
+            "sector_types": ["standard", "premium"]  # Optional: List of sector types or IDs
         }
         
         Response (success):
@@ -564,6 +630,29 @@ class SmartDeliveryAPI(http.Controller):
                 photos[field] = photo_data
                 photos[f'{field}_filename'] = filename
             
+            # Process sector_types - can be array of IDs or array of sector_type strings
+            sector_ids = []
+            sector_types_input = data.get('sector_types', [])
+            
+            # Handle string input (comma-separated) or list
+            if isinstance(sector_types_input, str):
+                sector_types_input = [s.strip() for s in sector_types_input.split(',') if s.strip()]
+            
+            if sector_types_input:
+                for sector_input in sector_types_input:
+                    # Try to find by ID first
+                    if isinstance(sector_input, int) or (isinstance(sector_input, str) and sector_input.isdigit()):
+                        sector = request.env['sector.rule'].sudo().browse(int(sector_input))
+                        if sector.exists():
+                            sector_ids.append(sector.id)
+                    else:
+                        # Find by sector_type string
+                        sector = request.env['sector.rule'].sudo().search([
+                            ('sector_type', '=', sector_input)
+                        ], limit=1)
+                        if sector:
+                            sector_ids.append(sector.id)
+            
             # Create livreur record
             livreur_vals = {
                 'name': data.get('name', '').strip(),
@@ -585,8 +674,15 @@ class SmartDeliveryAPI(http.Controller):
                 'availability': False,  # Not available until approved
             }
             
+            # Add sector_ids if provided
+            if sector_ids:
+                livreur_vals['sector_ids'] = [(6, 0, sector_ids)]
+            
             # Create the livreur (this will also create the user)
             livreur = request.env['delivery.livreur'].sudo().create(livreur_vals)
+            
+            # Get sector names for response
+            sector_names = [s.name for s in livreur.sector_ids]
             
             response_data = {
                 'success': True,
@@ -598,6 +694,7 @@ class SmartDeliveryAPI(http.Controller):
                     'phone': livreur.phone,
                     'vehicle_type': livreur.vehicle_type,
                     'registration_status': livreur.registration_status,
+                    'sector_types': sector_names,
                 }
             }
             
@@ -1003,6 +1100,54 @@ Authorization: Bearer <token>
                         }
                     }
                 },
+                "/smart_delivery/api/sectors": {
+                    "get": {
+                        "tags": ["0. Public"],
+                        "summary": "Lister tous les secteurs disponibles (sans authentification)",
+                        "description": """Retourne la liste de tous les secteurs disponibles.
+
+**Aucune authentification requise.**
+
+À utiliser pendant l'inscription livreur pour afficher les secteurs disponibles.""",
+                        "responses": {
+                            "200": {
+                                "description": "Liste des secteurs",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "count": {"type": "integer"},
+                                                "sectors": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {"type": "integer"},
+                                                            "sector_type": {"type": "string", "enum": ["standard", "premium", "express", "fragile", "medical"]},
+                                                            "name": {"type": "string"},
+                                                            "description": {"type": "string"},
+                                                            "requirements": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "otp_required": {"type": "boolean"},
+                                                                    "signature_required": {"type": "boolean"},
+                                                                    "photo_required": {"type": "boolean"},
+                                                                    "biometric_required": {"type": "boolean"}
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "/smart_delivery/api/livreur/register": {
                     "post": {
                         "tags": ["1. Authentication"],
@@ -1013,7 +1158,14 @@ Authorization: Bearer <token>
 
 Le compte sera créé avec le statut 'pending' (en attente) et nécessite une approbation par un administrateur.
 
-Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-data.""",
+Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-data.
+
+**sector_types**: Liste des types de secteurs que le livreur peut gérer. Peut être:
+- Liste d'IDs: [1, 2, 3]
+- Liste de types: ["standard", "premium", "express"]
+- Chaîne séparée par virgules: "standard,premium,express"
+
+Utilisez GET /api/sectors pour obtenir la liste des secteurs disponibles.""",
                         "requestBody": {
                             "required": True,
                             "content": {
@@ -1031,7 +1183,8 @@ Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-d
                                             "nni_photo": {"type": "string", "format": "binary", "description": "Photo du document NNI"},
                                             "livreur_photo": {"type": "string", "format": "binary", "description": "Photo d'identité du livreur"},
                                             "carte_grise_photo": {"type": "string", "format": "binary", "description": "Photo de la carte grise du véhicule"},
-                                            "assurance_photo": {"type": "string", "format": "binary", "description": "Photo du document d'assurance"}
+                                            "assurance_photo": {"type": "string", "format": "binary", "description": "Photo du document d'assurance"},
+                                            "sector_types": {"type": "string", "description": "Types de secteur (IDs ou noms séparés par virgule)", "example": "standard,premium"}
                                         }
                                     }
                                 },
@@ -1049,7 +1202,13 @@ Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-d
                                             "nni_photo": {"type": "string", "description": "Photo NNI en base64"},
                                             "livreur_photo": {"type": "string", "description": "Photo livreur en base64"},
                                             "carte_grise_photo": {"type": "string", "description": "Photo carte grise en base64"},
-                                            "assurance_photo": {"type": "string", "description": "Photo assurance en base64"}
+                                            "assurance_photo": {"type": "string", "description": "Photo assurance en base64"},
+                                            "sector_types": {
+                                                "type": "array",
+                                                "items": {"type": "string"},
+                                                "description": "Liste des types de secteur (IDs ou noms)",
+                                                "example": ["standard", "premium"]
+                                            }
                                         }
                                     }
                                 }
@@ -1073,7 +1232,8 @@ Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-d
                                                         "email": {"type": "string"},
                                                         "phone": {"type": "string"},
                                                         "vehicle_type": {"type": "string"},
-                                                        "registration_status": {"type": "string", "enum": ["pending", "approved", "rejected"]}
+                                                        "registration_status": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+                                                        "sector_types": {"type": "array", "items": {"type": "string"}, "description": "Noms des secteurs sélectionnés"}
                                                     }
                                                 }
                                             }
@@ -1618,7 +1778,8 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                                         "properties": {
                                             "otp_value": {"type": "string", "description": "Code OTP (si requis)"},
                                             "signature": {"type": "string", "format": "base64", "description": "Signature en base64 (si requise)"},
-                                            "photo_url": {"type": "string", "format": "uri", "description": "URL de la photo (si requise)"},
+                                            "photo": {"type": "string", "format": "base64", "description": "Photo en base64 (si requise)"},
+                                            "photo_filename": {"type": "string", "description": "Nom du fichier photo (optionnel)"},
                                             "biometric_score": {"type": "number", "minimum": 0, "maximum": 1, "description": "Score biométrique min 0.7 (si requis)"}
                                         }
                                     }
@@ -2107,7 +2268,7 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                 order_data['validation'] = {
                     'otp_verified': condition.otp_verified,
                     'signature_provided': bool(condition.signature_file),
-                    'photo_provided': bool(condition.photo_url),
+                    'photo_provided': bool(condition.photo),
                     'biometric_score': condition.biometric_score,
                     'validated': condition.validated,
                 }
@@ -2264,7 +2425,7 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                         'otp_verified': condition.otp_verified,
                         'otp_value': condition.otp_value if order.otp_required else None,
                         'signature_provided': bool(condition.signature_file),
-                        'photo_provided': bool(condition.photo_url),
+                        'photo_provided': bool(condition.photo),
                         'biometric_score': condition.biometric_score,
                         'validated': condition.validated,
                     }
@@ -2394,7 +2555,8 @@ Pas besoin de fournir sender_id - il est ignoré.""",
             "otp_value": "123456",           // Required if otp_required is true
             "signature": "base64_data...",   // Required if signature_required is true
             "signature_filename": "sig.png", // Optional, defaults to "signature.png"
-            "photo_url": "https://...",      // Required if photo_required is true
+            "photo": "base64_data...",       // Required if photo_required is true
+            "photo_filename": "photo.jpg",   // Optional, defaults to "delivery_photo.jpg"
             "biometric_score": 0.85          // Required if biometric_required is true (min 0.7)
         }
         
@@ -2480,11 +2642,18 @@ Pas besoin de fournir sender_id - il est ignoré.""",
             
             # Validate photo if required
             if order.photo_required:
-                photo_url = data.get('photo_url')
-                if not photo_url:
+                photo_data = data.get('photo')
+                if not photo_data:
                     validation_errors.append('Photo requise mais non fournie')
                 else:
-                    condition.sudo().write({'photo_url': photo_url})
+                    # Handle base64 data with prefix
+                    if isinstance(photo_data, str) and 'base64,' in photo_data:
+                        photo_data = photo_data.split('base64,')[1]
+                    photo_filename = data.get('photo_filename', 'delivery_photo.jpg')
+                    condition.sudo().write({
+                        'photo': photo_data,
+                        'photo_filename': photo_filename
+                    })
             
             # Validate biometric if required
             if order.biometric_required:
@@ -2538,7 +2707,7 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                 'validation': {
                     'otp_verified': condition.otp_verified if order.otp_required else None,
                     'signature_provided': bool(condition.signature_file) if order.signature_required else None,
-                    'photo_provided': bool(condition.photo_url) if order.photo_required else None,
+                    'photo_provided': bool(condition.photo) if order.photo_required else None,
                     'biometric_score': condition.biometric_score if order.biometric_required else None,
                     'validated': condition.validated,
                 },
@@ -3040,7 +3209,7 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                     'otp_value': condition.otp_value if condition else None,
                     'otp_verified': condition.otp_verified if condition else False,
                     'signature_uploaded': bool(condition.signature_file) if condition else False,
-                    'photo_url': condition.photo_url if condition else None,
+                    'photo_uploaded': bool(condition.photo) if condition else False,
                     'biometric_score': condition.biometric_score if condition else None,
                     'validated': condition.validated if condition else False,
                 } if condition else None,
@@ -3179,7 +3348,7 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                     order_data['validation'] = {
                         'otp_verified': condition.otp_verified,
                         'signature_provided': bool(condition.signature_file),
-                        'photo_provided': bool(condition.photo_url),
+                        'photo_provided': bool(condition.photo),
                         'biometric_score': condition.biometric_score,
                         'validated': condition.validated,
                     }

@@ -31,7 +31,8 @@ class DeliveryCondition(models.Model):
     signature_file = fields.Binary(string='Fichier Signature')
     signature_filename = fields.Char(string='Nom du Fichier Signature')
     
-    photo_url = fields.Char(string='URL Photo')
+    photo = fields.Binary(string='Photo de Livraison', help='Photo prise lors de la livraison')
+    photo_filename = fields.Char(string='Nom du Fichier Photo')
     
     biometric_score = fields.Float(string='Score Biométrique', digits=(3, 2))
     
