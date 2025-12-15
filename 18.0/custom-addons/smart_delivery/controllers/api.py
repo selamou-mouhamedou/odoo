@@ -1371,7 +1371,9 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                         "description": """Crée une commande de livraison pour l'entreprise connectée.
 
 L'expéditeur (sender) est **automatiquement** défini sur l'entreprise de l'utilisateur connecté.
-Pas besoin de fournir sender_id - il est ignoré.""",
+
+**Conditions de validation:** Par défaut, les conditions sont définies par le type de secteur choisi.
+Vous pouvez **personnaliser** ces conditions en fournissant explicitement les champs otp_required, signature_required, photo_required, biometric_required.""",
                         "security": [{"bearerAuth": []}],
                         "requestBody": {
                             "required": True,
@@ -1389,7 +1391,11 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                                             "pickup_long": {"type": "number", "description": "Longitude du point de ramassage", "example": -15.9582},
                                             "drop_lat": {"type": "number", "description": "Latitude du point de livraison", "example": 18.0894},
                                             "drop_long": {"type": "number", "description": "Longitude du point de livraison", "example": -15.9785},
-                                            "livreur_id": {"type": "integer", "description": "ID du livreur à assigner (optionnel)"}
+                                            "livreur_id": {"type": "integer", "description": "ID du livreur à assigner (optionnel)"},
+                                            "otp_required": {"type": "boolean", "description": "Exiger OTP (optionnel - remplace la règle du secteur)"},
+                                            "signature_required": {"type": "boolean", "description": "Exiger signature (optionnel - remplace la règle du secteur)"},
+                                            "photo_required": {"type": "boolean", "description": "Exiger photo (optionnel - remplace la règle du secteur)"},
+                                            "biometric_required": {"type": "boolean", "description": "Exiger biométrie (optionnel - remplace la règle du secteur)"}
                                         }
                                     }
                                 }
@@ -1408,7 +1414,17 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                                                 "reference": {"type": "string"},
                                                 "status": {"type": "string"},
                                                 "sender_id": {"type": "integer"},
-                                                "sender_name": {"type": "string"}
+                                                "sender_name": {"type": "string"},
+                                                "conditions": {
+                                                    "type": "object",
+                                                    "description": "Conditions de validation appliquées",
+                                                    "properties": {
+                                                        "otp_required": {"type": "boolean"},
+                                                        "signature_required": {"type": "boolean"},
+                                                        "photo_required": {"type": "boolean"},
+                                                        "biometric_required": {"type": "boolean"}
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -1523,6 +1539,128 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                         }
                     }
                 },
+                "/smart_delivery/api/delivery/{order_id}/validation-proof": {
+                    "get": {
+                        "tags": ["2. Enterprise - Orders", "3. Livreur - Orders"],
+                        "summary": "Obtenir les preuves de validation d'une commande",
+                        "description": """Retourne les données de validation complètes d'une commande livrée, incluant:
+- Signature (image base64)
+- Photo de livraison (image base64)
+- Statut OTP vérifié
+- Score biométrique
+
+**Accès:**
+- Enterprise: Uniquement ses propres commandes
+- Livreur: Uniquement les commandes qui lui sont assignées
+- Admin: Toutes les commandes""",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Preuves de validation",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "validation": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "order_id": {"type": "integer"},
+                                                        "order_reference": {"type": "string"},
+                                                        "order_status": {"type": "string"},
+                                                        "validated": {"type": "boolean", "description": "Toutes les conditions requises sont validées"},
+                                                        "conditions_required": {
+                                                            "type": "object",
+                                                            "description": "Conditions exigées pour cette commande",
+                                                            "properties": {
+                                                                "otp_required": {"type": "boolean"},
+                                                                "signature_required": {"type": "boolean"},
+                                                                "photo_required": {"type": "boolean"},
+                                                                "biometric_required": {"type": "boolean"}
+                                                            }
+                                                        },
+                                                        "otp": {
+                                                            "type": "object",
+                                                            "nullable": True,
+                                                            "description": "Données OTP (null si non requis)",
+                                                            "properties": {
+                                                                "verified": {"type": "boolean"}
+                                                            }
+                                                        },
+                                                        "signature": {
+                                                            "type": "object",
+                                                            "nullable": True,
+                                                            "description": "Données signature (null si non requise)",
+                                                            "properties": {
+                                                                "provided": {"type": "boolean"},
+                                                                "data": {"type": "string", "description": "Image en base64"},
+                                                                "filename": {"type": "string"}
+                                                            }
+                                                        },
+                                                        "photo": {
+                                                            "type": "object",
+                                                            "nullable": True,
+                                                            "description": "Données photo (null si non requise)",
+                                                            "properties": {
+                                                                "provided": {"type": "boolean"},
+                                                                "data": {"type": "string", "description": "Image en base64"},
+                                                                "filename": {"type": "string"}
+                                                            }
+                                                        },
+                                                        "biometric": {
+                                                            "type": "object",
+                                                            "nullable": True,
+                                                            "description": "Données biométriques (null si non requises)",
+                                                            "properties": {
+                                                                "provided": {"type": "boolean"},
+                                                                "score": {"type": "number", "description": "Score de vérification (0-1)"}
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {
+                                "description": "Accès refusé",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["ACCESS_DENIED", "ORDER_NOT_ASSIGNED_TO_YOU"]}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "Commande ou données de validation non trouvées",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["ORDER_NOT_FOUND", "NO_VALIDATION_DATA"]}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {"$ref": "#/components/responses/Unauthorized"}
+                        }
+                    }
+                },
                 "/smart_delivery/api/delivery/assign": {
                     "post": {
                         "tags": ["2. Enterprise - Orders"],
@@ -1550,13 +1688,14 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                     }
                 },
                 
-                # ==================== ENTERPRISE - SECTORS ====================
+                # ==================== ENTERPRISE - SECTORS (PUBLIC) ====================
                 "/smart_delivery/api/enterprise/sectors": {
                     "get": {
-                        "tags": ["3. Enterprise - Sectors"],
-                        "summary": "Lister tous les secteurs disponibles",
-                        "description": "Retourne la liste des secteurs avec leurs exigences et le nombre de livreurs.",
-                        "security": [{"bearerAuth": []}],
+                        "tags": ["0. Public"],
+                        "summary": "Lister tous les secteurs disponibles (sans authentification)",
+                        "description": """Retourne la liste des secteurs avec leurs exigences et le nombre de livreurs.
+
+**Aucune authentification requise.**""",
                         "responses": {
                             "200": {
                                 "description": "Liste des secteurs",
@@ -2133,13 +2272,24 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                 'reference': data.get('reference'),
                 'sector_type': data['sector_type'],
                 'sender_id': data['sender_id'],
-                'receiver_name': data['receiver_name'],
+                'receiver_name': data.get('receiver_name'),
                 'receiver_phone': data['receiver_phone'],
                 'pickup_lat': float(data['pickup_lat']),
                 'pickup_long': float(data['pickup_long']),
                 'drop_lat': float(data['drop_lat']),
                 'drop_long': float(data['drop_long']),
             }
+            
+            # Allow enterprise to override validation conditions from sector rules
+            # If not provided, the sector rules will be applied by the model
+            if 'otp_required' in data:
+                order_vals['otp_required'] = bool(data['otp_required'])
+            if 'signature_required' in data:
+                order_vals['signature_required'] = bool(data['signature_required'])
+            if 'photo_required' in data:
+                order_vals['photo_required'] = bool(data['photo_required'])
+            if 'biometric_required' in data:
+                order_vals['biometric_required'] = bool(data['biometric_required'])
             
             # Ajouter le livreur si spécifié
             if data.get('livreur_id'):
@@ -2157,6 +2307,12 @@ Pas besoin de fournir sender_id - il est ignoré.""",
                 'status': order.status,
                 'sender_id': order.sender_id.id,
                 'sender_name': order.sender_id.name,
+                'conditions': {
+                    'otp_required': order.otp_required,
+                    'signature_required': order.signature_required,
+                    'photo_required': order.photo_required,
+                    'biometric_required': order.biometric_required,
+                },
             }
             
             self._log_api_call('/smart_delivery/api/delivery/create', data, response_data)
@@ -2721,6 +2877,113 @@ Pas besoin de fournir sender_id - il est ignoré.""",
             _logger.error(f"Erreur validation livraison: {e}")
             error_response = {'error': str(e), 'code': 'DELIVER_ERROR'}
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/deliver', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/delivery/<int:order_id>/validation-proof', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_validation_proof(self, order_id, **kwargs):
+        """
+        GET /smart_delivery/api/delivery/<order_id>/validation-proof
+        
+        Returns the validation proof data (signature, photo, OTP status, biometric) for a delivered order.
+        
+        Accessible by:
+        - Enterprise users: Only for their own orders
+        - Livreurs: Only for orders assigned to them
+        - Admin: All orders
+        
+        Response includes base64 encoded images for signature and photo.
+        """
+        auth_error = self._require_auth()
+        if auth_error:
+            return auth_error
+        
+        try:
+            user = self._get_current_user()
+            user_type = self._get_user_type(user)
+            
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            if not order.exists():
+                return self._json_response({
+                    'success': False,
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Access control based on user type
+            if user_type == 'enterprise':
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                sender_company_id = order.sender_id.commercial_partner_id.id if order.sender_id.commercial_partner_id else order.sender_id.id
+                
+                if sender_company_id != company_partner_id and order.sender_id.parent_id.id != company_partner_id:
+                    return self._json_response({
+                        'success': False,
+                        'error': 'Accès refusé. Cette commande ne vous appartient pas.',
+                        'code': 'ACCESS_DENIED'
+                    }, 403)
+            
+            elif user_type == 'livreur':
+                livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+                if not livreur or order.assigned_livreur_id.id != livreur.id:
+                    return self._json_response({
+                        'success': False,
+                        'error': 'Accès refusé. Cette commande ne vous est pas assignée.',
+                        'code': 'ORDER_NOT_ASSIGNED_TO_YOU'
+                    }, 403)
+            
+            # Get the condition record
+            condition = order.condition_ids[0] if order.condition_ids else None
+            
+            if not condition:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Aucune donnée de validation pour cette commande',
+                    'code': 'NO_VALIDATION_DATA'
+                }, 404)
+            
+            # Build response with full validation data
+            validation_data = {
+                'order_id': order.id,
+                'order_reference': order.name,
+                'order_status': order.status,
+                'validated': condition.validated,
+                'conditions_required': {
+                    'otp_required': order.otp_required,
+                    'signature_required': order.signature_required,
+                    'photo_required': order.photo_required,
+                    'biometric_required': order.biometric_required,
+                },
+                'otp': {
+                    'verified': condition.otp_verified,
+                } if order.otp_required else None,
+                'signature': {
+                    'provided': bool(condition.signature_file),
+                    'data': condition.signature_file.decode('utf-8') if condition.signature_file else None,
+                    'filename': condition.signature_filename,
+                } if order.signature_required else None,
+                'photo': {
+                    'provided': bool(condition.photo),
+                    'data': condition.photo.decode('utf-8') if condition.photo else None,
+                    'filename': condition.photo_filename,
+                } if order.photo_required else None,
+                'biometric': {
+                    'provided': condition.biometric_score is not None and condition.biometric_score > 0,
+                    'score': condition.biometric_score,
+                } if order.biometric_required else None,
+            }
+            
+            response_data = {
+                'success': True,
+                'validation': validation_data,
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/delivery/{order_id}/validation-proof', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Error getting validation proof for order {order_id}: {e}")
+            error_response = {'success': False, 'error': str(e), 'code': 'VALIDATION_PROOF_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/delivery/{order_id}/validation-proof', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
     @http.route('/smart_delivery/api/livreur/location', type='http', auth='public', methods=['POST'], csrf=False)
@@ -3730,9 +3993,9 @@ Pas besoin de fournir sender_id - il est ignoré.""",
     @http.route('/smart_delivery/api/enterprise/sectors', type='http', auth='public', methods=['GET'], csrf=False)
     def get_sectors(self, **kwargs):
         """
-        GET /smart_delivery/api/enterprise/sectors - Get all available sector rules
+        GET /smart_delivery/api/enterprise/sectors - Get all available sector rules (PUBLIC)
         
-        Only accessible by enterprise or admin users.
+        No authentication required. Returns all sectors with livreur count.
         
         Response:
         {
@@ -3748,11 +4011,6 @@ Pas besoin de fournir sender_id - il est ignoré.""",
             ]
         }
         """
-        # Require enterprise or admin user
-        user, auth_error = self._require_enterprise_or_admin()
-        if auth_error:
-            return auth_error
-        
         try:
             # Get all sector rules
             sectors = request.env['sector.rule'].sudo().search([], order='sector_type asc')
