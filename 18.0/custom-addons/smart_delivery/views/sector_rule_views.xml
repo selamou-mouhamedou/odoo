@@ -4,15 +4,15 @@
         <field name="name">sector.rule.tree</field>
         <field name="model">sector.rule</field>
         <field name="arch" type="xml">
-            <list string="Règles de Secteur">
-                <field name="sector_type"/>
-                <field name="base_price" string="Prix de Base"/>
-                <field name="distance_fee_per_km" string="Frais/km"/>
+            <list string="Règles de Secteur" sample="1">
+                <field name="sector_type" widget="badge"/>
+                <field name="base_price" string="Prix de Base" widget="monetary"/>
+                <field name="distance_fee_per_km" string="Frais/km" widget="monetary"/>
                 <field name="free_distance_km" string="Km Gratuits"/>
-                <field name="otp_required"/>
-                <field name="signature_required"/>
-                <field name="photo_required"/>
-                <field name="biometric_required"/>
+                <field name="otp_required" widget="boolean"/>
+                <field name="signature_required" widget="boolean"/>
+                <field name="photo_required" widget="boolean"/>
+                <field name="biometric_required" widget="boolean"/>
                 <field name="livreur_count"/>
             </list>
         </field>
@@ -29,11 +29,14 @@
                             <field name="livreur_count" widget="statinfo" string="Livreurs"/>
                         </button>
                     </div>
-                    <group>
-                        <group>
-                            <field name="sector_type"/>
-                        </group>
-                    </group>
+                    
+                    <div class="oe_title">
+                        <label for="sector_type" string="Type de Secteur"/>
+                        <h1>
+                            <field name="sector_type" widget="badge"/>
+                        </h1>
+                    </div>
+                    
                     <group string="Tarification">
                         <group>
                             <field name="base_price" widget="monetary"/>
@@ -43,19 +46,22 @@
                             <field name="distance_fee_per_km" widget="monetary"/>
                         </group>
                     </group>
+                    
                     <group string="Conditions Requises">
                         <group>
-                            <field name="otp_required"/>
-                            <field name="signature_required"/>
+                            <field name="otp_required" widget="boolean_toggle"/>
+                            <field name="signature_required" widget="boolean_toggle"/>
                         </group>
                         <group>
-                            <field name="photo_required"/>
-                            <field name="biometric_required"/>
+                            <field name="photo_required" widget="boolean_toggle"/>
+                            <field name="biometric_required" widget="boolean_toggle"/>
                         </group>
                     </group>
+                    
                     <group>
                         <field name="description" placeholder="Description de la règle..."/>
                     </group>
+                    
                     <notebook>
                         <page string="Livreurs" name="livreurs">
                             <field name="livreur_ids" nolabel="1">
@@ -65,7 +71,7 @@
                                     <field name="vehicle_type"/>
                                     <field name="availability"/>
                                     <field name="verified"/>
-                                    <field name="rating" widget="progressbar"/>
+                                    <field name="rating"/>
                                 </list>
                             </field>
                         </page>
@@ -81,6 +87,13 @@
         <field name="arch" type="xml">
             <search string="Rechercher Règles">
                 <field name="sector_type"/>
+                <separator/>
+                <filter string="Standard" name="standard" domain="[('sector_type', '=', 'standard')]"/>
+                <filter string="Premium" name="premium" domain="[('sector_type', '=', 'premium')]"/>
+                <filter string="Express" name="express" domain="[('sector_type', '=', 'express')]"/>
+                <filter string="Fragile" name="fragile" domain="[('sector_type', '=', 'fragile')]"/>
+                <filter string="Médical" name="medical" domain="[('sector_type', '=', 'medical')]"/>
+                <separator/>
                 <filter string="OTP Requis" name="otp" domain="[('otp_required', '=', True)]"/>
                 <filter string="Signature Requise" name="signature" domain="[('signature_required', '=', True)]"/>
                 <filter string="Photo Requise" name="photo" domain="[('photo_required', '=', True)]"/>
@@ -97,6 +110,10 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Créer une nouvelle règle de secteur
+            </p>
+            <p>
+                Les règles de secteur définissent la tarification et les conditions 
+                de validation pour chaque type de livraison.
             </p>
         </field>
     </record>

@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Root menu - visible to enterprise and admin -->
+    <!-- Root menu -->
     <menuitem 
         id="menu_smart_delivery_root" 
-        name="Gestion de Livraison" 
+        name="Smart Delivery" 
         sequence="10" 
         web_icon="smart_delivery,static/description/icon.png"
         groups="smart_delivery.group_enterprise,smart_delivery.group_admin"/>
 
-    <!-- ============================================================ -->
-    <!-- MAIN OPERATIONS -->
-    <!-- ============================================================ -->
-    
     <!-- Orders -->
     <menuitem 
         id="menu_delivery_orders" 
@@ -39,10 +35,7 @@
         sequence="30"
         groups="smart_delivery.group_enterprise,smart_delivery.group_admin"/>
 
-    <!-- ============================================================ -->
-    <!-- ADMINISTRATION - Admin Only -->
-    <!-- ============================================================ -->
-    
+    <!-- Administration -->
     <menuitem 
         id="menu_administration" 
         name="Administration" 
@@ -84,5 +77,14 @@
         parent="menu_administration" 
         action="action_api_log" 
         sequence="30"
+        groups="smart_delivery.group_admin"/>
+    
+    <!-- Conditions -->
+    <menuitem 
+        id="menu_delivery_conditions" 
+        name="Conditions" 
+        parent="menu_administration" 
+        action="action_delivery_condition" 
+        sequence="40"
         groups="smart_delivery.group_admin"/>
 </odoo>

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ============================================================ -->
-    <!-- LIST VIEW - Smart Delivery Users -->
-    <!-- ============================================================ -->
     <record id="view_delivery_users_list" model="ir.ui.view">
         <field name="name">res.users.delivery.list</field>
         <field name="model">res.users</field>
@@ -10,20 +7,20 @@
             <list string="Utilisateurs Smart Delivery"
                   decoration-success="delivery_user_type == 'admin'"
                   decoration-info="delivery_user_type == 'enterprise'"
-                  decoration-warning="delivery_user_type == 'livreur'">
-                <field name="name"/>
-                <field name="email"/>
-                <field name="phone"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <field name="delivery_user_type" string="Rôle"/>
-                <field name="active" column_invisible="True"/>
+                  decoration-warning="delivery_user_type == 'livreur'"
+                  multi_edit="1"
+                  sample="1">
+                <field name="image_128" widget="image" options="{'size': [32, 32]}"/>
+                <field name="name" decoration-bf="1"/>
+                <field name="email" widget="email"/>
+                <field name="phone" widget="phone" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="delivery_user_type" string="Rôle" widget="badge"/>
+                <field name="active" widget="boolean_toggle"/>
             </list>
         </field>
     </record>
 
-    <!-- ============================================================ -->
-    <!-- FORM VIEW - Smart Delivery Users -->
-    <!-- ============================================================ -->
     <record id="view_delivery_users_form" model="ir.ui.view">
         <field name="name">res.users.delivery.form</field>
         <field name="model">res.users</field>
@@ -40,7 +37,7 @@
                         <group string="Informations">
                             <field name="email" required="1" placeholder="exemple@email.com"/>
                             <field name="login" invisible="1"/>
-                            <field name="phone" placeholder="+212 6XX XXX XXX"/>
+                            <field name="phone" placeholder="+222 XX XX XX XX"/>
                             <field name="active"/>
                         </group>
                         <group string="Mot de passe">
@@ -75,9 +72,6 @@
         </field>
     </record>
 
-    <!-- ============================================================ -->
-    <!-- SEARCH VIEW -->
-    <!-- ============================================================ -->
     <record id="view_delivery_users_search" model="ir.ui.view">
         <field name="name">res.users.delivery.search</field>
         <field name="model">res.users</field>
@@ -104,11 +98,6 @@
         </field>
     </record>
 
-    <!-- ============================================================ -->
-    <!-- ACTIONS -->
-    <!-- ============================================================ -->
-    
-    <!-- All Smart Delivery Users -->
     <record id="action_delivery_users" model="ir.actions.act_window">
         <field name="name">Gestion des Utilisateurs</field>
         <field name="res_model">res.users</field>
@@ -129,7 +118,6 @@
         </field>
     </record>
     
-    <!-- Enterprise Users Only -->
     <record id="action_enterprise_users" model="ir.actions.act_window">
         <field name="name">Utilisateurs Entreprise</field>
         <field name="res_model">res.users</field>
@@ -142,7 +130,6 @@
         <field name="context">{'search_default_filter_active': 1}</field>
     </record>
     
-    <!-- Admin Users Only -->
     <record id="action_admin_users" model="ir.actions.act_window">
         <field name="name">Administrateurs Smart Delivery</field>
         <field name="res_model">res.users</field>
@@ -155,7 +142,6 @@
         <field name="context">{'search_default_filter_active': 1}</field>
     </record>
     
-    <!-- Livreur Users Only -->
     <record id="action_livreur_users" model="ir.actions.act_window">
         <field name="name">Utilisateurs Livreurs</field>
         <field name="res_model">res.users</field>

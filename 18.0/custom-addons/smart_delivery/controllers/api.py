@@ -1008,6 +1008,7 @@ Authorization: Bearer <token>
                 {"name": "5. Driver - Orders", "description": "Gestion des commandes pour les livreurs"},
                 {"name": "6. Driver - Delivery", "description": "Processus de livraison"},
                 {"name": "7. Driver - Profile", "description": "Profil et localisation du livreur"},
+                {"name": "8. Driver - Billing", "description": "Facturation et paiement pour les livreurs"},
             ],
             "components": {
                 "securitySchemes": {
@@ -2127,6 +2128,167 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                             }
                         }
                     }
+                },
+                # ==================== DRIVER BILLING ====================
+                "/smart_delivery/api/livreur/orders/{order_id}/billing": {
+                    "get": {
+                        "tags": ["8. Driver - Billing"],
+                        "summary": "Obtenir les infos de facturation d'une commande",
+                        "description": "Retourne les informations de facturation incluant le statut de la facture. Seul le livreur assigné peut accéder.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Informations de facturation",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "billing": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "order_id": {"type": "integer"},
+                                                        "order_name": {"type": "string"},
+                                                        "state": {"type": "string", "enum": ["draft", "invoiced", "posted", "partial", "paid", "cancelled"]},
+                                                        "total_amount": {"type": "number"},
+                                                        "currency": {"type": "string"},
+                                                        "invoice": {"type": "object", "nullable": True},
+                                                        "receiver": {"type": "object"}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {"$ref": "#/components/responses/Forbidden"},
+                            "404": {"$ref": "#/components/responses/NotFound"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/orders/{order_id}/confirm-invoice": {
+                    "post": {
+                        "tags": ["8. Driver - Billing"],
+                        "summary": "Confirmer la facture d'une commande",
+                        "description": "Crée et confirme la facture pour une commande livrée. Retourne les détails de la facture et l'URL du PDF. La commande doit être en statut 'delivered'.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Facture confirmée avec succès",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "message": {"type": "string"},
+                                                "invoice": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "name": {"type": "string"},
+                                                        "state": {"type": "string"},
+                                                        "payment_state": {"type": "string"},
+                                                        "amount_total": {"type": "number"},
+                                                        "amount_residual": {"type": "number"},
+                                                        "lines": {"type": "array", "items": {"type": "object"}}
+                                                    }
+                                                },
+                                                "billing": {"type": "object"},
+                                                "pdf_url": {"type": "string", "description": "URL pour télécharger le PDF"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "403": {"$ref": "#/components/responses/Forbidden"},
+                            "404": {"$ref": "#/components/responses/NotFound"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/orders/{order_id}/confirm-payment": {
+                    "post": {
+                        "tags": ["8. Driver - Billing"],
+                        "summary": "Confirmer le paiement d'une commande",
+                        "description": "Enregistre un paiement en espèces (COD) et le réconcilie automatiquement avec la facture. La facture doit être confirmée avant.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
+                        ],
+                        "requestBody": {
+                            "required": False,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "notes": {"type": "string", "description": "Notes optionnelles sur le paiement"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Paiement confirmé et réconcilié",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean"},
+                                                "message": {"type": "string"},
+                                                "payment": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "amount": {"type": "number"},
+                                                        "payment_date": {"type": "string", "format": "date"}
+                                                    }
+                                                },
+                                                "invoice": {"type": "object"},
+                                                "billing": {"type": "object"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {"$ref": "#/components/responses/BadRequest"},
+                            "403": {"$ref": "#/components/responses/Forbidden"},
+                            "404": {"$ref": "#/components/responses/NotFound"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/orders/{order_id}/invoice-pdf": {
+                    "get": {
+                        "tags": ["8. Driver - Billing"],
+                        "summary": "Télécharger le PDF de la facture",
+                        "description": "Télécharge la facture au format PDF avec le branding de l'entreprise. Montrez ce PDF au client avant d'encaisser le paiement.",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Fichier PDF",
+                                "content": {
+                                    "application/pdf": {
+                                        "schema": {"type": "string", "format": "binary"}
+                                    }
+                                }
+                            },
+                            "403": {"$ref": "#/components/responses/Forbidden"},
+                            "404": {"$ref": "#/components/responses/NotFound"}
+                        }
+                    }
                 }
             }
         }
@@ -2595,6 +2757,7 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                         'base_tariff': billing.base_tariff,
                         'extra_fee': billing.extra_fee,
                         'total_amount': billing.total_amount,
+                        'state': billing.state,
                     }
                 else:
                     order_data['billing'] = None
@@ -3112,6 +3275,492 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
             _logger.error(f"Erreur récupération statistiques livreur: {e}")
             error_response = {'error': str(e), 'code': 'STATS_ERROR'}
             self._log_api_call('/smart_delivery/api/livreur/stats', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    # ==================== LIVREUR BILLING ENDPOINTS ====================
+    
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/billing', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_order_billing(self, order_id, **kwargs):
+        """
+        GET /smart_delivery/api/livreur/orders/{order_id}/billing - Get billing info for an order
+        
+        Only the assigned livreur can access this endpoint.
+        Returns billing information including invoice status.
+        
+        Response:
+        {
+            "success": true,
+            "billing": {
+                "id": 1,
+                "order_id": 1,
+                "order_name": "DEL/2024/0001",
+                "state": "posted",
+                "total_amount": 150.0,
+                "currency": "MRU",
+                "invoice": {
+                    "id": 5,
+                    "name": "INV/2024/0001",
+                    "state": "posted",
+                    "payment_state": "not_paid",
+                    "amount_total": 150.0,
+                    "amount_residual": 150.0
+                },
+                "receiver": {
+                    "name": "Client Name",
+                    "phone": "+222XXXXXXXX"
+                }
+            }
+        }
+        """
+        try:
+            livreur, error_response = self._require_livreur()
+            if error_response:
+                return error_response
+            
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            if not order.exists():
+                return self._json_response({
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if livreur is assigned to this order
+            if order.assigned_livreur_id.id != livreur.id:
+                return self._json_response({
+                    'error': 'Vous n\'êtes pas assigné à cette commande',
+                    'code': 'NOT_ASSIGNED'
+                }, 403)
+            
+            # Get billing for this order
+            billing = request.env['delivery.billing'].sudo().search([
+                ('order_id', '=', order.id)
+            ], limit=1)
+            
+            if not billing:
+                return self._json_response({
+                    'error': 'Aucune facturation trouvée pour cette commande',
+                    'code': 'BILLING_NOT_FOUND'
+                }, 404)
+            
+            # Prepare billing data
+            billing_data = {
+                'id': billing.id,
+                'order_id': order.id,
+                'order_name': order.name,
+                'state': billing.state,
+                'total_amount': billing.total_amount,
+                'base_tariff': billing.base_tariff,
+                'extra_fee': billing.extra_fee,
+                'distance_km': billing.distance_km,
+                'currency': billing.currency_id.name if billing.currency_id else 'MRU',
+                'receiver': {
+                    'name': order.receiver_name or '',
+                    'phone': order.receiver_phone or '',
+                },
+                'invoice': None,
+            }
+            
+            if billing.invoice_id:
+                billing_data['invoice'] = {
+                    'id': billing.invoice_id.id,
+                    'name': billing.invoice_id.name,
+                    'state': billing.invoice_id.state,
+                    'payment_state': billing.invoice_id.payment_state,
+                    'amount_total': billing.invoice_id.amount_total,
+                    'amount_residual': billing.invoice_id.amount_residual,
+                    'invoice_date': str(billing.invoice_id.invoice_date) if billing.invoice_id.invoice_date else None,
+                }
+            
+            response_data = {
+                'success': True,
+                'billing': billing_data,
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/billing', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur récupération billing: {e}")
+            error_response = {'error': str(e), 'code': 'BILLING_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/billing', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/confirm-invoice', type='http', auth='public', methods=['POST'], csrf=False)
+    def confirm_order_invoice(self, order_id, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/orders/{order_id}/confirm-invoice - Confirm invoice for an order
+        
+        Only the assigned livreur can confirm the invoice.
+        Creates the invoice if it doesn't exist, then posts it.
+        Returns invoice information and PDF download URL.
+        
+        Response:
+        {
+            "success": true,
+            "message": "Facture confirmée avec succès",
+            "invoice": {
+                "id": 5,
+                "name": "INV/2024/0001",
+                "state": "posted",
+                "payment_state": "not_paid",
+                "amount_total": 150.0,
+                "amount_residual": 150.0,
+                "date": "2024-01-15"
+            },
+            "billing": {
+                "id": 1,
+                "state": "posted",
+                "total_amount": 150.0
+            },
+            "pdf_url": "/smart_delivery/api/livreur/orders/1/invoice-pdf"
+        }
+        """
+        try:
+            livreur, error_response = self._require_livreur()
+            if error_response:
+                return error_response
+            
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            if not order.exists():
+                return self._json_response({
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if livreur is assigned to this order
+            if order.assigned_livreur_id.id != livreur.id:
+                return self._json_response({
+                    'error': 'Vous n\'êtes pas assigné à cette commande',
+                    'code': 'NOT_ASSIGNED'
+                }, 403)
+            
+            # Check order status - should be delivered
+            if order.status != 'delivered':
+                return self._json_response({
+                    'error': 'La commande doit être livrée avant de confirmer la facture',
+                    'code': 'ORDER_NOT_DELIVERED',
+                    'current_status': order.status
+                }, 400)
+            
+            # Get or create billing
+            billing = request.env['delivery.billing'].sudo().search([
+                ('order_id', '=', order.id)
+            ], limit=1)
+            
+            if not billing:
+                return self._json_response({
+                    'error': 'Aucune facturation trouvée pour cette commande',
+                    'code': 'BILLING_NOT_FOUND'
+                }, 404)
+            
+            # Create invoice if it doesn't exist
+            if not billing.invoice_id:
+                try:
+                    billing.action_create_invoice()
+                except Exception as e:
+                    return self._json_response({
+                        'error': f'Erreur lors de la création de la facture: {str(e)}',
+                        'code': 'INVOICE_CREATE_ERROR'
+                    }, 500)
+            
+            # Post invoice if in draft
+            if billing.invoice_id.state == 'draft':
+                try:
+                    billing.invoice_id.action_post()
+                except Exception as e:
+                    return self._json_response({
+                        'error': f'Erreur lors de la confirmation de la facture: {str(e)}',
+                        'code': 'INVOICE_POST_ERROR'
+                    }, 500)
+            
+            # Refresh billing state
+            billing.invalidate_recordset(['state'])
+            
+            # Prepare response
+            invoice = billing.invoice_id
+            response_data = {
+                'success': True,
+                'message': 'Facture confirmée avec succès',
+                'invoice': {
+                    'id': invoice.id,
+                    'name': invoice.name,
+                    'state': invoice.state,
+                    'payment_state': invoice.payment_state,
+                    'amount_total': invoice.amount_total,
+                    'amount_residual': invoice.amount_residual,
+                    'date': str(invoice.invoice_date) if invoice.invoice_date else None,
+                    'lines': [{
+                        'description': line.name,
+                        'quantity': line.quantity,
+                        'price_unit': line.price_unit,
+                        'subtotal': line.price_subtotal,
+                    } for line in invoice.invoice_line_ids.filtered(lambda l: not l.display_type)],
+                },
+                'billing': {
+                    'id': billing.id,
+                    'state': billing.state,
+                    'total_amount': billing.total_amount,
+                },
+                'receiver': {
+                    'name': order.receiver_name or '',
+                    'phone': order.receiver_phone or '',
+                },
+                'pdf_url': f'/smart_delivery/api/livreur/orders/{order_id}/invoice-pdf',
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/confirm-invoice', {}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur confirmation facture: {e}")
+            error_response = {'error': str(e), 'code': 'CONFIRM_INVOICE_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/confirm-invoice', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/confirm-payment', type='http', auth='public', methods=['POST'], csrf=False)
+    def confirm_order_payment(self, order_id, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/orders/{order_id}/confirm-payment - Confirm cash payment for an order
+        
+        Only the assigned livreur can confirm payment.
+        Creates payment, posts it, and reconciles with the invoice.
+        Returns updated invoice information.
+        
+        Request Body (optional):
+        {
+            "amount": 150.0,  // Optional - defaults to full amount
+            "notes": "Paiement reçu en espèces"  // Optional
+        }
+        
+        Response:
+        {
+            "success": true,
+            "message": "Paiement confirmé et réconcilié avec succès",
+            "payment": {
+                "amount": 150.0,
+                "payment_date": "2024-01-15"
+            },
+            "invoice": {
+                "id": 5,
+                "name": "INV/2024/0001",
+                "state": "posted",
+                "payment_state": "paid",
+                "amount_total": 150.0,
+                "amount_residual": 0.0
+            },
+            "billing": {
+                "id": 1,
+                "state": "paid"
+            }
+        }
+        """
+        try:
+            livreur, error_response = self._require_livreur()
+            if error_response:
+                return error_response
+            
+            # Parse request body
+            data = {}
+            if request.httprequest.data:
+                try:
+                    data = json.loads(request.httprequest.data.decode('utf-8'))
+                except:
+                    pass
+            
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            if not order.exists():
+                return self._json_response({
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if livreur is assigned to this order
+            if order.assigned_livreur_id.id != livreur.id:
+                return self._json_response({
+                    'error': 'Vous n\'êtes pas assigné à cette commande',
+                    'code': 'NOT_ASSIGNED'
+                }, 403)
+            
+            # Get billing
+            billing = request.env['delivery.billing'].sudo().search([
+                ('order_id', '=', order.id)
+            ], limit=1)
+            
+            if not billing:
+                return self._json_response({
+                    'error': 'Aucune facturation trouvée pour cette commande',
+                    'code': 'BILLING_NOT_FOUND'
+                }, 404)
+            
+            # Check invoice exists and is posted
+            if not billing.invoice_id:
+                return self._json_response({
+                    'error': 'Aucune facture trouvée. Confirmez d\'abord la facture.',
+                    'code': 'NO_INVOICE'
+                }, 400)
+            
+            if billing.invoice_id.state != 'posted':
+                return self._json_response({
+                    'error': 'La facture doit être confirmée avant d\'enregistrer un paiement',
+                    'code': 'INVOICE_NOT_POSTED',
+                    'invoice_state': billing.invoice_id.state
+                }, 400)
+            
+            # Check if already paid
+            if billing.invoice_id.payment_state == 'paid':
+                return self._json_response({
+                    'success': True,
+                    'message': 'Cette facture est déjà payée',
+                    'already_paid': True,
+                    'invoice': {
+                        'id': billing.invoice_id.id,
+                        'name': billing.invoice_id.name,
+                        'state': billing.invoice_id.state,
+                        'payment_state': billing.invoice_id.payment_state,
+                        'amount_total': billing.invoice_id.amount_total,
+                        'amount_residual': billing.invoice_id.amount_residual,
+                    },
+                    'billing': {
+                        'id': billing.id,
+                        'state': billing.state,
+                    }
+                })
+            
+            # Register payment using quick pay cash method
+            try:
+                billing.action_quick_pay_cash()
+            except Exception as e:
+                return self._json_response({
+                    'error': f'Erreur lors de l\'enregistrement du paiement: {str(e)}',
+                    'code': 'PAYMENT_ERROR'
+                }, 500)
+            
+            # Refresh data
+            billing.invalidate_recordset(['state'])
+            billing.invoice_id.invalidate_recordset(['payment_state', 'amount_residual'])
+            
+            # Add notes if provided
+            notes = data.get('notes')
+            if notes:
+                billing.message_post(body=f"Note livreur: {notes}")
+            
+            response_data = {
+                'success': True,
+                'message': 'Paiement confirmé et réconcilié avec succès',
+                'payment': {
+                    'amount': billing.total_amount,
+                    'payment_date': str(fields.Date.today()),
+                },
+                'invoice': {
+                    'id': billing.invoice_id.id,
+                    'name': billing.invoice_id.name,
+                    'state': billing.invoice_id.state,
+                    'payment_state': billing.invoice_id.payment_state,
+                    'amount_total': billing.invoice_id.amount_total,
+                    'amount_residual': billing.invoice_id.amount_residual,
+                },
+                'billing': {
+                    'id': billing.id,
+                    'state': billing.state,
+                    'total_amount': billing.total_amount,
+                },
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/confirm-payment', data, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur confirmation paiement: {e}")
+            error_response = {'error': str(e), 'code': 'CONFIRM_PAYMENT_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/confirm-payment', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/invoice-pdf', type='http', auth='public', methods=['GET'], csrf=False)
+    def get_order_invoice_pdf(self, order_id, **kwargs):
+        """
+        GET /smart_delivery/api/livreur/orders/{order_id}/invoice-pdf - Download invoice PDF
+        
+        Only the assigned livreur can download the invoice PDF.
+        Returns the PDF file for the enterprise invoice report.
+        
+        Response: PDF file download
+        """
+        try:
+            livreur, error_response = self._require_livreur()
+            if error_response:
+                return error_response
+            
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            if not order.exists():
+                return self._json_response({
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check if livreur is assigned to this order
+            if order.assigned_livreur_id.id != livreur.id:
+                return self._json_response({
+                    'error': 'Vous n\'êtes pas assigné à cette commande',
+                    'code': 'NOT_ASSIGNED'
+                }, 403)
+            
+            # Get billing
+            billing = request.env['delivery.billing'].sudo().search([
+                ('order_id', '=', order.id)
+            ], limit=1)
+            
+            if not billing or not billing.invoice_id:
+                return self._json_response({
+                    'error': 'Aucune facture trouvée pour cette commande',
+                    'code': 'NO_INVOICE'
+                }, 404)
+            
+            # Generate PDF using the custom report
+            report = request.env.ref('smart_delivery.action_report_delivery_invoice', raise_if_not_found=False)
+            if not report:
+                # Fallback to standard invoice report
+                report = request.env.ref('account.account_invoices', raise_if_not_found=False)
+            
+            if not report:
+                return self._json_response({
+                    'error': 'Rapport de facture non trouvé',
+                    'code': 'REPORT_NOT_FOUND'
+                }, 500)
+            
+            try:
+                pdf_content, content_type = report.sudo()._render_qweb_pdf(
+                    report.report_name,
+                    [billing.invoice_id.id]
+                )
+            except Exception as e:
+                _logger.error(f"Erreur génération PDF: {e}")
+                return self._json_response({
+                    'error': f'Erreur lors de la génération du PDF: {str(e)}',
+                    'code': 'PDF_GENERATION_ERROR'
+                }, 500)
+            
+            # Create response with PDF
+            filename = f"Facture_{billing.invoice_id.name.replace('/', '_')}.pdf"
+            response = request.make_response(
+                pdf_content,
+                headers=[
+                    ('Content-Type', 'application/pdf'),
+                    ('Content-Disposition', f'attachment; filename="{filename}"'),
+                    ('Content-Length', len(pdf_content)),
+                ]
+            )
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/invoice-pdf', {}, {'success': True, 'filename': filename})
+            return response
+            
+        except Exception as e:
+            _logger.error(f"Erreur téléchargement PDF: {e}")
+            error_response = {'error': str(e), 'code': 'PDF_DOWNLOAD_ERROR'}
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/invoice-pdf', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
     # ==================== LIVREUR PROFILE MANAGEMENT ====================

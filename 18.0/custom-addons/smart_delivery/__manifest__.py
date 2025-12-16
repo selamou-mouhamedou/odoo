@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Smart Delivery',
-    'version': '18.0.1.6.0',
+    'version': '18.0.1.7.0',
     'category': 'Delivery',
     'summary': 'Système de livraison intelligent avec dispatching automatique',
     'description': """
@@ -11,6 +11,12 @@
         - Intégration comptabilité Odoo native (account.move)
         - API REST avec authentification JWT
         - Suivi GPS en temps réel
+        
+        v1.7.0: API Livreur pour gestion factures et paiements
+        - GET /livreur/orders/{id}/billing - Info facturation
+        - POST /livreur/orders/{id}/confirm-invoice - Confirmer facture
+        - POST /livreur/orders/{id}/confirm-payment - Confirmer paiement COD
+        - GET /livreur/orders/{id}/invoice-pdf - Télécharger PDF
         
         v1.6.0: Rapport facture personnalisé avec infos entreprise
         - Logo de l'entreprise expéditrice sur les factures

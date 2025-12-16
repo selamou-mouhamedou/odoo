@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Enterprise Tree View -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ENTERPRISE LIST VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_enterprise_tree" model="ir.ui.view">
         <field name="name">delivery.enterprise.tree</field>
         <field name="model">delivery.enterprise</field>
@@ -8,26 +10,30 @@
             <list string="Entreprises" 
                   decoration-success="registration_status=='approved'" 
                   decoration-warning="registration_status=='pending'"
-                  decoration-danger="registration_status=='rejected'">
-                <header>
-                    <button name="action_migrate_existing_users" type="object" 
-                            string="🔄 Migrer utilisateurs existants" class="btn-secondary"/>
-                </header>
-                <field name="name"/>
-                <field name="email"/>
-                <field name="phone"/>
-                <field name="city"/>
-                <field name="registration_status" widget="badge" 
-                       decoration-success="registration_status=='approved'"
-                       decoration-warning="registration_status=='pending'"
-                       decoration-danger="registration_status=='rejected'"/>
-                <field name="order_count"/>
-                <field name="create_date" string="Date d'inscription"/>
+                  decoration-danger="registration_status=='rejected'"
+                  multi_edit="1"
+                  sample="1">
+                <field name="logo" widget="image" options="{'size': [32, 32]}"/>
+                <field name="name" decoration-bf="1"/>
+                <field name="email" widget="email"/>
+                <field name="phone" widget="phone"/>
+                <field name="city" optional="show"/>
+                <field name="registration_status" widget="badge"/>
+                <field name="order_count" string="Commandes" widget="integer"/>
+                <field name="create_date" string="Inscrit le" widget="date" optional="show"/>
+                <button name="action_approve_registration" type="object" icon="fa-check" 
+                        title="Approuver" class="text-success"
+                        invisible="registration_status != 'pending'"/>
+                <button name="action_reject_registration" type="object" icon="fa-times" 
+                        title="Rejeter" class="text-danger"
+                        invisible="registration_status != 'pending'"/>
             </list>
         </field>
     </record>
 
-    <!-- Enterprise Form View -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ENTERPRISE FORM VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_enterprise_form" model="ir.ui.view">
         <field name="name">delivery.enterprise.form</field>
         <field name="model">delivery.enterprise</field>
@@ -55,43 +61,57 @@
                         <button name="action_reset_password" type="object" class="oe_stat_button" icon="fa-key"
                                 string="Réinitialiser MDP" invisible="not user_id"/>
                     </div>
+                    
                     <widget name="web_ribbon" title="En attente" bg_color="text-bg-warning" 
                             invisible="registration_status != 'pending'"/>
                     <widget name="web_ribbon" title="Rejeté" bg_color="text-bg-danger" 
                             invisible="registration_status != 'rejected'"/>
+                    
                     <field name="logo" widget="image" class="oe_avatar" 
                            options="{'preview_image': 'logo', 'size': [128, 128]}"/>
                     <div class="oe_title">
+                        <label for="name" string="Entreprise"/>
                         <h1>
                             <field name="name" placeholder="Nom de l'entreprise"/>
                         </h1>
                     </div>
+                    
+                    <div class="alert alert-danger" role="alert" 
+                         invisible="registration_status != 'rejected'">
+                        <strong>Inscription rejetée</strong>
+                        <div><field name="rejection_reason" readonly="1"/></div>
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert" 
+                         invisible="registration_status != 'pending'">
+                        <strong>En attente de vérification</strong> - Vérifiez les informations avant d'approuver.
+                    </div>
+                    
                     <group>
-                        <group string="Informations de Contact">
-                            <field name="email" widget="email"/>
-                            <field name="phone" widget="phone"/>
-                            <field name="website" widget="url"/>
+                        <group string="Contact">
+                            <field name="email" widget="email" placeholder="email@entreprise.com"/>
+                            <field name="phone" widget="phone" placeholder="+222 XX XX XX XX"/>
+                            <field name="website" widget="url" placeholder="https://www.example.com"/>
                         </group>
                         <group string="Compte Utilisateur">
-                            <field name="password" password="True" invisible="user_id"/>
-                            <field name="user_id" readonly="1"/>
+                            <field name="password" password="True" invisible="user_id" 
+                                   placeholder="Mot de passe initial"/>
+                            <field name="user_id" readonly="1" widget="many2one_avatar"/>
                             <field name="partner_id" readonly="1"/>
                         </group>
                     </group>
-                    <group invisible="registration_status != 'rejected'">
-                        <group string="Motif du rejet" colspan="2">
-                            <field name="rejection_reason" nolabel="1" readonly="1"/>
-                        </group>
-                    </group>
+                    
                     <group>
                         <group string="Adresse">
-                            <field name="address"/>
-                            <field name="city"/>
+                            <field name="address" placeholder="Adresse complète..."/>
+                            <field name="city" placeholder="Ville"/>
                         </group>
                         <group string="Description">
-                            <field name="description" nolabel="1" placeholder="Description de l'activité..."/>
+                            <field name="description" nolabel="1" 
+                                   placeholder="Description de l'activité de l'entreprise..."/>
                         </group>
                     </group>
+                    
                     <notebook>
                         <page string="Logo" name="logo_page">
                             <group>
@@ -109,7 +129,9 @@
         </field>
     </record>
 
-    <!-- Enterprise Search View -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ENTERPRISE SEARCH VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_enterprise_search" model="ir.ui.view">
         <field name="name">delivery.enterprise.search</field>
         <field name="model">delivery.enterprise</field>
@@ -120,14 +142,15 @@
                 <field name="phone"/>
                 <field name="city"/>
                 <separator/>
-                <filter string="En attente de vérification" name="pending" 
+                <filter string="En attente" name="pending" 
                         domain="[('registration_status', '=', 'pending')]"/>
                 <filter string="Approuvées" name="approved" 
                         domain="[('registration_status', '=', 'approved')]"/>
                 <filter string="Rejetées" name="rejected" 
                         domain="[('registration_status', '=', 'rejected')]"/>
-                <group expand="0" string="Grouper par">
-                    <filter string="Statut d'inscription" name="group_registration" context="{'group_by': 'registration_status'}"/>
+                <separator/>
+                <group expand="1" string="Grouper par">
+                    <filter string="Statut" name="group_registration" context="{'group_by': 'registration_status'}"/>
                     <filter string="Ville" name="group_city" context="{'group_by': 'city'}"/>
                     <filter string="Date d'inscription" name="group_date" context="{'group_by': 'create_date:month'}"/>
                 </group>
@@ -135,12 +158,14 @@
         </field>
     </record>
 
-    <!-- Enterprise Kanban View -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ENTERPRISE KANBAN VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_enterprise_kanban" model="ir.ui.view">
         <field name="name">delivery.enterprise.kanban</field>
         <field name="model">delivery.enterprise</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="registration_status" class="o_kanban_mobile">
+            <kanban default_group_by="registration_status" class="o_kanban_mobile" sample="1">
                 <field name="name"/>
                 <field name="email"/>
                 <field name="phone"/>
@@ -148,53 +173,62 @@
                 <field name="registration_status"/>
                 <field name="order_count"/>
                 <templates>
-                    <t t-name="card">
-                        <aside>
-                            <field name="logo" widget="image" options="{'size': [48, 48]}"/>
-                        </aside>
-                        <main>
-                            <field name="name" class="fw-bold fs-5"/>
-                            <field name="email" widget="email"/>
-                            <field name="phone" widget="phone"/>
-                            <div class="d-flex justify-content-between mt-2">
-                                <span><i class="fa fa-truck me-1"/>
-                                    <field name="order_count"/> commandes
-                                </span>
-                                <field name="registration_status" widget="badge"
-                                       decoration-success="registration_status=='approved'"
-                                       decoration-warning="registration_status=='pending'"
-                                       decoration-danger="registration_status=='rejected'"/>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top mb-2">
+                                    <field name="logo" widget="image" options="{'size': [48, 48]}"/>
+                                    <div class="o_kanban_record_headings ms-2">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                    <field name="registration_status" widget="badge"/>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div><field name="email"/></div>
+                                    <div><field name="phone"/></div>
+                                    <div class="mt-2">
+                                        <field name="order_count"/> commandes
+                                    </div>
+                                </div>
                             </div>
-                        </main>
+                        </div>
                     </t>
                 </templates>
             </kanban>
         </field>
     </record>
 
-    <!-- Enterprise Reject Wizard View -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ENTERPRISE REJECT WIZARD -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_enterprise_reject_wizard_form" model="ir.ui.view">
         <field name="name">enterprise.reject.wizard.form</field>
         <field name="model">enterprise.reject.wizard</field>
         <field name="arch" type="xml">
             <form string="Rejeter l'inscription">
                 <group>
-                    <field name="enterprise_id" readonly="1"/>
-                    <field name="rejection_reason" placeholder="Expliquez la raison du rejet..."/>
+                    <field name="enterprise_id" readonly="1" widget="many2one_avatar"/>
+                    <field name="rejection_reason" placeholder="Expliquez la raison du rejet..." 
+                           widget="text" required="1"/>
                 </group>
                 <footer>
-                    <button name="action_confirm_reject" type="object" string="Confirmer le rejet" class="btn-danger"/>
+                    <button name="action_confirm_reject" type="object" 
+                            string="Confirmer le rejet" class="btn-danger"/>
                     <button string="Annuler" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
 
-    <!-- Enterprise Action -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ENTERPRISE ACTION -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="action_enterprise" model="ir.actions.act_window">
         <field name="name">Entreprises</field>
         <field name="res_model">delivery.enterprise</field>
-        <field name="view_mode">list,kanban,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_enterprise_search"/>
         <field name="context">{'search_default_pending': 1}</field>
         <field name="help" type="html">
@@ -208,7 +242,9 @@
         </field>
     </record>
     
-    <!-- Server Action to Migrate Existing Users -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SERVER ACTION: MIGRATE USERS -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="action_migrate_enterprise_users" model="ir.actions.server">
         <field name="name">Migrer les utilisateurs existants</field>
         <field name="model_id" ref="model_delivery_enterprise"/>

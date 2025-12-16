@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- LIVREUR LIST VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_livreur_tree" model="ir.ui.view">
         <field name="name">delivery.livreur.tree</field>
         <field name="model">delivery.livreur</field>
@@ -8,24 +11,34 @@
                   decoration-success="registration_status=='approved' and availability==True" 
                   decoration-warning="registration_status=='pending'"
                   decoration-danger="registration_status=='rejected'"
-                  decoration-muted="registration_status=='approved' and availability==False">
-                <field name="name"/>
-                <field name="nni"/>
-                <field name="email"/>
-                <field name="phone"/>
-                <field name="vehicle_type"/>
+                  decoration-muted="registration_status=='approved' and availability==False"
+                  multi_edit="1"
+                  sample="1">
+                <field name="livreur_photo" widget="image" options="{'size': [32, 32]}"/>
+                <field name="name" decoration-bf="1"/>
+                <field name="nni" optional="show"/>
+                <field name="email" widget="email" optional="hide"/>
+                <field name="phone" widget="phone"/>
+                <field name="vehicle_type" widget="badge"/>
                 <field name="sector_ids" widget="many2many_tags"/>
-                <field name="registration_status" widget="badge" 
-                       decoration-success="registration_status=='approved'"
-                       decoration-warning="registration_status=='pending'"
-                       decoration-danger="registration_status=='rejected'"/>
-                <field name="availability"/>
-                <field name="verified"/>
-                <field name="order_count"/>
+                <field name="registration_status" widget="badge"/>
+                <field name="availability" widget="boolean_toggle"/>
+                <field name="verified" widget="boolean"/>
+                <field name="order_count" string="Livraisons"/>
+                <field name="rating" optional="show"/>
+                <button name="action_approve_registration" type="object" icon="fa-check" 
+                        title="Approuver" class="text-success"
+                        invisible="registration_status != 'pending'"/>
+                <button name="action_reject_registration" type="object" icon="fa-times" 
+                        title="Rejeter" class="text-danger"
+                        invisible="registration_status != 'pending'"/>
             </list>
         </field>
     </record>
 
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- LIVREUR FORM VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_livreur_form" model="ir.ui.view">
         <field name="name">delivery.livreur.form</field>
         <field name="model">delivery.livreur</field>
@@ -48,58 +61,79 @@
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_orders" type="object" class="oe_stat_button" icon="fa-truck">
-                            <field name="order_count" widget="statinfo" string="Commandes"/>
+                            <field name="order_count" widget="statinfo" string="Livraisons"/>
                         </button>
                         <button name="action_reset_password" type="object" class="oe_stat_button" icon="fa-key"
                                 string="Réinitialiser MDP" invisible="not user_id"/>
+                        <button class="oe_stat_button" icon="fa-star" disabled="1">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Note</span>
+                                <span class="o_stat_value">
+                                    <field name="rating"/>
+                                </span>
+                            </div>
+                        </button>
                     </div>
+                    
                     <widget name="web_ribbon" title="En attente" bg_color="text-bg-warning" 
                             invisible="registration_status != 'pending'"/>
                     <widget name="web_ribbon" title="Rejeté" bg_color="text-bg-danger" 
                             invisible="registration_status != 'rejected'"/>
+                    <widget name="web_ribbon" title="Disponible" bg_color="text-bg-success" 
+                            invisible="registration_status != 'approved' or not availability"/>
+                    
+                    <field name="livreur_photo" widget="image" class="oe_avatar" 
+                           options="{'preview_image': 'livreur_photo', 'size': [128, 128]}"/>
                     <div class="oe_title">
-                        <field name="livreur_photo" widget="image" class="oe_avatar" 
-                               options="{'preview_image': 'livreur_photo', 'size': [128, 128]}"/>
+                        <label for="name" string="Livreur"/>
                         <h1>
                             <field name="name" placeholder="Nom du livreur"/>
                         </h1>
                     </div>
+                    
+                    <div class="alert alert-danger" role="alert" 
+                         invisible="registration_status != 'rejected'">
+                        <strong>Inscription rejetée</strong>
+                        <div><field name="rejection_reason" readonly="1"/></div>
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert" 
+                         invisible="registration_status != 'pending'">
+                        <strong>En attente de vérification</strong> - Vérifiez les documents avant d'approuver.
+                    </div>
+                    
                     <group>
                         <group string="Informations Personnelles">
-                            <field name="phone" widget="phone"/>
+                            <field name="phone" widget="phone" placeholder="+222 XX XX XX XX"/>
+                            <field name="nni" placeholder="Numéro NNI"/>
                             <field name="vehicle_type"/>
-                            <field name="nni"/>
                         </group>
                         <group string="Compte Utilisateur">
-                            <field name="email"/>
-                            <field name="password" password="True" invisible="user_id"/>
-                            <field name="user_id" readonly="1"/>
+                            <field name="email" widget="email" placeholder="email@exemple.com"/>
+                            <field name="password" password="True" invisible="user_id" 
+                                   placeholder="Mot de passe initial"/>
+                            <field name="user_id" readonly="1" widget="many2one_avatar"/>
                         </group>
                     </group>
-                    <group invisible="registration_status != 'rejected'">
-                        <group string="Motif du rejet" colspan="2">
-                            <field name="rejection_reason" nolabel="1" readonly="1"/>
-                        </group>
-                    </group>
+                    
                     <group>
                         <group string="Types de Secteur" colspan="2">
                             <field name="sector_ids" widget="many2many_tags" nolabel="1" 
                                    placeholder="Sélectionnez les types de secteur..."/>
                         </group>
                     </group>
+                    
                     <group>
                         <group string="Statut">
-                            <field name="availability"/>
-                            <field name="verified"/>
+                            <field name="availability" widget="boolean_toggle"/>
+                            <field name="verified" widget="boolean_toggle"/>
                         </group>
-                        <group string="Performance">
-                            <field name="rating" widget="progressbar" options="{'max_value': 5}"/>
+                        <group string="Position GPS">
+                            <field name="current_lat" placeholder="Latitude"/>
+                            <field name="current_long" placeholder="Longitude"/>
                         </group>
                     </group>
-                    <group string="Position GPS">
-                        <field name="current_lat"/>
-                        <field name="current_long"/>
-                    </group>
+                    
                     <notebook>
                         <page string="Documents d'identification" name="documents">
                             <group>
@@ -127,12 +161,15 @@
                                 </group>
                             </group>
                         </page>
+                        
                         <page string="Commandes" name="orders">
                             <field name="order_ids" nolabel="1">
-                                <list>
+                                <list decoration-success="status=='delivered'" 
+                                      decoration-warning="status=='on_way'"
+                                      decoration-info="status=='assigned'">
                                     <field name="name"/>
-                                    <field name="status"/>
-                                    <field name="sector_type"/>
+                                    <field name="status" widget="badge"/>
+                                    <field name="sector_type" widget="badge"/>
                                     <field name="receiver_name"/>
                                     <field name="distance_km"/>
                                 </list>
@@ -145,24 +182,79 @@
         </field>
     </record>
     
-    <!-- Wizard view for rejection -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- LIVREUR KANBAN VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <record id="view_livreur_kanban" model="ir.ui.view">
+        <field name="name">delivery.livreur.kanban</field>
+        <field name="model">delivery.livreur</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="registration_status" sample="1">
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="livreur_photo"/>
+                <field name="vehicle_type"/>
+                <field name="registration_status"/>
+                <field name="availability"/>
+                <field name="verified"/>
+                <field name="order_count"/>
+                <field name="rating"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top mb-2">
+                                    <field name="livreur_photo" widget="image" options="{'size': [48, 48]}"/>
+                                    <div class="o_kanban_record_headings ms-2">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                    <field name="registration_status" widget="badge"/>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div><field name="phone"/></div>
+                                    <div><field name="vehicle_type"/></div>
+                                    <div class="mt-2">
+                                        <field name="order_count"/> livraisons
+                                    </div>
+                                    <div class="mt-1">
+                                        Note: <field name="rating"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- LIVREUR REJECT WIZARD -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_livreur_reject_wizard_form" model="ir.ui.view">
         <field name="name">livreur.reject.wizard.form</field>
         <field name="model">livreur.reject.wizard</field>
         <field name="arch" type="xml">
             <form string="Rejeter l'inscription">
                 <group>
-                    <field name="livreur_id" readonly="1"/>
-                    <field name="rejection_reason" placeholder="Expliquez la raison du rejet..."/>
+                    <field name="livreur_id" readonly="1" widget="many2one_avatar"/>
+                    <field name="rejection_reason" placeholder="Expliquez la raison du rejet..." 
+                           widget="text" required="1"/>
                 </group>
                 <footer>
-                    <button name="action_confirm_reject" type="object" string="Confirmer le rejet" class="btn-danger"/>
+                    <button name="action_confirm_reject" type="object" 
+                            string="Confirmer le rejet" class="btn-danger"/>
                     <button string="Annuler" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
 
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- LIVREUR SEARCH VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_livreur_search" model="ir.ui.view">
         <field name="name">delivery.livreur.search</field>
         <field name="model">delivery.livreur</field>
@@ -174,15 +266,15 @@
                 <field name="phone"/>
                 <field name="sector_ids"/>
                 <separator/>
-                <filter string="En attente de vérification" name="pending" 
+                <filter string="En attente" name="pending" 
                         domain="[('registration_status', '=', 'pending')]"/>
                 <filter string="Approuvés" name="approved" 
                         domain="[('registration_status', '=', 'approved')]"/>
                 <filter string="Rejetés" name="rejected" 
                         domain="[('registration_status', '=', 'rejected')]"/>
                 <separator/>
-                <filter string="Disponible" name="available" domain="[('availability', '=', True)]"/>
-                <filter string="Vérifié" name="verified" domain="[('verified', '=', True)]"/>
+                <filter string="Disponibles" name="available" domain="[('availability', '=', True)]"/>
+                <filter string="Vérifiés" name="verified" domain="[('verified', '=', True)]"/>
                 <separator/>
                 <filter string="Moto" name="motorcycle" domain="[('vehicle_type', '=', 'motorcycle')]"/>
                 <filter string="Voiture" name="car" domain="[('vehicle_type', '=', 'car')]"/>
@@ -192,7 +284,7 @@
                 <filter string="Express" name="sector_express" domain="[('sector_ids.sector_type', '=', 'express')]"/>
                 <filter string="Fragile" name="sector_fragile" domain="[('sector_ids.sector_type', '=', 'fragile')]"/>
                 <filter string="Médical" name="sector_medical" domain="[('sector_ids.sector_type', '=', 'medical')]"/>
-                <group expand="0" string="Grouper par">
+                <group expand="1" string="Grouper par">
                     <filter string="Statut d'inscription" name="group_registration" context="{'group_by': 'registration_status'}"/>
                     <filter string="Type de Véhicule" name="group_vehicle" context="{'group_by': 'vehicle_type'}"/>
                     <filter string="Disponibilité" name="group_availability" context="{'group_by': 'availability'}"/>
@@ -201,16 +293,23 @@
         </field>
     </record>
 
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- LIVREUR ACTION -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="action_livreur" model="ir.actions.act_window">
         <field name="name">Livreurs</field>
         <field name="res_model">delivery.livreur</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_livreur_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Créer un nouveau livreur
+                Aucun livreur inscrit
+            </p>
+            <p>
+                Les livreurs peuvent s'inscrire via l'application mobile.
+                Vérifiez leurs documents et approuvez leurs inscriptions ici.
             </p>
         </field>
     </record>
 </odoo>
-

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ===================== BILLING LIST VIEW ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BILLING LIST VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_delivery_billing_tree" model="ir.ui.view">
         <field name="name">delivery.billing.tree</field>
         <field name="model">delivery.billing</field>
@@ -10,77 +12,78 @@
                   decoration-info="state in ('posted', 'invoiced')"
                   decoration-warning="state == 'partial'"
                   decoration-muted="state == 'cancelled'"
-                  multi_edit="1">
-                <field name="order_id"/>
-                <field name="enterprise_id" string="Entreprise" optional="show"/>
-                <field name="receiver_partner_id" string="Payeur"/>
-                <field name="distance_km" optional="hide"/>
-                <field name="base_tariff" string="Base"/>
-                <field name="extra_fee" string="Distance" optional="hide"/>
-                <field name="total_amount" sum="Total" string="Total (MRU)"/>
+                  multi_edit="1"
+                  sample="1">
+                <field name="order_id" decoration-bf="1"/>
+                <field name="enterprise_id" string="Entreprise" widget="many2one_avatar" optional="show"/>
+                <field name="receiver_partner_id" string="Payeur" widget="many2one_avatar"/>
+                <field name="distance_km" optional="hide" widget="float"/>
+                <field name="base_tariff" string="Base" widget="monetary" optional="show"/>
+                <field name="extra_fee" string="Distance" widget="monetary" optional="hide"/>
+                <field name="total_amount" sum="Total" string="Total" widget="monetary" decoration-bf="1"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="invoice_id" optional="show"/>
-                <field name="invoice_amount_residual" string="Reste à Payer" 
+                <field name="invoice_amount_residual" string="Reste à Payer" widget="monetary"
                        decoration-danger="invoice_amount_residual > 0"
                        optional="show"/>
-                <field name="state" widget="badge" 
-                       decoration-info="state in ('draft', 'invoiced')"
-                       decoration-primary="state == 'posted'"
-                       decoration-warning="state == 'partial'"
-                       decoration-success="state == 'paid'"
-                       decoration-danger="state == 'cancelled'"/>
-                <!-- Quick action buttons -->
+                <field name="state" widget="badge"/>
                 <button name="action_quick_pay_cash" 
                         type="object" 
-                        string="Payer" 
                         icon="fa-money"
-                        class="btn-success"
-                        invisible="state in ('paid', 'cancelled')"/>
+                        title="Paiement Espèces"
+                        class="text-success"
+                        invisible="state in ('paid', 'cancelled', 'draft')"/>
+                <button name="action_view_invoice" 
+                        type="object" 
+                        icon="fa-file-text-o"
+                        title="Voir Facture"
+                        class="text-primary"
+                        invisible="not invoice_id"/>
             </list>
         </field>
     </record>
 
-    <!-- ===================== BILLING FORM VIEW ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BILLING FORM VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_delivery_billing_form" model="ir.ui.view">
         <field name="name">delivery.billing.form</field>
         <field name="model">delivery.billing</field>
         <field name="arch" type="xml">
             <form string="Facturation Livraison">
                 <header>
-                    <!-- Primary actions based on state -->
                     <button name="action_create_invoice" 
-                            string="📄 Créer Facture" 
+                            string="Créer Facture" 
                             type="object" 
                             class="oe_highlight"
                             invisible="invoice_id or state == 'cancelled'"/>
                     
                     <button name="action_post_invoice" 
-                            string="✓ Confirmer Facture" 
+                            string="Confirmer Facture" 
                             type="object" 
                             class="oe_highlight"
                             invisible="state != 'invoiced'"/>
                     
                     <button name="action_quick_pay_cash" 
-                            string="💵 Paiement Espèces" 
+                            string="Paiement Espèces" 
                             type="object" 
-                            class="oe_highlight btn-success"
+                            class="btn-success"
                             invisible="state in ('paid', 'cancelled', 'draft')"/>
                     
                     <button name="action_register_payment" 
-                            string="💳 Enregistrer Paiement" 
+                            string="Enregistrer Paiement" 
                             type="object" 
                             class="btn-primary"
                             invisible="state not in ('posted', 'partial')"/>
                     
-                    <!-- Secondary actions -->
                     <button name="action_view_invoice" 
-                            string="📋 Voir Facture" 
+                            string="Voir Facture" 
                             type="object" 
                             class="btn-secondary"
                             invisible="not invoice_id"/>
                     
                     <button name="action_send_invoice_by_email" 
-                            string="📧 Envoyer par Email" 
+                            string="Envoyer par Email" 
                             type="object" 
                             class="btn-secondary"
                             invisible="state not in ('posted', 'paid', 'partial')"/>
@@ -88,12 +91,12 @@
                     <button name="action_cancel" 
                             string="Annuler" 
                             type="object"
-                            class="btn-secondary"
+                            class="btn-link text-danger"
                             invisible="state in ('paid', 'cancelled')"
                             confirm="Êtes-vous sûr de vouloir annuler cette facturation?"/>
                     
                     <button name="action_reset_draft" 
-                            string="↩ Remettre en Brouillon" 
+                            string="Remettre en Brouillon" 
                             type="object"
                             class="btn-secondary"
                             invisible="state != 'cancelled'"/>
@@ -103,7 +106,6 @@
                 </header>
                 
                 <sheet>
-                    <!-- Smart buttons -->
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_invoice" 
                                 type="object" 
@@ -138,102 +140,73 @@
                         </button>
                     </div>
                     
-                    <!-- Title -->
+                    <widget name="web_ribbon" title="Payé" bg_color="text-bg-success" 
+                            invisible="state != 'paid'"/>
+                    <widget name="web_ribbon" title="Annulé" bg_color="text-bg-danger" 
+                            invisible="state != 'cancelled'"/>
+                    
                     <div class="oe_title">
+                        <label for="order_id" string="Commande"/>
                         <h1>
                             <field name="order_id" readonly="1" options="{'no_open': False}"/>
                         </h1>
-                        <h3 invisible="not invoice_id" class="text-primary">
+                        <h3 invisible="not invoice_id" class="text-muted">
                             <field name="invoice_name" readonly="1"/>
                         </h3>
                     </div>
                     
-                    <!-- Alert for unpaid invoices -->
                     <div class="alert alert-warning" role="alert" 
                          invisible="state != 'posted' or invoice_amount_residual == 0">
-                        <strong>⚠ Montant restant à payer:</strong> 
+                        <strong>Montant restant à payer:</strong>
                         <field name="invoice_amount_residual" class="fw-bold"/> 
                         <field name="currency_id" invisible="1"/>
                     </div>
                     
-                    <!-- Main info -->
+                    <div class="alert alert-success" role="alert" 
+                         invisible="state != 'paid'">
+                        <strong>Paiement complet</strong> - Cette facture a été entièrement payée.
+                    </div>
+                    
                     <group>
-                        <group string="📦 Informations Commande">
-                            <field name="enterprise_id" readonly="1"/>
-                            <field name="sender_partner_id" string="Expéditeur"/>
-                            <field name="receiver_partner_id" string="Destinataire (Payeur)"/>
+                        <group string="Informations Commande">
+                            <field name="enterprise_id" readonly="1" widget="many2one_avatar"/>
+                            <field name="sender_partner_id" string="Expéditeur" widget="many2one_avatar"/>
+                            <field name="receiver_partner_id" string="Destinataire (Payeur)" widget="many2one_avatar"/>
                         </group>
-                        <group string="💰 Tarification">
-                            <field name="distance_km" string="Distance"/>
-                            <label for="base_tariff"/>
-                            <div class="o_row">
-                                <field name="base_tariff" class="oe_inline"/>
-                                <span>MRU</span>
-                            </div>
-                            <label for="extra_fee"/>
-                            <div class="o_row">
-                                <field name="extra_fee" class="oe_inline"/>
-                                <span>MRU</span>
-                            </div>
-                            <label for="total_amount"/>
-                            <div class="o_row">
-                                <field name="total_amount" class="oe_inline fw-bold text-primary"/>
-                                <span class="fw-bold">MRU</span>
-                            </div>
+                        <group string="Tarification">
+                            <field name="distance_km" string="Distance (km)"/>
+                            <field name="base_tariff" widget="monetary"/>
+                            <field name="extra_fee" widget="monetary"/>
+                            <field name="total_amount" widget="monetary" class="fw-bold"/>
                         </group>
                     </group>
                     
-                    <!-- Invoice details -->
-                    <group string="📋 Facture Odoo" invisible="not invoice_id">
+                    <group string="Facture Odoo" invisible="not invoice_id">
                         <group>
                             <field name="invoice_id" readonly="1"/>
-                            <field name="invoice_state" widget="badge"
-                                   decoration-info="invoice_state == 'draft'"
-                                   decoration-success="invoice_state == 'posted'"
-                                   decoration-danger="invoice_state == 'cancel'"/>
+                            <field name="invoice_state" widget="badge"/>
                         </group>
                         <group>
-                            <field name="invoice_amount_total" string="Montant Facturé"/>
-                            <field name="invoice_amount_residual" string="Reste à Payer"
+                            <field name="invoice_amount_total" string="Montant Facturé" widget="monetary"/>
+                            <field name="invoice_amount_residual" string="Reste à Payer" widget="monetary"
                                    decoration-danger="invoice_amount_residual > 0"/>
-                            <field name="invoice_payment_state" widget="badge"
-                                   decoration-danger="invoice_payment_state == 'not_paid'"
-                                   decoration-warning="invoice_payment_state in ('partial', 'in_payment')"
-                                   decoration-success="invoice_payment_state == 'paid'"/>
+                            <field name="invoice_payment_state" widget="badge"/>
                         </group>
                     </group>
                     
-                    <!-- Notes -->
-                    <group string="📝 Notes" invisible="not notes">
+                    <group string="Notes">
                         <field name="notes" nolabel="1" placeholder="Notes internes..."/>
                     </group>
-                    
-                    <notebook invisible="not invoice_id">
-                        <page string="Instructions Comptabilité" name="accounting_help">
-                            <div class="alert alert-info">
-                                <h4>🔗 Intégration avec la Comptabilité Odoo</h4>
-                                <ul>
-                                    <li><strong>Créer Facture:</strong> Génère une facture client dans le module Comptabilité</li>
-                                    <li><strong>Confirmer Facture:</strong> Valide la facture (génère les écritures comptables)</li>
-                                    <li><strong>Paiement Espèces:</strong> Enregistre un paiement COD automatique</li>
-                                    <li><strong>Enregistrer Paiement:</strong> Ouvre l'assistant de paiement standard Odoo</li>
-                                    <li><strong>Réconciliation:</strong> Accès direct à la réconciliation des paiements</li>
-                                </ul>
-                                <p class="mt-2">
-                                    <em>Toutes les opérations sont synchronisées avec le module Comptabilité d'Odoo.</em>
-                                </p>
-                            </div>
-                        </page>
-                    </notebook>
                 </sheet>
                 
-                <!-- Chatter -->
                 <chatter/>
             </form>
         </field>
     </record>
 
-    <!-- ===================== BILLING SEARCH VIEW ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BILLING SEARCH VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_delivery_billing_search" model="ir.ui.view">
         <field name="name">delivery.billing.search</field>
         <field name="model">delivery.billing</field>
@@ -254,7 +227,9 @@
                         domain="[('state', 'in', ['posted', 'partial']), ('invoice_amount_residual', '>', 0)]"/>
                 <filter string="Sans Facture" name="no_invoice" domain="[('invoice_id', '=', False)]"/>
                 <separator/>
-                <group expand="0" string="Grouper par">
+                <filter string="Aujourd'hui" name="today" 
+                        domain="[('create_date', '>=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <group expand="1" string="Grouper par">
                     <filter string="État" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Entreprise" name="group_enterprise" context="{'group_by': 'enterprise_id'}"/>
                     <filter string="État Paiement" name="group_payment" context="{'group_by': 'invoice_payment_state'}"/>
@@ -264,12 +239,14 @@
         </field>
     </record>
 
-    <!-- ===================== BILLING KANBAN VIEW ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BILLING KANBAN VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_delivery_billing_kanban" model="ir.ui.view">
         <field name="name">delivery.billing.kanban</field>
         <field name="model">delivery.billing</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" class="o_kanban_mobile">
+            <kanban default_group_by="state" class="o_kanban_mobile" sample="1">
                 <field name="order_id"/>
                 <field name="enterprise_id"/>
                 <field name="total_amount"/>
@@ -277,30 +254,22 @@
                 <field name="invoice_id"/>
                 <field name="invoice_payment_state"/>
                 <templates>
-                    <t t-name="card">
-                        <div class="oe_kanban_content">
-                            <div class="o_kanban_record_top mb-2">
-                                <div class="o_kanban_record_headings">
-                                    <strong class="o_kanban_record_title">
-                                        <field name="order_id"/>
-                                    </strong>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top mb-2">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="order_id"/>
+                                        </strong>
+                                    </div>
+                                    <field name="state" widget="badge"/>
                                 </div>
-                                <field name="state" widget="label_selection" 
-                                       options="{'classes': {'draft': 'secondary', 'invoiced': 'info', 'posted': 'primary', 'partial': 'warning', 'paid': 'success', 'cancelled': 'danger'}}"/>
-                            </div>
-                            <div class="o_kanban_record_body">
-                                <field name="enterprise_id"/>
-                                <div class="mt-2">
-                                    <strong class="text-primary">
-                                        <field name="total_amount"/> MRU
-                                    </strong>
-                                </div>
-                            </div>
-                            <div class="o_kanban_record_bottom mt-2" t-if="record.invoice_id.raw_value">
-                                <div class="oe_kanban_bottom_left">
-                                    <span class="badge" t-att-class="record.invoice_payment_state.raw_value == 'paid' ? 'bg-success' : 'bg-warning'">
-                                        <field name="invoice_payment_state"/>
-                                    </span>
+                                <div class="o_kanban_record_body">
+                                    <field name="enterprise_id"/>
+                                    <div class="mt-2">
+                                        <strong><field name="total_amount" widget="monetary"/> MRU</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -310,12 +279,14 @@
         </field>
     </record>
 
-    <!-- ===================== BILLING PIVOT VIEW ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BILLING PIVOT VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_delivery_billing_pivot" model="ir.ui.view">
         <field name="name">delivery.billing.pivot</field>
         <field name="model">delivery.billing</field>
         <field name="arch" type="xml">
-            <pivot string="Analyse Facturation">
+            <pivot string="Analyse Facturation" sample="1">
                 <field name="enterprise_id" type="row"/>
                 <field name="state" type="col"/>
                 <field name="total_amount" type="measure"/>
@@ -324,19 +295,24 @@
         </field>
     </record>
 
-    <!-- ===================== BILLING GRAPH VIEW ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BILLING GRAPH VIEW -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="view_delivery_billing_graph" model="ir.ui.view">
         <field name="name">delivery.billing.graph</field>
         <field name="model">delivery.billing</field>
         <field name="arch" type="xml">
-            <graph string="Facturation" type="bar">
+            <graph string="Facturation" type="bar" sample="1">
                 <field name="create_date" type="row" interval="month"/>
+                <field name="state" type="col"/>
                 <field name="total_amount" type="measure"/>
             </graph>
         </field>
     </record>
 
-    <!-- ===================== ACTION ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ACTION -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="action_delivery_billing" model="ir.actions.act_window">
         <field name="name">Facturation Livraison</field>
         <field name="res_model">delivery.billing</field>
@@ -349,19 +325,13 @@
             </p>
             <p>
                 La facturation est créée automatiquement lors de la livraison des commandes.
-                <br/><br/>
-                <strong>Intégration Comptabilité Odoo:</strong>
-                <ul>
-                    <li>Factures générées dans le module Facturation</li>
-                    <li>Paiements via l'assistant standard Odoo</li>
-                    <li>Réconciliation automatique</li>
-                    <li>Paiement à la livraison (COD) uniquement</li>
-                </ul>
             </p>
         </field>
     </record>
 
-    <!-- ===================== ACTION: TO PAY ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ACTION: TO PAY -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="action_delivery_billing_to_pay" model="ir.actions.act_window">
         <field name="name">À Encaisser</field>
         <field name="res_model">delivery.billing</field>
@@ -375,7 +345,9 @@
         </field>
     </record>
 
-    <!-- ===================== SERVER ACTION: QUICK PAY ===================== -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SERVER ACTION: QUICK PAY -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <record id="action_billing_quick_pay" model="ir.actions.server">
         <field name="name">Paiement Rapide Espèces</field>
         <field name="model_id" ref="model_delivery_billing"/>

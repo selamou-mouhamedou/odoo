@@ -21,12 +21,12 @@
             <!-- Add indicator that this is a delivery invoice -->
             <xpath expr="//div[hasclass('oe_title')]" position="after">
                 <div class="alert alert-info" role="alert" invisible="not is_delivery_invoice">
-                    <strong>🚚 Facture de Livraison</strong> - 
+                    <strong>Facture de Livraison</strong> - 
                     Cette facture a été générée par le module Smart Delivery.
                     <button name="action_view_delivery_billings" 
                             type="object" 
                             class="btn-link p-0 ms-2">
-                        Voir la facturation →
+                        Voir la facturation
                     </button>
                 </div>
             </xpath>
@@ -61,4 +61,3 @@
         </field>
     </record>
 </odoo>
-

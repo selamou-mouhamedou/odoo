@@ -4,13 +4,16 @@
         <field name="name">delivery.condition.tree</field>
         <field name="model">delivery.condition</field>
         <field name="arch" type="xml">
-            <list string="Conditions de Livraison" decoration-success="validated==True">
-                <field name="order_id"/>
-                <field name="otp_verified"/>
-                <field name="signature_file" filename="signature_filename"/>
-                <field name="photo" widget="image" options="{'size': [64, 64]}"/>
-                <field name="biometric_score"/>
-                <field name="validated"/>
+            <list string="Conditions de Livraison" 
+                  decoration-success="validated==True"
+                  decoration-warning="validated==False"
+                  sample="1">
+                <field name="order_id" decoration-bf="1"/>
+                <field name="otp_verified" widget="boolean"/>
+                <field name="signature_file" widget="image" options="{'size': [48, 48]}"/>
+                <field name="photo" widget="image" options="{'size': [48, 48]}"/>
+                <field name="biometric_score" widget="progressbar"/>
+                <field name="validated" widget="badge"/>
             </list>
         </field>
     </record>
@@ -21,31 +24,56 @@
         <field name="arch" type="xml">
             <form string="Condition de Livraison">
                 <sheet>
+                    <widget name="web_ribbon" title="Validé" bg_color="text-bg-success" 
+                            invisible="not validated"/>
+                    <widget name="web_ribbon" title="En attente" bg_color="text-bg-warning" 
+                            invisible="validated"/>
+                    
+                    <div class="oe_title">
+                        <label for="order_id" string="Commande"/>
+                        <h1>
+                            <field name="order_id" options="{'no_open': False}"/>
+                        </h1>
+                    </div>
+                    
                     <group>
-                        <field name="order_id"/>
-                        <field name="validated"/>
+                        <field name="validated" widget="boolean_toggle"/>
                     </group>
+                    
                     <notebook>
-                        <page string="OTP">
+                        <page string="Code OTP" name="otp">
                             <group>
-                                <field name="otp_value" password="True"/>
-                                <field name="otp_verified"/>
+                                <group>
+                                    <field name="otp_value" password="True"/>
+                                    <field name="otp_verified" widget="boolean_toggle"/>
+                                </group>
                             </group>
                         </page>
-                        <page string="Signature">
+                        
+                        <page string="Signature" name="signature">
                             <group>
-                                <field name="signature_file" filename="signature_filename" widget="image"/>
+                                <group string="Signature du destinataire">
+                                    <field name="signature_file" widget="image" nolabel="1"
+                                           options="{'preview_image': 'signature_file', 'size': [400, 200]}"/>
+                                </group>
                             </group>
                         </page>
-                        <page string="Photo">
+                        
+                        <page string="Photo" name="photo">
                             <group>
-                                <field name="photo" filename="photo_filename" widget="image"/>
-                                <field name="photo_filename" invisible="1"/>
+                                <group string="Photo de livraison">
+                                    <field name="photo" widget="image" nolabel="1"
+                                           options="{'preview_image': 'photo', 'size': [400, 300]}"/>
+                                    <field name="photo_filename" invisible="1"/>
+                                </group>
                             </group>
                         </page>
-                        <page string="Biométrie">
+                        
+                        <page string="Biométrie" name="biometric">
                             <group>
-                                <field name="biometric_score" widget="progressbar" options="{'max_value': 1}"/>
+                                <group string="Score Biométrique">
+                                    <field name="biometric_score" widget="progressbar" options="{'max_value': 1}"/>
+                                </group>
                             </group>
                         </page>
                     </notebook>
@@ -60,13 +88,19 @@
         <field name="arch" type="xml">
             <search string="Rechercher Conditions">
                 <field name="order_id"/>
-                <filter string="Validé" name="validated" domain="[('validated', '=', True)]"/>
+                <separator/>
+                <filter string="Validées" name="validated" domain="[('validated', '=', True)]"/>
+                <filter string="En attente" name="pending" domain="[('validated', '=', False)]"/>
+                <separator/>
                 <filter string="OTP Vérifié" name="otp_verified" domain="[('otp_verified', '=', True)]"/>
+                <group expand="1" string="Grouper par">
+                    <filter string="Statut" name="group_validated" context="{'group_by': 'validated'}"/>
+                    <filter string="Commande" name="group_order" context="{'group_by': 'order_id'}"/>
+                </group>
             </search>
         </field>
     </record>
 
-    <!-- Force update to clear any customized context -->
     <data noupdate="0">
         <record id="action_delivery_condition" model="ir.actions.act_window">
             <field name="name">Conditions de Livraison</field>
@@ -74,6 +108,14 @@
             <field name="view_mode">list,form</field>
             <field name="search_view_id" ref="view_delivery_condition_search"/>
             <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Aucune condition de livraison
+                </p>
+                <p>
+                    Les conditions sont créées automatiquement avec les commandes de livraison.
+                </p>
+            </field>
         </record>
     </data>
 </odoo>
