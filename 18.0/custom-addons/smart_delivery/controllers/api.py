@@ -3719,11 +3719,11 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                     'code': 'NO_INVOICE'
                 }, 404)
             
-            # Generate PDF using the custom report
-            report = request.env.ref('smart_delivery.action_report_delivery_invoice', raise_if_not_found=False)
+            # Generate PDF using the custom report (use sudo to bypass portal user restrictions)
+            report = request.env(user=1).ref('smart_delivery.action_report_delivery_invoice', raise_if_not_found=False)
             if not report:
                 # Fallback to standard invoice report
-                report = request.env.ref('account.account_invoices', raise_if_not_found=False)
+                report = request.env(user=1).ref('account.account_invoices', raise_if_not_found=False)
             
             if not report:
                 return self._json_response({

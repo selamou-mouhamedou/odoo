@@ -78,13 +78,4 @@
         action="action_api_log" 
         sequence="30"
         groups="smart_delivery.group_admin"/>
-    
-    <!-- Conditions -->
-    <menuitem 
-        id="menu_delivery_conditions" 
-        name="Conditions" 
-        parent="menu_administration" 
-        action="action_delivery_condition" 
-        sequence="40"
-        groups="smart_delivery.group_admin"/>
 </odoo>
