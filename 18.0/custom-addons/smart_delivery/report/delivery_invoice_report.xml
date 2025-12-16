@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Custom Invoice Report for Delivery - Uses Enterprise Info -->
+    <template id="report_delivery_invoice_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang"/>
+                <t t-call="smart_delivery.report_delivery_invoice_content" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+    
+    <template id="report_delivery_invoice_content">
+        <t t-set="enterprise" t-value="o.delivery_enterprise_id"/>
+        <t t-set="billing" t-value="o.delivery_billing_ids[:1]"/>
+        
+        <div class="article o_report_layout_standard" 
+             t-att-data-oe-model="o and o._name" 
+             t-att-data-oe-id="o and o.id"
+             style="padding: 20px; font-family: sans-serif;">
+            
+            <!-- ============ HEADER ============ -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #875A7B;">
+                <div style="flex: 1;">
+                    <!-- Logo -->
+                    <t t-if="enterprise and enterprise.logo">
+                        <img t-att-src="image_data_uri(enterprise.logo)" 
+                             style="max-height: 80px; max-width: 200px;" 
+                             alt="Logo Entreprise"/>
+                    </t>
+                    <t t-elif="o.company_id.logo">
+                        <img t-att-src="image_data_uri(o.company_id.logo)" 
+                             style="max-height: 80px; max-width: 200px;" 
+                             alt="Logo"/>
+                    </t>
+                </div>
+                <div style="flex: 1; text-align: right;">
+                    <!-- Enterprise Info -->
+                    <t t-if="enterprise">
+                        <div style="font-size: 18px; font-weight: bold; color: #875A7B;">
+                            <t t-esc="enterprise.name"/>
+                        </div>
+                        <div t-if="enterprise.address" style="margin-top: 5px;">
+                            <t t-esc="enterprise.address"/>
+                        </div>
+                        <div t-if="enterprise.city">
+                            <t t-esc="enterprise.city"/>
+                        </div>
+                        <div t-if="enterprise.phone" style="margin-top: 5px;">
+                            📞 <t t-esc="enterprise.phone"/>
+                        </div>
+                        <div t-if="enterprise.email">
+                            ✉️ <t t-esc="enterprise.email"/>
+                        </div>
+                        <div t-if="enterprise.website">
+                            🌐 <t t-esc="enterprise.website"/>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <span t-field="o.company_id.partner_id" 
+                              t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'/>
+                    </t>
+                </div>
+            </div>
+            
+            <!-- ============ INVOICE TITLE ============ -->
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #875A7B; margin: 0;">
+                    <t t-if="o.move_type == 'out_invoice' and o.state == 'posted'">FACTURE</t>
+                    <t t-elif="o.move_type == 'out_invoice' and o.state == 'draft'">FACTURE PROFORMA</t>
+                    <t t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'">FACTURE ANNULÉE</t>
+                    <t t-elif="o.move_type == 'out_refund'">AVOIR</t>
+                    <t t-else="">DOCUMENT</t>
+                </h1>
+                <h2 style="color: #333; margin: 10px 0;">
+                    <span t-field="o.name"/>
+                </h2>
+                <t t-if="o.payment_state == 'paid'">
+                    <div style="display: inline-block; background: #28a745; color: white; padding: 5px 20px; border-radius: 5px; font-weight: bold;">
+                        ✓ PAYÉ
+                    </div>
+                </t>
+            </div>
+            
+            <!-- ============ INVOICE INFO ============ -->
+            <div style="display: flex; margin-bottom: 30px;">
+                <div style="flex: 1; padding: 15px; background: #f8f9fa; border-radius: 5px; margin-right: 10px;">
+                    <h4 style="color: #875A7B; margin-bottom: 10px;">Client / Destinataire</h4>
+                    <div style="font-weight: bold; font-size: 16px;">
+                        <span t-field="o.partner_id.name"/>
+                    </div>
+                    <div t-if="o.partner_id.phone">
+                        📞 <span t-field="o.partner_id.phone"/>
+                    </div>
+                    <div t-if="o.partner_id.email">
+                        ✉️ <span t-field="o.partner_id.email"/>
+                    </div>
+                    <div t-if="o.partner_id.street">
+                        <span t-field="o.partner_id.street"/>
+                    </div>
+                </div>
+                <div style="flex: 1; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    <h4 style="color: #875A7B; margin-bottom: 10px;">Détails Facture</h4>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="padding: 3px 0;"><strong>Date:</strong></td>
+                            <td><span t-field="o.invoice_date"/></td>
+                        </tr>
+                        <tr t-if="o.invoice_date_due">
+                            <td style="padding: 3px 0;"><strong>Échéance:</strong></td>
+                            <td><span t-field="o.invoice_date_due"/></td>
+                        </tr>
+                        <tr t-if="o.invoice_origin">
+                            <td style="padding: 3px 0;"><strong>Commande:</strong></td>
+                            <td><span t-field="o.invoice_origin"/></td>
+                        </tr>
+                        <tr t-if="o.ref">
+                            <td style="padding: 3px 0;"><strong>Référence:</strong></td>
+                            <td><span t-field="o.ref"/></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- ============ INVOICE LINES ============ -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                    <tr style="background: #875A7B; color: white;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #875A7B;">Description</th>
+                        <th style="padding: 10px; text-align: right; border: 1px solid #875A7B; width: 80px;">Qté</th>
+                        <th style="padding: 10px; text-align: right; border: 1px solid #875A7B; width: 100px;">Prix Unit.</th>
+                        <th style="padding: 10px; text-align: right; border: 1px solid #875A7B; width: 100px;">Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="o.invoice_line_ids.filtered(lambda l: not l.display_type)" t-as="line">
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px; border-left: 1px solid #ddd; border-right: 1px solid #ddd;">
+                                <span t-field="line.name"/>
+                            </td>
+                            <td style="padding: 10px; text-align: right; border-right: 1px solid #ddd;">
+                                <span t-field="line.quantity"/>
+                            </td>
+                            <td style="padding: 10px; text-align: right; border-right: 1px solid #ddd;">
+                                <span t-field="line.price_unit"/>
+                            </td>
+                            <td style="padding: 10px; text-align: right; border-right: 1px solid #ddd; font-weight: bold;">
+                                <span t-field="line.price_subtotal"/>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+            
+            <!-- ============ TOTALS ============ -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
+                <table style="width: 300px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px; text-align: left;">Sous-total HT:</td>
+                        <td style="padding: 8px; text-align: right;"><span t-field="o.amount_untaxed"/></td>
+                    </tr>
+                    <t t-if="o.amount_tax">
+                        <tr>
+                            <td style="padding: 8px; text-align: left;">Taxes:</td>
+                            <td style="padding: 8px; text-align: right;"><span t-field="o.amount_tax"/></td>
+                        </tr>
+                    </t>
+                    <tr style="background: #875A7B; color: white; font-weight: bold; font-size: 16px;">
+                        <td style="padding: 12px;">TOTAL:</td>
+                        <td style="padding: 12px; text-align: right;"><span t-field="o.amount_total"/></td>
+                    </tr>
+                    <t t-if="o.payment_state == 'paid'">
+                        <tr style="background: #28a745; color: white;">
+                            <td style="padding: 8px;" colspan="2" align="center">✓ PAYÉ INTÉGRALEMENT</td>
+                        </tr>
+                    </t>
+                    <t t-elif="o.amount_residual and o.amount_residual != o.amount_total">
+                        <tr>
+                            <td style="padding: 8px;">Déjà payé:</td>
+                            <td style="padding: 8px; text-align: right;">
+                                <span t-esc="o.amount_total - o.amount_residual" 
+                                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <tr style="background: #ffc107;">
+                            <td style="padding: 8px; font-weight: bold;">Reste à payer:</td>
+                            <td style="padding: 8px; text-align: right; font-weight: bold;">
+                                <span t-field="o.amount_residual"/>
+                            </td>
+                        </tr>
+                    </t>
+                </table>
+            </div>
+            
+            <!-- ============ PAYMENT INFO ============ -->
+            <div style="background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <strong>💰 Mode de paiement:</strong> Espèces à la livraison (COD - Cash On Delivery)
+            </div>
+            
+            <!-- ============ NOTES ============ -->
+            <t t-if="o.narration">
+                <div style="margin-bottom: 20px;">
+                    <strong>Notes:</strong>
+                    <p t-field="o.narration"/>
+                </div>
+            </t>
+            
+            <!-- ============ FOOTER ============ -->
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #875A7B; text-align: center; color: #666;">
+                <t t-if="enterprise">
+                    <div style="font-weight: bold; color: #875A7B;">
+                        <t t-esc="enterprise.name"/>
+                    </div>
+                    <div>
+                        <t t-if="enterprise.phone">📞 <t t-esc="enterprise.phone"/></t>
+                        <t t-if="enterprise.email"> | ✉️ <t t-esc="enterprise.email"/></t>
+                        <t t-if="enterprise.website"> | 🌐 <t t-esc="enterprise.website"/></t>
+                    </div>
+                </t>
+                <div style="font-size: 10px; margin-top: 10px; color: #999;">
+                    Facture générée via Smart Delivery
+                </div>
+            </div>
+            
+        </div>
+    </template>
+    
+    <!-- Register the report action -->
+    <record id="action_report_delivery_invoice" model="ir.actions.report">
+        <field name="name">Facture Livraison (Entreprise)</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">smart_delivery.report_delivery_invoice_document</field>
+        <field name="report_file">smart_delivery.report_delivery_invoice_document</field>
+        <field name="print_report_name">'Facture_Livraison_%s' % (object.name or '').replace('/','_')</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+    
+</odoo>

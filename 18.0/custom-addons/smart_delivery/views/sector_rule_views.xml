@@ -6,6 +6,9 @@
         <field name="arch" type="xml">
             <list string="Règles de Secteur">
                 <field name="sector_type"/>
+                <field name="base_price" string="Prix de Base"/>
+                <field name="distance_fee_per_km" string="Frais/km"/>
+                <field name="free_distance_km" string="Km Gratuits"/>
                 <field name="otp_required"/>
                 <field name="signature_required"/>
                 <field name="photo_required"/>
@@ -27,7 +30,18 @@
                         </button>
                     </div>
                     <group>
-                        <field name="sector_type"/>
+                        <group>
+                            <field name="sector_type"/>
+                        </group>
+                    </group>
+                    <group string="Tarification">
+                        <group>
+                            <field name="base_price" widget="monetary"/>
+                            <field name="free_distance_km"/>
+                        </group>
+                        <group>
+                            <field name="distance_fee_per_km" widget="monetary"/>
+                        </group>
                     </group>
                     <group string="Conditions Requises">
                         <group>

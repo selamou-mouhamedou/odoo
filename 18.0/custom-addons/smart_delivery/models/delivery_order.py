@@ -310,36 +310,50 @@ class DeliveryOrder(models.Model):
         return True
     
     def _generate_billing(self):
-        """Génère la facturation pour la commande"""
+        """Génère la facturation pour la commande basée sur les règles de secteur
+        
+        Crée un enregistrement delivery.billing et génère automatiquement
+        la facture Odoo (account.move) associée.
+        """
         self.ensure_one()
         
         if self.billing_id:
             return self.billing_id[0]
         
-        # Tarif de base selon le secteur
-        base_tariffs = {
-            'standard': 50.0,
-            'premium': 100.0,
-            'express': 150.0,
-            'fragile': 120.0,
-            'medical': 200.0,
-        }
-        base_tariff = base_tariffs.get(self.sector_type, 50.0)
+        # Get pricing from sector rule
+        sector_rule = self.env['sector.rule'].search([
+            ('sector_type', '=', self.sector_type)
+        ], limit=1)
         
-        # Frais supplémentaires basés sur la distance
-        extra_fee = max(0, (self.distance_km - 5) * 10)  # 10 par km au-delà de 5km
+        if sector_rule:
+            base_tariff = sector_rule.base_price
+            distance_fee_per_km = sector_rule.distance_fee_per_km
+            free_distance = sector_rule.free_distance_km
+        else:
+            # Fallback default values
+            base_tariff = 50.0
+            distance_fee_per_km = 10.0
+            free_distance = 5.0
         
-        total_amount = base_tariff + extra_fee
-        commission = total_amount * 0.15  # 15% de commission
+        # Calculate distance fees (beyond free distance)
+        extra_km = max(0, self.distance_km - free_distance)
+        extra_fee = extra_km * distance_fee_per_km
         
+        # Create billing record
         billing = self.env['delivery.billing'].create({
             'order_id': self.id,
             'distance_km': self.distance_km,
             'base_tariff': base_tariff,
             'extra_fee': extra_fee,
-            'total_amount': total_amount,
-            'commission': commission,
         })
+        
+        # Auto-create invoice in Odoo Accounting
+        try:
+            billing.action_create_invoice()
+        except Exception as e:
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.warning(f"Could not auto-create invoice for billing {billing.id}: {e}")
         
         return billing
     

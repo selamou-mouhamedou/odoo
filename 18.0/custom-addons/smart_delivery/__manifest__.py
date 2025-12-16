@@ -1,20 +1,31 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Smart Delivery',
-    'version': '18.0.1.1.6',
+    'version': '18.0.1.6.0',
     'category': 'Delivery',
     'summary': 'Système de livraison intelligent avec dispatching automatique',
     'description': """
         Module de gestion de livraison intelligent avec:
         - Dispatching automatique de livreurs
         - Validation OTP, signature, photo, biométrie
-        - Gestion de facturation
+        - Intégration comptabilité Odoo native (account.move)
         - API REST avec authentification JWT
         - Suivi GPS en temps réel
+        
+        v1.6.0: Rapport facture personnalisé avec infos entreprise
+        - Logo de l'entreprise expéditrice sur les factures
+        - Nom, email, téléphone, adresse de l'entreprise
+        - Rapport PDF personnalisé "Facture Livraison"
+        
+        v1.5.0: Intégration directe avec le module Comptabilité Odoo
+        - Factures générées dans account.move
+        - Paiements via account.payment
+        - Réconciliation automatique
+        - Smart buttons sur les factures
     """,
     'author': 'Smart Delivery Team',
     'website': 'https://www.odoo.com',
-    'depends': ['base', 'web', 'mail', 'contacts'],
+    'depends': ['base', 'web', 'mail', 'contacts', 'account', 'sale'],
     'external_dependencies': {
         'python': ['PyJWT', 'cryptography'],
     },
@@ -25,6 +36,10 @@
         'security/security_rules.xml',
         # Data
         'data/delivery_data.xml',
+        'data/account_data.xml',
+        'data/product_data.xml',
+        # Reports
+        'report/delivery_invoice_report.xml',
         # Views
         'views/delivery_order_views.xml',
         'views/livreur_views.xml',
@@ -32,9 +47,13 @@
         'views/condition_views.xml',
         'views/sector_rule_views.xml',
         'views/billing_views.xml',
+        'views/account_move_views.xml',
         'views/api_log_views.xml',
         'views/res_users_views.xml',
         'views/menu.xml',
+    ],
+    'demo': [
+        'data/demo_invoicing.xml',
     ],
     'pre_init_hook': 'pre_init_hook',
     'post_init_hook': 'post_init_hook',

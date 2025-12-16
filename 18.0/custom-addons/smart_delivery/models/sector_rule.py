@@ -21,6 +21,26 @@ class SectorRule(models.Model):
     photo_required = fields.Boolean(string='Photo Requise', default=False)
     biometric_required = fields.Boolean(string='Biométrie Requise', default=False)
     
+    # Pricing fields
+    base_price = fields.Float(
+        string='Prix de Base', 
+        digits=(10, 2), 
+        default=50.0,
+        help="Tarif de base pour ce type de livraison (en MRU)"
+    )
+    distance_fee_per_km = fields.Float(
+        string='Frais par km (au-delà de 5km)', 
+        digits=(10, 2), 
+        default=10.0,
+        help="Frais supplémentaires par kilomètre au-delà des 5 premiers kilomètres gratuits"
+    )
+    free_distance_km = fields.Float(
+        string='Distance gratuite (km)', 
+        digits=(10, 2), 
+        default=5.0,
+        help="Distance en kilomètres incluse dans le prix de base"
+    )
+    
     description = fields.Text(string='Description')
     
     # Related livreurs
@@ -71,6 +91,9 @@ class SectorRule(models.Model):
                 'signature_required': False,
                 'photo_required': False,
                 'biometric_required': False,
+                'base_price': 50.0,
+                'distance_fee_per_km': 10.0,
+                'free_distance_km': 5.0,
                 'description': 'Livraison standard sans exigences particulières. Dépôt simple au destinataire.',
             },
             {
@@ -79,6 +102,9 @@ class SectorRule(models.Model):
                 'signature_required': True,
                 'photo_required': False,
                 'biometric_required': False,
+                'base_price': 100.0,
+                'distance_fee_per_km': 10.0,
+                'free_distance_km': 5.0,
                 'description': 'Livraison premium nécessitant une vérification OTP et une signature du destinataire.',
             },
             {
@@ -87,6 +113,9 @@ class SectorRule(models.Model):
                 'signature_required': False,
                 'photo_required': True,
                 'biometric_required': False,
+                'base_price': 150.0,
+                'distance_fee_per_km': 15.0,
+                'free_distance_km': 5.0,
                 'description': 'Livraison express avec vérification OTP et photo de preuve de livraison.',
             },
             {
@@ -95,6 +124,9 @@ class SectorRule(models.Model):
                 'signature_required': True,
                 'photo_required': True,
                 'biometric_required': False,
+                'base_price': 120.0,
+                'distance_fee_per_km': 12.0,
+                'free_distance_km': 5.0,
                 'description': "Livraison de colis fragiles avec OTP, signature et photo obligatoires pour prouver l'état du colis.",
             },
             {
@@ -103,6 +135,9 @@ class SectorRule(models.Model):
                 'signature_required': True,
                 'photo_required': True,
                 'biometric_required': True,
+                'base_price': 200.0,
+                'distance_fee_per_km': 20.0,
+                'free_distance_km': 5.0,
                 'description': 'Livraison médicale avec protocole complet: OTP, signature, photo et vérification biométrique du destinataire.',
             },
         ]

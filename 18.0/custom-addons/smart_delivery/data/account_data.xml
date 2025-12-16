@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- 
+            Note: We don't create custom journals here because Odoo 18 requires
+            complex account setup. Instead, we use Odoo's default journals:
+            - Default Sales Journal for invoices
+            - Default Cash Journal for payments (COD - Cash On Delivery)
+            
+            The billing code will automatically find and use these journals.
+        -->
+    </data>
+</odoo>

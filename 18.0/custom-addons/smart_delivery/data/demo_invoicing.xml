@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Demo Partners for Enterprises -->
+        <record id="demo_partner_alpha" model="res.partner">
+            <field name="name">Alpha Logistics</field>
+            <field name="is_company">True</field>
+            <field name="email">contact@alpha-logistics.com</field>
+            <field name="phone">+212600000001</field>
+            <field name="street">123 Avenue Mohammed V</field>
+            <field name="city">Casablanca</field>
+            <field name="country_id" ref="base.ma"/>
+        </record>
+
+        <record id="demo_partner_beta" model="res.partner">
+            <field name="name">Beta Express</field>
+            <field name="is_company">True</field>
+            <field name="email">info@beta-express.ma</field>
+            <field name="phone">+212600000002</field>
+            <field name="street">45 Boulevard Zerktouni</field>
+            <field name="city">Rabat</field>
+            <field name="country_id" ref="base.ma"/>
+        </record>
+
+        <!-- Create delivery.enterprise records to make them valid enterprises -->
+        <record id="demo_enterprise_alpha" model="delivery.enterprise">
+            <field name="name">Alpha Logistics</field>
+            <field name="email">contact@alpha-logistics.com</field>
+            <field name="phone">+212600000001</field>
+            <field name="partner_id" ref="demo_partner_alpha"/>
+            <field name="registration_status">approved</field>
+            <field name="address">123 Avenue Mohammed V</field>
+            <field name="city">Casablanca</field>
+        </record>
+
+        <record id="demo_enterprise_beta" model="delivery.enterprise">
+            <field name="name">Beta Express</field>
+            <field name="email">info@beta-express.ma</field>
+            <field name="phone">+212600000002</field>
+            <field name="partner_id" ref="demo_partner_beta"/>
+            <field name="registration_status">approved</field>
+            <field name="address">45 Boulevard Zerktouni</field>
+            <field name="city">Rabat</field>
+        </record>
+
+        <!-- Demo Receivers (Individual Partners) -->
+        <record id="demo_receiver_1" model="res.partner">
+            <field name="name">Ahmed Bennani</field>
+            <field name="is_company">False</field>
+            <field name="email">ahmed.bennani@email.com</field>
+            <field name="phone">+212661111111</field>
+            <field name="city">Casablanca</field>
+            <field name="country_id" ref="base.ma"/>
+        </record>
+
+        <record id="demo_receiver_2" model="res.partner">
+            <field name="name">Fatima Alaoui</field>
+            <field name="is_company">False</field>
+            <field name="email">fatima.alaoui@email.com</field>
+            <field name="phone">+212662222222</field>
+            <field name="city">Marrakech</field>
+            <field name="country_id" ref="base.ma"/>
+        </record>
+
+        <record id="demo_receiver_3" model="res.partner">
+            <field name="name">Youssef El Idrissi</field>
+            <field name="is_company">False</field>
+            <field name="email">youssef.idrissi@email.com</field>
+            <field name="phone">+212663333333</field>
+            <field name="city">Fès</field>
+            <field name="country_id" ref="base.ma"/>
+        </record>
+
+        <!-- Demo Livreur -->
+        <record id="demo_livreur_1" model="delivery.livreur">
+            <field name="name">Karim Tazi</field>
+            <field name="phone">+212670000001</field>
+            <field name="vehicle_type">motorcycle</field>
+            <field name="availability">True</field>
+            <field name="verified">True</field>
+            <field name="rating">4.5</field>
+            <field name="current_lat">33.5731</field>
+            <field name="current_long">-7.5898</field>
+        </record>
+
+        <!-- Demo Delivery Orders -->
+        <record id="demo_order_standard" model="delivery.order">
+            <field name="name">DEL-DEMO-001</field>
+            <field name="reference">DEMO-STD-001</field>
+            <field name="sector_type">standard</field>
+            <field name="sender_id" ref="demo_partner_alpha"/>
+            <field name="receiver_name">Ahmed Bennani</field>
+            <field name="receiver_phone">+212661111111</field>
+            <field name="pickup_lat">33.5731</field>
+            <field name="pickup_long">-7.5898</field>
+            <field name="drop_lat">33.5892</field>
+            <field name="drop_long">-7.6031</field>
+            <field name="assigned_livreur_id" ref="demo_livreur_1"/>
+            <field name="status">delivered</field>
+        </record>
+
+        <record id="demo_order_premium" model="delivery.order">
+            <field name="name">DEL-DEMO-002</field>
+            <field name="reference">DEMO-PRM-001</field>
+            <field name="sector_type">premium</field>
+            <field name="sender_id" ref="demo_partner_beta"/>
+            <field name="receiver_name">Fatima Alaoui</field>
+            <field name="receiver_phone">+212662222222</field>
+            <field name="pickup_lat">34.0209</field>
+            <field name="pickup_long">-6.8416</field>
+            <field name="drop_lat">31.6295</field>
+            <field name="drop_long">-7.9811</field>
+            <field name="assigned_livreur_id" ref="demo_livreur_1"/>
+            <field name="status">delivered</field>
+            <field name="otp_required">True</field>
+            <field name="signature_required">True</field>
+        </record>
+
+        <record id="demo_order_express" model="delivery.order">
+            <field name="name">DEL-DEMO-003</field>
+            <field name="reference">DEMO-EXP-001</field>
+            <field name="sector_type">express</field>
+            <field name="sender_id" ref="demo_partner_alpha"/>
+            <field name="receiver_name">Youssef El Idrissi</field>
+            <field name="receiver_phone">+212663333333</field>
+            <field name="pickup_lat">33.5731</field>
+            <field name="pickup_long">-7.5898</field>
+            <field name="drop_lat">34.0331</field>
+            <field name="drop_long">-5.0003</field>
+            <field name="assigned_livreur_id" ref="demo_livreur_1"/>
+            <field name="status">delivered</field>
+            <field name="otp_required">True</field>
+            <field name="photo_required">True</field>
+        </record>
+
+        <record id="demo_order_medical" model="delivery.order">
+            <field name="name">DEL-DEMO-004</field>
+            <field name="reference">DEMO-MED-001</field>
+            <field name="sector_type">medical</field>
+            <field name="sender_id" ref="demo_partner_beta"/>
+            <field name="receiver_name">Ahmed Bennani</field>
+            <field name="receiver_phone">+212661111111</field>
+            <field name="pickup_lat">34.0209</field>
+            <field name="pickup_long">-6.8416</field>
+            <field name="drop_lat">33.5731</field>
+            <field name="drop_long">-7.5898</field>
+            <field name="assigned_livreur_id" ref="demo_livreur_1"/>
+            <field name="status">delivered</field>
+            <field name="otp_required">True</field>
+            <field name="signature_required">True</field>
+            <field name="photo_required">True</field>
+            <field name="biometric_required">True</field>
+        </record>
+
+        <!-- Demo Billing Records -->
+        <!-- Standard delivery - short distance (3km, no extra fee) -->
+        <record id="demo_billing_standard" model="delivery.billing">
+            <field name="order_id" ref="demo_order_standard"/>
+            <field name="distance_km">3.2</field>
+            <field name="base_tariff">50.0</field>
+            <field name="extra_fee">0.0</field>
+            <field name="total_amount">50.0</field>
+            <field name="commission">7.5</field>
+            <field name="invoice_to">sender</field>
+            <field name="state">confirmed</field>
+            <field name="notes">Livraison standard - courte distance dans Casablanca</field>
+        </record>
+
+        <!-- Premium delivery - long distance (Rabat to Marrakech ~320km) -->
+        <record id="demo_billing_premium" model="delivery.billing">
+            <field name="order_id" ref="demo_order_premium"/>
+            <field name="distance_km">320.5</field>
+            <field name="base_tariff">100.0</field>
+            <field name="extra_fee">3155.0</field>
+            <field name="total_amount">3255.0</field>
+            <field name="commission">488.25</field>
+            <field name="invoice_to">sender</field>
+            <field name="state">paid</field>
+            <field name="notes">Livraison premium inter-villes Rabat - Marrakech</field>
+        </record>
+
+        <!-- Express delivery - medium distance (Casa to Fès ~280km) -->
+        <record id="demo_billing_express" model="delivery.billing">
+            <field name="order_id" ref="demo_order_express"/>
+            <field name="distance_km">280.0</field>
+            <field name="base_tariff">150.0</field>
+            <field name="extra_fee">2750.0</field>
+            <field name="total_amount">2900.0</field>
+            <field name="commission">435.0</field>
+            <field name="invoice_to">receiver</field>
+            <field name="state">confirmed</field>
+            <field name="notes">Livraison express - facturé au destinataire</field>
+        </record>
+
+        <!-- Medical delivery - medium distance (Rabat to Casa ~90km) -->
+        <record id="demo_billing_medical" model="delivery.billing">
+            <field name="order_id" ref="demo_order_medical"/>
+            <field name="distance_km">90.0</field>
+            <field name="base_tariff">200.0</field>
+            <field name="extra_fee">850.0</field>
+            <field name="total_amount">1050.0</field>
+            <field name="commission">157.5</field>
+            <field name="invoice_to">sender</field>
+            <field name="state">draft</field>
+            <field name="notes">Livraison médicale urgente - protocole complet</field>
+        </record>
+
+        <!-- Demo Invoices (pre-created for testing) -->
+        <!-- Invoice for Premium delivery (already paid) - uses partner directly -->
+        <record id="demo_invoice_premium" model="account.move">
+            <field name="move_type">out_invoice</field>
+            <field name="partner_id" ref="demo_partner_beta"/>
+            <field name="invoice_date" eval="time.strftime('%Y-%m-%d')"/>
+            <field name="invoice_origin">DEL-DEMO-002</field>
+            <field name="narration">Facture pour livraison premium Rabat - Marrakech</field>
+            <field name="invoice_line_ids" eval="[
+                (0, 0, {
+                    'name': 'Service de Livraison Premium - DEL-DEMO-002',
+                    'quantity': 1,
+                    'price_unit': 100.0,
+                }),
+                (0, 0, {
+                    'name': 'Frais de distance (315.5 km au-delà de 5km)',
+                    'quantity': 315.5,
+                    'price_unit': 10.0,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Link invoice to billing record -->
+        <record id="demo_billing_premium" model="delivery.billing">
+            <field name="invoice_id" ref="demo_invoice_premium"/>
+        </record>
+
+        <!-- Invoice for Express delivery (to receiver) -->
+        <record id="demo_invoice_express" model="account.move">
+            <field name="move_type">out_invoice</field>
+            <field name="partner_id" ref="demo_receiver_3"/>
+            <field name="invoice_date" eval="time.strftime('%Y-%m-%d')"/>
+            <field name="invoice_origin">DEL-DEMO-003</field>
+            <field name="narration">Facture express - facturé au destinataire Youssef El Idrissi</field>
+            <field name="invoice_line_ids" eval="[
+                (0, 0, {
+                    'name': 'Service de Livraison Express - DEL-DEMO-003',
+                    'quantity': 1,
+                    'price_unit': 150.0,
+                }),
+                (0, 0, {
+                    'name': 'Frais de distance (275 km au-delà de 5km)',
+                    'quantity': 275,
+                    'price_unit': 10.0,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Link invoice to billing record -->
+        <record id="demo_billing_express" model="delivery.billing">
+            <field name="invoice_id" ref="demo_invoice_express"/>
+        </record>
+
+    </data>
+</odoo>

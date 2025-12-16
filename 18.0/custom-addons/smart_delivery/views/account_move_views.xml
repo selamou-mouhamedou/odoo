@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Invoice Form to show Delivery Billing link -->
+    <record id="view_move_form_delivery_billing" model="ir.ui.view">
+        <field name="name">account.move.form.delivery.billing</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <!-- Add smart button for delivery billing -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_delivery_billings"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-truck"
+                        invisible="delivery_billing_count == 0">
+                    <field name="delivery_billing_count" widget="statinfo" string="Livraison"/>
+                </button>
+            </xpath>
+            
+            <!-- Add indicator that this is a delivery invoice -->
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <div class="alert alert-info" role="alert" invisible="not is_delivery_invoice">
+                    <strong>🚚 Facture de Livraison</strong> - 
+                    Cette facture a été générée par le module Smart Delivery.
+                    <button name="action_view_delivery_billings" 
+                            type="object" 
+                            class="btn-link p-0 ms-2">
+                        Voir la facturation →
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend Invoice List to show delivery indicator -->
+    <record id="view_move_tree_delivery_billing" model="ir.ui.view">
+        <field name="name">account.move.tree.delivery.billing</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_delivery_invoice" column_invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search filter for delivery invoices -->
+    <record id="view_account_invoice_filter_delivery" model="ir.ui.view">
+        <field name="name">account.move.search.delivery</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='myinvoices']" position="after">
+                <separator/>
+                <filter string="Factures Livraison" 
+                        name="delivery_invoices" 
+                        domain="[('is_delivery_invoice', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

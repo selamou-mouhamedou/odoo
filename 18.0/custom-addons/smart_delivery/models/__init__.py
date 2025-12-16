@@ -7,6 +7,7 @@ from . import enterprise
 from . import delivery_condition
 from . import sector_rule
 from . import billing
+from . import account_move
 from . import delivery_route
 from . import api_log
 from . import res_users

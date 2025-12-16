@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Product Category for Delivery Services -->
+        <record id="product_category_delivery" model="product.category">
+            <field name="name">Services de Livraison</field>
+        </record>
+
+        <!-- Main Delivery Service Product -->
+        <record id="product_delivery_service" model="product.product">
+            <field name="name">Service de Livraison</field>
+            <field name="categ_id" ref="product_category_delivery"/>
+            <field name="type">service</field>
+            <field name="list_price">50.0</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="sale_line_warn">no-message</field>
+        </record>
+
+        <!-- Delivery Service Products by Sector Type -->
+        <record id="product_delivery_standard" model="product.product">
+            <field name="name">Livraison Standard</field>
+            <field name="categ_id" ref="product_category_delivery"/>
+            <field name="type">service</field>
+            <field name="list_price">50.0</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">DEL-STD</field>
+            <field name="sale_line_warn">no-message</field>
+        </record>
+
+        <record id="product_delivery_premium" model="product.product">
+            <field name="name">Livraison Premium</field>
+            <field name="categ_id" ref="product_category_delivery"/>
+            <field name="type">service</field>
+            <field name="list_price">100.0</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">DEL-PRM</field>
+            <field name="sale_line_warn">no-message</field>
+        </record>
+
+        <record id="product_delivery_express" model="product.product">
+            <field name="name">Livraison Express</field>
+            <field name="categ_id" ref="product_category_delivery"/>
+            <field name="type">service</field>
+            <field name="list_price">150.0</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">DEL-EXP</field>
+            <field name="sale_line_warn">no-message</field>
+        </record>
+
+        <record id="product_delivery_fragile" model="product.product">
+            <field name="name">Livraison Fragile</field>
+            <field name="categ_id" ref="product_category_delivery"/>
+            <field name="type">service</field>
+            <field name="list_price">120.0</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">DEL-FRG</field>
+            <field name="sale_line_warn">no-message</field>
+        </record>
+
+        <record id="product_delivery_medical" model="product.product">
+            <field name="name">Livraison Médicale</field>
+            <field name="categ_id" ref="product_category_delivery"/>
+            <field name="type">service</field>
+            <field name="list_price">200.0</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">DEL-MED</field>
+            <field name="sale_line_warn">no-message</field>
+        </record>
+
+        <!-- Distance Fee Product -->
+        <record id="product_distance_fee" model="product.product">
+            <field name="name">Frais de Distance</field>
+            <field name="categ_id" ref="product_category_delivery"/>
+            <field name="type">service</field>
+            <field name="list_price">10.0</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">DEL-DIST</field>
+            <field name="sale_line_warn">no-message</field>
+        </record>
+    </data>
+</odoo>

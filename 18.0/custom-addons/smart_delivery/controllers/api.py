@@ -2595,7 +2595,6 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                         'base_tariff': billing.base_tariff,
                         'extra_fee': billing.extra_fee,
                         'total_amount': billing.total_amount,
-                        'commission': billing.commission,
                     }
                 else:
                     order_data['billing'] = None
@@ -2847,7 +2846,6 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                         'base_tariff': billing.base_tariff,
                         'extra_fee': billing.extra_fee,
                         'total_amount': billing.total_amount,
-                        'commission': billing.commission,
                         'distance_km': billing.distance_km,
                     }
             except Exception as billing_error:
@@ -3724,7 +3722,6 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                     'base_tariff': billing.base_tariff,
                     'extra_fee': billing.extra_fee,
                     'total_amount': billing.total_amount,
-                    'commission': billing.commission,
                     'state': billing.state,
                     'notes': billing.notes,
                 }
