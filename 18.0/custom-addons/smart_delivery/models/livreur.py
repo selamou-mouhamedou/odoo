@@ -19,20 +19,36 @@ class DeliveryLivreur(models.Model):
                            inverse='_inverse_password', store=False,
                            help='Mot de passe pour la connexion API (non stocké)')
     
-    # ==================== REQUIRED IDENTIFICATION DOCUMENTS ====================
+    # ==================== IDENTIFICATION DOCUMENTS ====================
     nni = fields.Char(string='NNI (Numéro National d\'Identification)', required=True, 
                       tracking=True, help='Numéro National d\'Identification du livreur')
-    nni_photo = fields.Binary(string='Photo NNI', required=True, 
-                              help='Photo du document NNI')
+    
+    # Dynamic documents - livreur can add any document type they want
+    document_ids = fields.One2many(
+        'livreur.document', 
+        'livreur_id', 
+        string='Documents',
+        help='Documents d\'identification du livreur'
+    )
+    document_count = fields.Integer(
+        string='Nombre de Documents', 
+        compute='_compute_document_count'
+    )
+    
+    # ==================== LEGACY DOCUMENT FIELDS (kept for migration) ====================
+    # These fields are deprecated - use document_ids instead
+    # They are kept for backward compatibility and will be migrated to document_ids
+    nni_photo = fields.Binary(string='Photo NNI (ancien)', 
+                              help='[DEPRECATED] Utilisez les documents dynamiques')
     nni_photo_filename = fields.Char(string='Nom fichier NNI')
-    livreur_photo = fields.Binary(string='Photo du Livreur', required=True, 
-                                  help='Photo d\'identité du livreur')
+    livreur_photo = fields.Binary(string='Photo du Livreur (ancien)', 
+                                  help='[DEPRECATED] Utilisez les documents dynamiques')
     livreur_photo_filename = fields.Char(string='Nom fichier photo livreur')
-    carte_grise_photo = fields.Binary(string='Photo Carte Grise', required=True, 
-                                      help='Photo de la carte grise du véhicule')
+    carte_grise_photo = fields.Binary(string='Photo Carte Grise (ancien)', 
+                                      help='[DEPRECATED] Utilisez les documents dynamiques')
     carte_grise_photo_filename = fields.Char(string='Nom fichier carte grise')
-    assurance_photo = fields.Binary(string='Photo Assurance', required=True, 
-                                    help='Photo du document d\'assurance')
+    assurance_photo = fields.Binary(string='Photo Assurance (ancien)', 
+                                    help='[DEPRECATED] Utilisez les documents dynamiques')
     assurance_photo_filename = fields.Char(string='Nom fichier assurance')
     
     # Registration status for pending approvals
@@ -204,6 +220,11 @@ class DeliveryLivreur(models.Model):
         for record in self:
             record.order_count = len(record.order_ids)
     
+    @api.depends('document_ids')
+    def _compute_document_count(self):
+        for record in self:
+            record.document_count = len(record.document_ids)
+    
     def action_view_orders(self):
         """Ouvre la vue des commandes du livreur"""
         self.ensure_one()
@@ -298,5 +319,66 @@ class DeliveryLivreur(models.Model):
                 'type': 'warning',
                 'sticky': False,
             }
+        }
+    
+    # ==================== DOCUMENT MIGRATION ====================
+    
+    @api.model
+    def _migrate_legacy_documents(self):
+        """
+        Migrate legacy document fields to the new dynamic document_ids system.
+        This method is called during module upgrade to migrate existing livreurs.
+        """
+        LivreurDocument = self.env['livreur.document']
+        
+        # Find all livreurs with legacy document fields that haven't been migrated yet
+        livreurs = self.search([])
+        migrated_count = 0
+        
+        for livreur in livreurs:
+            documents_to_create = []
+            
+            # Map of legacy fields to document names
+            legacy_fields = [
+                ('nni_photo', 'nni_photo_filename', 'Photo NNI'),
+                ('livreur_photo', 'livreur_photo_filename', 'Photo du Livreur'),
+                ('carte_grise_photo', 'carte_grise_photo_filename', 'Carte Grise'),
+                ('assurance_photo', 'assurance_photo_filename', 'Assurance'),
+            ]
+            
+            for photo_field, filename_field, doc_name in legacy_fields:
+                photo_data = getattr(livreur, photo_field, None)
+                if photo_data:
+                    # Check if this document already exists for this livreur
+                    existing = LivreurDocument.search([
+                        ('livreur_id', '=', livreur.id),
+                        ('name', '=', doc_name)
+                    ], limit=1)
+                    
+                    if not existing:
+                        documents_to_create.append({
+                            'livreur_id': livreur.id,
+                            'name': doc_name,
+                            'photo': photo_data,
+                            'photo_filename': getattr(livreur, filename_field, None) or f'{doc_name}.jpg',
+                            'is_verified': livreur.verified,
+                        })
+            
+            if documents_to_create:
+                LivreurDocument.create(documents_to_create)
+                migrated_count += 1
+        
+        return migrated_count
+    
+    def action_view_documents(self):
+        """Open the list of documents for this livreur"""
+        self.ensure_one()
+        return {
+            'name': _('Documents'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'livreur.document',
+            'view_mode': 'list,form',
+            'domain': [('livreur_id', '=', self.id)],
+            'context': {'default_livreur_id': self.id},
         }
 

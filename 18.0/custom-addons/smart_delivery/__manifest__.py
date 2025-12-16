@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Smart Delivery',
-    'version': '18.0.1.7.0',
+    'version': '18.0.1.9.0',
     'category': 'Delivery',
     'summary': 'Système de livraison intelligent avec dispatching automatique',
     'description': """
@@ -11,6 +11,13 @@
         - Intégration comptabilité Odoo native (account.move)
         - API REST avec authentification JWT
         - Suivi GPS en temps réel
+        
+        v1.9.0: Documents dynamiques pour inscription livreur ET entreprise
+        - Nouveau modèle livreur.document pour documents flexibles livreur
+        - Nouveau modèle enterprise.document pour documents flexibles entreprise
+        - Les livreurs/entreprises peuvent ajouter n'importe quel type de document
+        - Migration automatique des anciens documents livreur
+        - API mise à jour pour accepter tableau de documents
         
         v1.7.0: API Livreur pour gestion factures et paiements
         - GET /livreur/orders/{id}/billing - Info facturation

@@ -2,8 +2,10 @@
 
 from . import delivery_order
 from . import livreur
+from . import livreur_document
 from . import livreur_wizard
 from . import enterprise
+from . import enterprise_document
 from . import delivery_condition
 from . import sector_rule
 from . import billing

@@ -128,6 +128,7 @@ def post_init_hook(env):
     """Initialise les règles de secteur par défaut après l'installation du module"""
     _create_default_sector_rules(env)
     _migrate_existing_enterprise_users(env)
+    _migrate_livreur_legacy_documents(env)
 
 
 def post_load():
@@ -291,3 +292,74 @@ def _migrate_existing_enterprise_users(env):
             continue
     
     _logger.info(f"Migration complete: {migrated_count} enterprise records created")
+
+
+def _migrate_livreur_legacy_documents(env):
+    """
+    Migrate legacy document fields (nni_photo, livreur_photo, carte_grise_photo, assurance_photo)
+    to the new dynamic livreur.document model.
+    
+    This allows existing livreurs to keep their documents while new livreurs 
+    can upload any document type they want.
+    """
+    _logger.info("Migrating legacy livreur documents to dynamic document model...")
+    
+    Livreur = env['delivery.livreur'].sudo()
+    LivreurDocument = env['livreur.document'].sudo()
+    
+    # Find all livreurs that have legacy photo fields but might not have documents
+    livreurs = Livreur.search([])
+    migrated_count = 0
+    
+    # Legacy field mappings: (field_name, filename_field, document_name)
+    legacy_fields = [
+        ('nni_photo', 'nni_photo_filename', 'Photo NNI'),
+        ('livreur_photo', 'livreur_photo_filename', 'Photo du Livreur'),
+        ('carte_grise_photo', 'carte_grise_photo_filename', 'Carte Grise'),
+        ('assurance_photo', 'assurance_photo_filename', 'Assurance'),
+    ]
+    
+    for livreur in livreurs:
+        documents_to_create = []
+        
+        for photo_field, filename_field, doc_name in legacy_fields:
+            photo_data = getattr(livreur, photo_field, None)
+            
+            # Skip if no photo data or if it's the placeholder image
+            if not photo_data:
+                continue
+            
+            # Check if this document already exists for this livreur
+            existing_doc = LivreurDocument.search([
+                ('livreur_id', '=', livreur.id),
+                ('name', '=', doc_name)
+            ], limit=1)
+            
+            if existing_doc:
+                continue  # Document already migrated
+            
+            filename = getattr(livreur, filename_field, None) or f'{doc_name}.jpg'
+            
+            # Skip placeholder images (they have placeholder.png filename)
+            if filename == 'placeholder.png':
+                continue
+            
+            documents_to_create.append({
+                'livreur_id': livreur.id,
+                'name': doc_name,
+                'photo': photo_data,
+                'photo_filename': filename,
+                'is_verified': livreur.verified,
+                'sequence': (len(documents_to_create) + 1) * 10,
+            })
+        
+        if documents_to_create:
+            try:
+                LivreurDocument.create(documents_to_create)
+                migrated_count += 1
+                _logger.info(f"Migrated {len(documents_to_create)} documents for livreur: {livreur.name}")
+            except Exception as e:
+                _logger.warning(f"Could not migrate documents for livreur {livreur.name}: {e}")
+                continue
+    
+    _logger.info(f"Document migration complete: {migrated_count} livreurs with migrated documents")

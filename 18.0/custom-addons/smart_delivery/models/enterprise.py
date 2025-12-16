@@ -20,6 +20,18 @@ class DeliveryEnterprise(models.Model):
                          help='Logo de l\'entreprise (recommandé: 256x256 pixels)')
     logo_filename = fields.Char(string='Nom fichier logo')
     
+    # Dynamic documents - enterprise can add any document type they want
+    document_ids = fields.One2many(
+        'enterprise.document', 
+        'enterprise_id', 
+        string='Documents',
+        help='Documents d\'identification de l\'entreprise (Registre Commerce, NIF, Licence, etc.)'
+    )
+    document_count = fields.Integer(
+        string='Nombre de Documents', 
+        compute='_compute_document_count'
+    )
+    
     # Password is not stored - used only during creation
     password = fields.Char(string='Mot de passe', compute='_compute_password',
                            inverse='_inverse_password', store=False,
@@ -80,6 +92,23 @@ class DeliveryEnterprise(models.Model):
                 record.order_count = count
             else:
                 record.order_count = 0
+    
+    @api.depends('document_ids')
+    def _compute_document_count(self):
+        for record in self:
+            record.document_count = len(record.document_ids)
+    
+    def action_view_documents(self):
+        """Open the list of documents for this enterprise"""
+        self.ensure_one()
+        return {
+            'name': _('Documents'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'enterprise.document',
+            'view_mode': 'list,form',
+            'domain': [('enterprise_id', '=', self.id)],
+            'context': {'default_enterprise_id': self.id},
+        }
     
     @api.model_create_multi
     def create(self, vals_list):

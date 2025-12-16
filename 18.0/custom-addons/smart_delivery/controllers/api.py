@@ -473,7 +473,7 @@ class SmartDeliveryAPI(http.Controller):
         
         Use GET /smart_delivery/api/sectors to get available sectors first.
         
-        Request Body (multipart/form-data):
+        Request Body (JSON or multipart/form-data):
         {
             "name": "Nom du livreur",           # Required
             "phone": "+222XXXXXXXX",            # Required
@@ -481,10 +481,17 @@ class SmartDeliveryAPI(http.Controller):
             "password": "password123",          # Required (min 6 chars)
             "vehicle_type": "motorcycle",       # Required: motorcycle, car, bicycle, truck
             "nni": "1234567890",               # Required: Numéro National d'Identification
-            "nni_photo": <file>,               # Required: Photo du NNI (base64 or file)
-            "livreur_photo": <file>,           # Required: Photo d'identité du livreur
-            "carte_grise_photo": <file>,       # Required: Photo de la carte grise
-            "assurance_photo": <file>,         # Required: Photo de l'assurance
+            "documents": [                      # Required: At least one document
+                {
+                    "name": "Photo NNI",        # Required: Document name/type
+                    "photo": "base64...",       # Required: Base64 encoded image
+                    "filename": "nni.jpg"       # Optional: Filename
+                },
+                {
+                    "name": "Carte Grise",
+                    "photo": "base64..."
+                }
+            ],
             "sector_types": ["standard", "premium"]  # Optional: List of sector types or IDs
         }
         
@@ -496,7 +503,8 @@ class SmartDeliveryAPI(http.Controller):
                 "id": 1,
                 "name": "Nom du livreur",
                 "email": "livreur@example.com",
-                "registration_status": "pending"
+                "registration_status": "pending",
+                "documents": [{"name": "Photo NNI"}, {"name": "Carte Grise"}]
             }
         }
         
@@ -595,40 +603,102 @@ class SmartDeliveryAPI(http.Controller):
                     'code': 'USER_EXISTS'
                 }, 400)
             
-            # Process photo uploads
-            photo_fields = ['nni_photo', 'livreur_photo', 'carte_grise_photo', 'assurance_photo']
-            photos = {}
+            # Process dynamic documents
+            documents_data = []
             
-            for field in photo_fields:
-                photo_data = None
-                filename = None
-                
-                # Check for file upload in multipart form
-                if field in request.httprequest.files:
-                    file = request.httprequest.files[field]
-                    if file and file.filename:
-                        import base64
-                        photo_data = base64.b64encode(file.read()).decode('utf-8')
-                        filename = file.filename
-                
-                # Check for base64 data in JSON/form data
-                elif data.get(field):
-                    photo_data = data.get(field)
-                    # If it already contains data: prefix, extract base64 part
+            # Check for new dynamic documents format
+            documents_input = data.get('documents', [])
+            
+            # Handle JSON string if sent as form data
+            if isinstance(documents_input, str):
+                try:
+                    documents_input = json.loads(documents_input)
+                except json.JSONDecodeError:
+                    documents_input = []
+            
+            if documents_input and isinstance(documents_input, list):
+                # New dynamic documents format
+                for idx, doc in enumerate(documents_input):
+                    if not isinstance(doc, dict):
+                        continue
+                    
+                    doc_name = doc.get('name', '').strip()
+                    if not doc_name:
+                        return self._json_response({
+                            'success': False,
+                            'error': f'Nom du document requis pour le document #{idx + 1}',
+                            'code': 'MISSING_DOCUMENT_NAME'
+                        }, 400)
+                    
+                    photo_data = doc.get('photo', '')
+                    if not photo_data:
+                        return self._json_response({
+                            'success': False,
+                            'error': f'Photo requise pour le document: {doc_name}',
+                            'code': 'MISSING_DOCUMENT_PHOTO',
+                            'document_name': doc_name
+                        }, 400)
+                    
+                    # Clean base64 data
                     if isinstance(photo_data, str) and 'base64,' in photo_data:
                         photo_data = photo_data.split('base64,')[1]
-                    filename = data.get(f'{field}_filename', f'{field}.jpg')
+                    
+                    filename = doc.get('filename') or doc.get('photo_filename') or f'{doc_name}.jpg'
+                    
+                    documents_data.append({
+                        'name': doc_name,
+                        'photo': photo_data,
+                        'photo_filename': filename,
+                    })
                 
-                if not photo_data:
+                if not documents_data:
                     return self._json_response({
                         'success': False,
-                        'error': f'Photo requise: {field}',
-                        'code': 'MISSING_PHOTO',
-                        'field': field
+                        'error': 'Au moins un document est requis',
+                        'code': 'NO_DOCUMENTS'
                     }, 400)
+            else:
+                # Legacy format support - check for old fixed photo fields
+                legacy_photo_fields = [
+                    ('nni_photo', 'Photo NNI'),
+                    ('livreur_photo', 'Photo du Livreur'),
+                    ('carte_grise_photo', 'Carte Grise'),
+                    ('assurance_photo', 'Assurance'),
+                ]
                 
-                photos[field] = photo_data
-                photos[f'{field}_filename'] = filename
+                for field, doc_name in legacy_photo_fields:
+                    photo_data = None
+                    filename = None
+                    
+                    # Check for file upload in multipart form
+                    if field in request.httprequest.files:
+                        file = request.httprequest.files[field]
+                        if file and file.filename:
+                            photo_data = base64.b64encode(file.read()).decode('utf-8')
+                            filename = file.filename
+                    
+                    # Check for base64 data in JSON/form data
+                    elif data.get(field):
+                        photo_data = data.get(field)
+                        # If it already contains data: prefix, extract base64 part
+                        if isinstance(photo_data, str) and 'base64,' in photo_data:
+                            photo_data = photo_data.split('base64,')[1]
+                        filename = data.get(f'{field}_filename', f'{doc_name}.jpg')
+                    
+                    if photo_data:
+                        documents_data.append({
+                            'name': doc_name,
+                            'photo': photo_data,
+                            'photo_filename': filename or f'{doc_name}.jpg',
+                        })
+                
+                # If no documents at all, require at least one
+                if not documents_data:
+                    return self._json_response({
+                        'success': False,
+                        'error': 'Au moins un document est requis (utilisez le champ "documents" avec un tableau)',
+                        'code': 'NO_DOCUMENTS'
+                    }, 400)
             
             # Process sector_types - can be array of IDs or array of sector_type strings
             sector_ids = []
@@ -653,7 +723,7 @@ class SmartDeliveryAPI(http.Controller):
                         if sector:
                             sector_ids.append(sector.id)
             
-            # Create livreur record
+            # Create livreur record with dynamic documents
             livreur_vals = {
                 'name': data.get('name', '').strip(),
                 'phone': data.get('phone', '').strip(),
@@ -661,14 +731,6 @@ class SmartDeliveryAPI(http.Controller):
                 'password': password,
                 'vehicle_type': vehicle_type,
                 'nni': nni,
-                'nni_photo': photos.get('nni_photo'),
-                'nni_photo_filename': photos.get('nni_photo_filename'),
-                'livreur_photo': photos.get('livreur_photo'),
-                'livreur_photo_filename': photos.get('livreur_photo_filename'),
-                'carte_grise_photo': photos.get('carte_grise_photo'),
-                'carte_grise_photo_filename': photos.get('carte_grise_photo_filename'),
-                'assurance_photo': photos.get('assurance_photo'),
-                'assurance_photo_filename': photos.get('assurance_photo_filename'),
                 'registration_status': 'pending',
                 'verified': False,
                 'availability': False,  # Not available until approved
@@ -681,8 +743,22 @@ class SmartDeliveryAPI(http.Controller):
             # Create the livreur (this will also create the user)
             livreur = request.env['delivery.livreur'].sudo().create(livreur_vals)
             
+            # Create dynamic documents for this livreur
+            LivreurDocument = request.env['livreur.document'].sudo()
+            for idx, doc_data in enumerate(documents_data):
+                LivreurDocument.create({
+                    'livreur_id': livreur.id,
+                    'name': doc_data['name'],
+                    'photo': doc_data['photo'],
+                    'photo_filename': doc_data.get('photo_filename'),
+                    'sequence': (idx + 1) * 10,
+                })
+            
             # Get sector names for response
             sector_names = [s.name for s in livreur.sector_ids]
+            
+            # Get document names for response
+            document_names = [{'name': doc['name']} for doc in documents_data]
             
             response_data = {
                 'success': True,
@@ -695,6 +771,8 @@ class SmartDeliveryAPI(http.Controller):
                     'vehicle_type': livreur.vehicle_type,
                     'registration_status': livreur.registration_status,
                     'sector_types': sector_names,
+                    'documents': document_names,
+                    'document_count': len(documents_data),
                 }
             }
             
@@ -735,13 +813,24 @@ class SmartDeliveryAPI(http.Controller):
         This endpoint allows enterprises to create their own account from web/mobile app.
         The account will be created with 'pending' status and needs admin approval.
         
-        Request Body (multipart/form-data or JSON):
+        Request Body (JSON or multipart/form-data):
         {
             "name": "Nom de l'entreprise",       # Required
             "email": "contact@entreprise.com",   # Required
             "phone": "+222XXXXXXXX",             # Required
             "password": "password123",           # Required (min 6 chars)
             "logo": <file or base64>,            # Optional: Logo de l'entreprise
+            "documents": [                       # Optional: Documents de l'entreprise
+                {
+                    "name": "Registre de Commerce",
+                    "photo": "base64...",
+                    "filename": "registre.jpg"
+                },
+                {
+                    "name": "NIF",
+                    "photo": "base64..."
+                }
+            ],
             "address": "Adresse complète",       # Optional
             "city": "Ville",                     # Optional
             "website": "https://...",            # Optional
@@ -756,7 +845,8 @@ class SmartDeliveryAPI(http.Controller):
                 "id": 1,
                 "name": "Nom de l'entreprise",
                 "email": "contact@entreprise.com",
-                "registration_status": "pending"
+                "registration_status": "pending",
+                "documents": [{"name": "Registre de Commerce"}, {"name": "NIF"}]
             }
         }
         """
@@ -834,7 +924,6 @@ class SmartDeliveryAPI(http.Controller):
             if 'logo' in request.httprequest.files:
                 file = request.httprequest.files['logo']
                 if file and file.filename:
-                    import base64
                     logo_data = base64.b64encode(file.read()).decode('utf-8')
                     logo_filename = file.filename
             
@@ -845,6 +934,42 @@ class SmartDeliveryAPI(http.Controller):
                 if isinstance(logo_data, str) and 'base64,' in logo_data:
                     logo_data = logo_data.split('base64,')[1]
                 logo_filename = data.get('logo_filename', 'logo.png')
+            
+            # Process dynamic documents
+            documents_data = []
+            documents_input = data.get('documents', [])
+            
+            # Handle JSON string if sent as form data
+            if isinstance(documents_input, str):
+                try:
+                    documents_input = json.loads(documents_input)
+                except json.JSONDecodeError:
+                    documents_input = []
+            
+            if documents_input and isinstance(documents_input, list):
+                for idx, doc in enumerate(documents_input):
+                    if not isinstance(doc, dict):
+                        continue
+                    
+                    doc_name = doc.get('name', '').strip()
+                    if not doc_name:
+                        continue  # Skip documents without name (optional for enterprise)
+                    
+                    photo_data = doc.get('photo', '')
+                    if not photo_data:
+                        continue  # Skip documents without photo
+                    
+                    # Clean base64 data
+                    if isinstance(photo_data, str) and 'base64,' in photo_data:
+                        photo_data = photo_data.split('base64,')[1]
+                    
+                    filename = doc.get('filename') or doc.get('photo_filename') or f'{doc_name}.jpg'
+                    
+                    documents_data.append({
+                        'name': doc_name,
+                        'photo': photo_data,
+                        'photo_filename': filename,
+                    })
             
             # Create enterprise record
             enterprise_vals = {
@@ -864,6 +989,21 @@ class SmartDeliveryAPI(http.Controller):
             # Create the enterprise (this will also create the partner and user)
             enterprise = request.env['delivery.enterprise'].sudo().create(enterprise_vals)
             
+            # Create dynamic documents for this enterprise
+            if documents_data:
+                EnterpriseDocument = request.env['enterprise.document'].sudo()
+                for idx, doc_data in enumerate(documents_data):
+                    EnterpriseDocument.create({
+                        'enterprise_id': enterprise.id,
+                        'name': doc_data['name'],
+                        'photo': doc_data['photo'],
+                        'photo_filename': doc_data.get('photo_filename'),
+                        'sequence': (idx + 1) * 10,
+                    })
+            
+            # Get document names for response
+            document_names = [{'name': doc['name']} for doc in documents_data]
+            
             response_data = {
                 'success': True,
                 'message': 'Inscription réussie. Votre compte est en attente de vérification par un administrateur.',
@@ -873,6 +1013,8 @@ class SmartDeliveryAPI(http.Controller):
                     'email': enterprise.email,
                     'phone': enterprise.phone,
                     'registration_status': enterprise.registration_status,
+                    'documents': document_names,
+                    'document_count': len(documents_data),
                 }
             }
             
@@ -1159,7 +1301,8 @@ Authorization: Bearer <token>
 
 Le compte sera créé avec le statut 'pending' (en attente) et nécessite une approbation par un administrateur.
 
-Les photos peuvent être envoyées en base64 ou en fichiers via multipart/form-data.
+**Documents dynamiques**: Le livreur peut envoyer n'importe quel type de document avec un nom personnalisé.
+Chaque document doit avoir un 'name' et une 'photo' (base64).
 
 **sector_types**: Liste des types de secteurs que le livreur peut gérer. Peut être:
 - Liste d'IDs: [1, 2, 3]
@@ -1170,10 +1313,10 @@ Utilisez GET /api/sectors pour obtenir la liste des secteurs disponibles.""",
                         "requestBody": {
                             "required": True,
                             "content": {
-                                "multipart/form-data": {
+                                "application/json": {
                                     "schema": {
                                         "type": "object",
-                                        "required": ["name", "phone", "email", "password", "vehicle_type", "nni", "nni_photo", "livreur_photo", "carte_grise_photo", "assurance_photo"],
+                                        "required": ["name", "phone", "email", "password", "vehicle_type", "nni", "documents"],
                                         "properties": {
                                             "name": {"type": "string", "description": "Nom complet du livreur", "example": "Mohamed Diallo"},
                                             "phone": {"type": "string", "description": "Numéro de téléphone", "example": "+22212345678"},
@@ -1181,29 +1324,25 @@ Utilisez GET /api/sectors pour obtenir la liste des secteurs disponibles.""",
                                             "password": {"type": "string", "format": "password", "minLength": 6, "description": "Mot de passe (min 6 caractères)"},
                                             "vehicle_type": {"type": "string", "enum": ["motorcycle", "car", "bicycle", "truck"], "description": "Type de véhicule"},
                                             "nni": {"type": "string", "description": "Numéro National d'Identification", "example": "1234567890"},
-                                            "nni_photo": {"type": "string", "format": "binary", "description": "Photo du document NNI"},
-                                            "livreur_photo": {"type": "string", "format": "binary", "description": "Photo d'identité du livreur"},
-                                            "carte_grise_photo": {"type": "string", "format": "binary", "description": "Photo de la carte grise du véhicule"},
-                                            "assurance_photo": {"type": "string", "format": "binary", "description": "Photo du document d'assurance"},
-                                            "sector_types": {"type": "string", "description": "Types de secteur (IDs ou noms séparés par virgule)", "example": "standard,premium"}
-                                        }
-                                    }
-                                },
-                                "application/json": {
-                                    "schema": {
-                                        "type": "object",
-                                        "required": ["name", "phone", "email", "password", "vehicle_type", "nni", "nni_photo", "livreur_photo", "carte_grise_photo", "assurance_photo"],
-                                        "properties": {
-                                            "name": {"type": "string", "example": "Mohamed Diallo"},
-                                            "phone": {"type": "string", "example": "+22212345678"},
-                                            "email": {"type": "string", "format": "email", "example": "mohamed@example.com"},
-                                            "password": {"type": "string", "format": "password"},
-                                            "vehicle_type": {"type": "string", "enum": ["motorcycle", "car", "bicycle", "truck"]},
-                                            "nni": {"type": "string", "example": "1234567890"},
-                                            "nni_photo": {"type": "string", "description": "Photo NNI en base64"},
-                                            "livreur_photo": {"type": "string", "description": "Photo livreur en base64"},
-                                            "carte_grise_photo": {"type": "string", "description": "Photo carte grise en base64"},
-                                            "assurance_photo": {"type": "string", "description": "Photo assurance en base64"},
+                                            "documents": {
+                                                "type": "array",
+                                                "description": "Liste des documents (au moins 1 requis)",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["name", "photo"],
+                                                    "properties": {
+                                                        "name": {"type": "string", "description": "Nom/type du document", "example": "Photo NNI"},
+                                                        "photo": {"type": "string", "description": "Image en base64"},
+                                                        "filename": {"type": "string", "description": "Nom du fichier (optionnel)", "example": "nni.jpg"}
+                                                    }
+                                                },
+                                                "example": [
+                                                    {"name": "Photo NNI", "photo": "base64..."},
+                                                    {"name": "Photo du Livreur", "photo": "base64..."},
+                                                    {"name": "Carte Grise", "photo": "base64..."},
+                                                    {"name": "Assurance", "photo": "base64..."}
+                                                ]
+                                            },
                                             "sector_types": {
                                                 "type": "array",
                                                 "items": {"type": "string"},
@@ -1234,7 +1373,9 @@ Utilisez GET /api/sectors pour obtenir la liste des secteurs disponibles.""",
                                                         "phone": {"type": "string"},
                                                         "vehicle_type": {"type": "string"},
                                                         "registration_status": {"type": "string", "enum": ["pending", "approved", "rejected"]},
-                                                        "sector_types": {"type": "array", "items": {"type": "string"}, "description": "Noms des secteurs sélectionnés"}
+                                                        "sector_types": {"type": "array", "items": {"type": "string"}, "description": "Noms des secteurs sélectionnés"},
+                                                        "documents": {"type": "array", "items": {"type": "object", "properties": {"name": {"type": "string"}}}},
+                                                        "document_count": {"type": "integer"}
                                                     }
                                                 }
                                             }
@@ -1251,7 +1392,7 @@ Utilisez GET /api/sectors pour obtenir la liste des secteurs disponibles.""",
                                             "properties": {
                                                 "success": {"type": "boolean", "example": False},
                                                 "error": {"type": "string"},
-                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "INVALID_VEHICLE_TYPE", "EMAIL_EXISTS", "NNI_EXISTS", "USER_EXISTS", "USER_ARCHIVED", "MISSING_PHOTO"]}
+                                                "code": {"type": "string", "enum": ["MISSING_FIELDS", "INVALID_EMAIL", "PASSWORD_TOO_SHORT", "INVALID_VEHICLE_TYPE", "EMAIL_EXISTS", "NNI_EXISTS", "USER_EXISTS", "USER_ARCHIVED", "NO_DOCUMENTS", "MISSING_DOCUMENT_NAME", "MISSING_DOCUMENT_PHOTO"]}
                                             }
                                         }
                                     }
@@ -1270,11 +1411,11 @@ Utilisez GET /api/sectors pour obtenir la liste des secteurs disponibles.""",
 
 Le compte sera créé avec le statut 'pending' (en attente) et nécessite une approbation par un administrateur.
 
-Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
+**Documents dynamiques**: L'entreprise peut envoyer n'importe quel type de document avec un nom personnalisé (Registre de Commerce, NIF, Licence, etc.).""",
                         "requestBody": {
                             "required": True,
                             "content": {
-                                "multipart/form-data": {
+                                "application/json": {
                                     "schema": {
                                         "type": "object",
                                         "required": ["name", "email", "phone", "password"],
@@ -1283,28 +1424,29 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                                             "email": {"type": "string", "format": "email", "description": "Email (sera utilisé comme identifiant)", "example": "contact@transport-express.mr"},
                                             "phone": {"type": "string", "description": "Numéro de téléphone", "example": "+22212345678"},
                                             "password": {"type": "string", "format": "password", "minLength": 6, "description": "Mot de passe (min 6 caractères)"},
-                                            "logo": {"type": "string", "format": "binary", "description": "Logo de l'entreprise (optionnel)"},
+                                            "logo": {"type": "string", "description": "Logo en base64 (optionnel)"},
+                                            "documents": {
+                                                "type": "array",
+                                                "description": "Liste des documents de l'entreprise (optionnel)",
+                                                "items": {
+                                                    "type": "object",
+                                                    "required": ["name", "photo"],
+                                                    "properties": {
+                                                        "name": {"type": "string", "description": "Nom/type du document", "example": "Registre de Commerce"},
+                                                        "photo": {"type": "string", "description": "Image en base64"},
+                                                        "filename": {"type": "string", "description": "Nom du fichier (optionnel)", "example": "registre.jpg"}
+                                                    }
+                                                },
+                                                "example": [
+                                                    {"name": "Registre de Commerce", "photo": "base64..."},
+                                                    {"name": "NIF", "photo": "base64..."},
+                                                    {"name": "Licence Commerciale", "photo": "base64..."}
+                                                ]
+                                            },
                                             "address": {"type": "string", "description": "Adresse complète (optionnel)"},
                                             "city": {"type": "string", "description": "Ville (optionnel)", "example": "Nouakchott"},
                                             "website": {"type": "string", "description": "Site web (optionnel)", "example": "https://transport-express.mr"},
                                             "description": {"type": "string", "description": "Description de l'activité (optionnel)"}
-                                        }
-                                    }
-                                },
-                                "application/json": {
-                                    "schema": {
-                                        "type": "object",
-                                        "required": ["name", "email", "phone", "password"],
-                                        "properties": {
-                                            "name": {"type": "string", "example": "Transport Express SARL"},
-                                            "email": {"type": "string", "format": "email", "example": "contact@transport-express.mr"},
-                                            "phone": {"type": "string", "example": "+22212345678"},
-                                            "password": {"type": "string", "format": "password"},
-                                            "logo": {"type": "string", "description": "Logo en base64 (optionnel)"},
-                                            "address": {"type": "string"},
-                                            "city": {"type": "string"},
-                                            "website": {"type": "string"},
-                                            "description": {"type": "string"}
                                         }
                                     }
                                 }
@@ -1327,7 +1469,9 @@ Le logo peut être envoyé en base64 ou en fichier via multipart/form-data.""",
                                                         "name": {"type": "string"},
                                                         "email": {"type": "string"},
                                                         "phone": {"type": "string"},
-                                                        "registration_status": {"type": "string", "enum": ["pending", "approved", "rejected"]}
+                                                        "registration_status": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+                                                        "documents": {"type": "array", "items": {"type": "object", "properties": {"name": {"type": "string"}}}},
+                                                        "document_count": {"type": "integer"}
                                                     }
                                                 }
                                             }

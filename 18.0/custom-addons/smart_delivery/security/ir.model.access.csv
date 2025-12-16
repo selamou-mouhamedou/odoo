@@ -9,6 +9,8 @@ access_api_log_admin,api.log.admin,model_api_log,smart_delivery.group_admin,1,1,
 access_livreur_reject_wizard_admin,livreur.reject.wizard.admin,model_livreur_reject_wizard,smart_delivery.group_admin,1,1,1,1
 access_delivery_enterprise_admin,delivery.enterprise.admin,model_delivery_enterprise,smart_delivery.group_admin,1,1,1,1
 access_enterprise_reject_wizard_admin,enterprise.reject.wizard.admin,model_enterprise_reject_wizard,smart_delivery.group_admin,1,1,1,1
+access_livreur_document_admin,livreur.document.admin,model_livreur_document,smart_delivery.group_admin,1,1,1,1
+access_enterprise_document_admin,enterprise.document.admin,model_enterprise_document,smart_delivery.group_admin,1,1,1,1
 access_delivery_order_enterprise,delivery.order.enterprise,model_delivery_order,smart_delivery.group_enterprise,1,1,1,0
 access_delivery_livreur_enterprise,delivery.livreur.enterprise,model_delivery_livreur,smart_delivery.group_enterprise,1,0,0,0
 access_delivery_condition_enterprise,delivery.condition.enterprise,model_delivery_condition,smart_delivery.group_enterprise,1,0,0,0
@@ -22,3 +24,7 @@ access_sector_rule_livreur,sector.rule.livreur,model_sector_rule,smart_delivery.
 access_delivery_billing_livreur,delivery.billing.livreur,model_delivery_billing,smart_delivery.group_livreur,0,0,0,0
 access_delivery_route_livreur,delivery.route.livreur,model_delivery_route,smart_delivery.group_livreur,0,0,0,0
 access_api_log_livreur,api.log.livreur,model_api_log,smart_delivery.group_livreur,0,0,0,0
+access_livreur_document_enterprise,livreur.document.enterprise,model_livreur_document,smart_delivery.group_enterprise,1,0,0,0
+access_livreur_document_livreur,livreur.document.livreur,model_livreur_document,smart_delivery.group_livreur,1,1,1,0
+access_enterprise_document_enterprise,enterprise.document.enterprise,model_enterprise_document,smart_delivery.group_enterprise,1,1,1,0
+access_enterprise_document_livreur,enterprise.document.livreur,model_enterprise_document,smart_delivery.group_livreur,1,0,0,0
