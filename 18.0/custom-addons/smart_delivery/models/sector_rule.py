@@ -8,13 +8,9 @@ class SectorRule(models.Model):
     _description = 'Règle de Secteur'
     _rec_name = 'sector_type'
 
-    sector_type = fields.Selection([
-        ('standard', 'Standard'),
-        ('premium', 'Premium'),
-        ('express', 'Express'),
-        ('fragile', 'Fragile'),
-        ('medical', 'Médical'),
-    ], string='Type de Secteur', required=True)
+    # Free text sector type so new types can be created dynamically
+    # (existing data will still use the old codes like 'standard', 'premium', etc.)
+    sector_type = fields.Char(string='Type de Secteur', required=True)
     
     otp_required = fields.Boolean(string='OTP Requis', default=False)
     signature_required = fields.Boolean(string='Signature Requise', default=False)

@@ -15,13 +15,27 @@ class DeliveryOrder(models.Model):
 
     name = fields.Char(string='Référence', required=True, copy=False, readonly=True, default=lambda self: _('New'))
     reference = fields.Char(string='Référence Externe', tracking=True)
-    sector_type = fields.Selection([
-        ('standard', 'Standard'),
-        ('premium', 'Premium'),
-        ('express', 'Express'),
-        ('fragile', 'Fragile'),
-        ('medical', 'Médical'),
-    ], string='Type de Secteur', required=True, tracking=True)
+
+    def _get_sector_type_selection(self):
+        """Dynamic selection based on existing sector.rule records.
+        Falls back to the original fixed list if no rules exist."""
+        rules = self.env['sector.rule'].search([])
+        if not rules:
+            return [
+                ('standard', 'Standard'),
+                ('premium', 'Premium'),
+                ('express', 'Express'),
+                ('fragile', 'Fragile'),
+                ('medical', 'Médical'),
+            ]
+        return [(r.sector_type, r.sector_type.capitalize()) for r in rules if r.sector_type]
+
+    sector_type = fields.Selection(
+        selection=_get_sector_type_selection,
+        string='Type de Secteur',
+        required=True,
+        tracking=True,
+    )
     
     @api.onchange('sector_type')
     def _onchange_sector_type(self):
@@ -149,6 +163,14 @@ class DeliveryOrder(models.Model):
                 if order.otp_required:
                     condition_vals['otp_value'] = ''.join(random.choices(string.digits, k=6))
                 self.env['delivery.condition'].create(condition_vals)
+
+            # Auto-assign livreur if none was provided at creation
+            if not order.assigned_livreur_id and order.status == 'draft':
+                try:
+                    order.assign_livreur()
+                except UserError:
+                    # If no suitable livreur is found, keep the order in draft without failing creation
+                    pass
         
         return orders
     
@@ -222,11 +244,20 @@ class DeliveryOrder(models.Model):
                 # Le livreur assigné n'est plus disponible, on cherche un autre
                 pass
         
-        # Filtrer les livreurs disponibles
-        available_livreurs = self.env['delivery.livreur'].search([
+        # Trouver la règle de secteur correspondante pour filtrer les livreurs
+        sector_rule = self.env['sector.rule'].search([
+            ('sector_type', '=', self.sector_type)
+        ], limit=1)
+
+        # Filtrer les livreurs disponibles, vérifiés et compatibles avec la règle de secteur
+        domain = [
             ('availability', '=', True),
             ('verified', '=', True),
-        ])
+        ]
+        if sector_rule:
+            domain.append(('sector_ids', 'in', [sector_rule.id]))
+
+        available_livreurs = self.env['delivery.livreur'].search(domain)
         
         if not available_livreurs:
             raise UserError(_('Aucun livreur disponible'))

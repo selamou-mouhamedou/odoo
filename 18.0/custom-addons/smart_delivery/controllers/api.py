@@ -1171,8 +1171,7 @@ Authorization: Bearer <token>
                     },
                     "SectorType": {
                         "type": "string",
-                        "enum": ["standard", "premium", "express", "fragile", "medical"],
-                        "description": "Type de secteur de livraison"
+                        "description": "Code du secteur de livraison. Doit correspondre à un 'sector_type' existant dans le modèle sector.rule."
                     }
                 },
                 "responses": {
@@ -1268,7 +1267,7 @@ Authorization: Bearer <token>
                                                         "type": "object",
                                                         "properties": {
                                                             "id": {"type": "integer"},
-                                                            "sector_type": {"type": "string", "enum": ["standard", "premium", "express", "fragile", "medical"]},
+                                                            "sector_type": {"type": "string", "description": "Code du secteur (valeur de sector.rule.sector_type)"},
                                                             "name": {"type": "string"},
                                                             "description": {"type": "string"},
                                                             "requirements": {
@@ -5093,7 +5092,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
         Only accessible by enterprise or admin users.
         
         Query Parameters:
-            - sector (required): Sector type code (standard, premium, express, fragile, medical)
+            - sector (required): Code du secteur (valeur de sector.rule.sector_type, par ex. "standard", "premium", "restaurant", etc.)
             - available_only (optional): If true, only return available livreurs (default: true)
             - verified_only (optional): If true, only return verified livreurs (default: false)
             - limit (optional): Maximum number of livreurs to return (default: 50)
@@ -5117,21 +5116,25 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
         
         try:
             # Get query parameters
-            sector_code = kwargs.get('sector')
+            sector_code = (kwargs.get('sector') or '').strip()
+            # Build dynamic list of valid sector codes from sector.rule
+            sector_model = request.env['sector.rule'].sudo()
+            sector_rules = sector_model.search([])
+            valid_sectors = [r.sector_type for r in sector_rules if r.sector_type]
+
             if not sector_code:
                 return self._json_response({
                     'error': 'Le paramètre "sector" est requis',
                     'code': 'MISSING_SECTOR',
-                    'valid_sectors': ['standard', 'premium', 'express', 'fragile', 'medical']
+                    'valid_sectors': valid_sectors,
                 }, 400)
             
-            # Validate sector code
-            valid_sectors = ['standard', 'premium', 'express', 'fragile', 'medical']
+            # Validate sector code against existing sector rules
             if sector_code not in valid_sectors:
                 return self._json_response({
                     'error': f'Secteur invalide: {sector_code}',
                     'code': 'INVALID_SECTOR',
-                    'valid_sectors': valid_sectors
+                    'valid_sectors': valid_sectors,
                 }, 400)
             
             available_only = kwargs.get('available_only', 'true').lower() == 'true'
