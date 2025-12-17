@@ -51,7 +51,10 @@
                     <button name="action_fail_delivery" string="Marquer Échoué" type="object" 
                             class="btn-danger" invisible="status in ['delivered', 'failed', 'cancelled']"
                             confirm="Êtes-vous sûr de marquer cette livraison comme échouée?"/>
-                    <field name="status" widget="statusbar" statusbar_visible="draft,assigned,on_way,delivered"/>
+                    <button name="action_cancel" string="Annuler" type="object" 
+                            class="btn-secondary" invisible="status not in ['draft', 'assigned']"
+                            confirm="Êtes-vous sûr de vouloir annuler cette commande?"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,assigned,on_way,delivered,cancelled"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -74,14 +77,16 @@
                             invisible="status != 'delivered'"/>
                     <widget name="web_ribbon" title="Échoué" bg_color="text-bg-danger" 
                             invisible="status != 'failed'"/>
+                    <widget name="web_ribbon" title="Annulé" bg_color="text-bg-secondary" 
+                            invisible="status != 'cancelled'"/>
                     
                     <div class="oe_title mb-3">
                         <label for="name" string="Commande"/>
                         <h1>
                             <field name="name" placeholder="Nouvelle commande"/>
                         </h1>
-                        <div class="d-flex gap-2 align-items-center mt-2">
-                            <field name="sector_type" widget="badge" readonly="1"/>
+                        <div class="d-flex gap-2 align-items-center mt-2" invisible="not sector_type">
+                            <field name="sector_type" widget="badge"/>
                             <span class="text-muted" invisible="not distance_km">
                                 <field name="distance_km" class="oe_inline"/> km
                             </span>
@@ -90,6 +95,8 @@
                     
                     <group>
                         <group string="Expéditeur">
+                            <field name="sector_type" widget="radio" options="{'horizontal': true}"
+                                   required="1"/>
                             <field name="sender_id" widget="many2one_avatar"
                                    options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="reference" placeholder="Référence interne..."/>
@@ -217,6 +224,7 @@
                 <filter string="En Route" name="on_way" domain="[('status', '=', 'on_way')]"/>
                 <filter string="Livré" name="delivered" domain="[('status', '=', 'delivered')]"/>
                 <filter string="Échoué" name="failed" domain="[('status', '=', 'failed')]"/>
+                <filter string="Annulé" name="cancelled" domain="[('status', '=', 'cancelled')]"/>
                 <separator/>
                 <filter string="Standard" name="standard" domain="[('sector_type', '=', 'standard')]"/>
                 <filter string="Premium" name="premium" domain="[('sector_type', '=', 'premium')]"/>

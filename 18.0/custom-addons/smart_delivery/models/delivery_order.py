@@ -56,6 +56,7 @@ class DeliveryOrder(models.Model):
         ('on_way', 'En Route'),
         ('delivered', 'Livré'),
         ('failed', 'Échoué'),
+        ('cancelled', 'Annulé'),
     ], string='Statut', default='draft', required=True, tracking=True)
     
     # Conditions de validation
@@ -131,6 +132,13 @@ class DeliveryOrder(models.Model):
                     vals.setdefault('photo_required', sector_rule.photo_required)
                     vals.setdefault('biometric_required', sector_rule.biometric_required)
         
+            # Auto-set status to 'assigned' if a livreur is provided
+            if vals.get('assigned_livreur_id'):
+                # Check if the livreur is valid (approved and available)
+                livreur = self.env['delivery.livreur'].browse(vals['assigned_livreur_id'])
+                if livreur.exists() and livreur.registration_status == 'approved' and livreur.availability:
+                    vals['status'] = 'assigned'
+        
         orders = super().create(vals_list)
         
         # Créer les conditions si nécessaire pour chaque commande
@@ -143,6 +151,20 @@ class DeliveryOrder(models.Model):
                 self.env['delivery.condition'].create(condition_vals)
         
         return orders
+    
+    def write(self, vals):
+        """Override write to auto-assign status when livreur is set on draft orders"""
+        # If assigning a livreur to a draft order, auto-set status to 'assigned'
+        if vals.get('assigned_livreur_id') and 'status' not in vals:
+            for order in self:
+                if order.status == 'draft':
+                    # Check if the livreur is valid
+                    livreur = self.env['delivery.livreur'].browse(vals['assigned_livreur_id'])
+                    if livreur.exists() and livreur.registration_status == 'approved' and livreur.availability:
+                        vals['status'] = 'assigned'
+                    break  # Only need to check once
+        
+        return super().write(vals)
     
     @api.depends('pickup_lat', 'pickup_long', 'drop_lat', 'drop_long')
     def _compute_distance(self):
@@ -368,6 +390,29 @@ class DeliveryOrder(models.Model):
         """Marque la livraison comme échouée"""
         self.ensure_one()
         self.write({'status': 'failed'})
+    
+    def action_cancel(self):
+        """Annule la commande - uniquement possible pour les commandes en brouillon ou assignées"""
+        self.ensure_one()
+        if self.status not in ['draft', 'assigned']:
+            raise UserError(_('Seules les commandes en brouillon ou assignées peuvent être annulées'))
+        
+        # Release the livreur if assigned
+        self.write({
+            'status': 'cancelled',
+            'assigned_livreur_id': False,
+        })
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Commande Annulée'),
+                'message': _('La commande %s a été annulée') % self.name,
+                'type': 'warning',
+                'sticky': False,
+            }
+        }
     
     def action_view_conditions(self):
         """Ouvre la vue des conditions de la commande"""

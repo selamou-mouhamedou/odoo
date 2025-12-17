@@ -1597,6 +1597,112 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                         }
                     }
                 },
+                "/smart_delivery/api/enterprise/orders/{order_id}/cancel": {
+                    "post": {
+                        "tags": ["2. Enterprise - Orders"],
+                        "summary": "Annuler une commande",
+                        "description": """Annule une commande appartenant à l'entreprise.
+
+**Conditions d'annulation:**
+- La commande doit appartenir à l'entreprise connectée
+- La commande doit être en statut 'draft' (brouillon) ou 'assigned' (assignée)
+- Les commandes 'on_way', 'delivered', 'failed' ou 'cancelled' ne peuvent pas être annulées
+
+**Note:** Si un livreur était assigné, il sera automatiquement libéré.""",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande à annuler"}
+                        ],
+                        "requestBody": {
+                            "required": False,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "reason": {"type": "string", "description": "Raison de l'annulation (optionnel)", "example": "Client a changé d'avis"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Commande annulée avec succès",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": True},
+                                                "message": {"type": "string", "example": "Commande annulée avec succès"},
+                                                "order": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "reference": {"type": "string"},
+                                                        "external_reference": {"type": "string"},
+                                                        "status": {"type": "string", "example": "cancelled"},
+                                                        "previous_livreur": {"type": "string", "nullable": True},
+                                                        "cancelled_at": {"type": "string", "format": "date-time"},
+                                                        "cancelled_by": {"type": "string"},
+                                                        "reason": {"type": "string", "nullable": True}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Commande ne peut pas être annulée",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["CANNOT_CANCEL"]},
+                                                "current_status": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {
+                                "description": "Pas autorisé à annuler cette commande",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["NOT_YOUR_ORDER"]}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "404": {
+                                "description": "Commande non trouvée",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["ORDER_NOT_FOUND"]}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "/smart_delivery/api/delivery/status/{order_id}": {
                     "get": {
                         "tags": ["2. Enterprise - Orders"],
@@ -2041,6 +2147,98 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
                             "200": {"description": "Livraison démarrée"},
                             "400": {"description": "Statut invalide"},
                             "403": {"description": "Commande non assignée à ce livreur"}
+                        }
+                    }
+                },
+                "/smart_delivery/api/livreur/orders/{order_id}/fail": {
+                    "post": {
+                        "tags": ["6. Driver - Delivery"],
+                        "summary": "Marquer une livraison comme échouée",
+                        "description": """Marque une livraison comme échouée lorsque la livraison ne peut pas être complétée.
+
+**Cas d'utilisation:**
+- Destinataire absent ou injoignable
+- Adresse incorrecte ou introuvable
+- Destinataire refuse le colis
+- Colis endommagé
+- Autres problèmes empêchant la livraison
+
+**Statuts autorisés:** 'assigned' ou 'on_way' uniquement.
+
+Seul le livreur assigné peut marquer sa commande comme échouée.""",
+                        "security": [{"bearerAuth": []}],
+                        "parameters": [
+                            {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
+                        ],
+                        "requestBody": {
+                            "required": False,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "reason": {
+                                                "type": "string",
+                                                "description": "Raison de l'échec (optionnel)",
+                                                "example": "Destinataire absent"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Livraison marquée comme échouée",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": True},
+                                                "message": {"type": "string", "example": "Livraison marquée comme échouée"},
+                                                "order": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {"type": "integer"},
+                                                        "reference": {"type": "string"},
+                                                        "external_reference": {"type": "string"},
+                                                        "status": {"type": "string", "example": "failed"},
+                                                        "failed_at": {"type": "string", "format": "date-time"},
+                                                        "failed_by": {"type": "string"},
+                                                        "reason": {"type": "string", "nullable": True},
+                                                        "receiver": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "name": {"type": "string"},
+                                                                "phone": {"type": "string"}
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Commande ne peut pas être marquée comme échouée",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {"type": "boolean", "example": False},
+                                                "error": {"type": "string"},
+                                                "code": {"type": "string", "enum": ["CANNOT_FAIL"]},
+                                                "current_status": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "403": {"$ref": "#/components/responses/Forbidden"},
+                            "404": {"description": "Commande non trouvée"}
                         }
                     }
                 },
@@ -3182,6 +3380,122 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
             _logger.error(f"Erreur validation livraison: {e}")
             error_response = {'error': str(e), 'code': 'DELIVER_ERROR'}
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/deliver', {}, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/fail', type='http', auth='public', methods=['POST'], csrf=False)
+    def fail_delivery(self, order_id, **kwargs):
+        """
+        POST /smart_delivery/api/livreur/orders/{order_id}/fail - Mark delivery as failed
+        
+        Only the assigned livreur can mark their delivery as failed.
+        Can be used when delivery cannot be completed (recipient not home, wrong address, etc.)
+        
+        Request Body (optional):
+        {
+            "reason": "Destinataire absent"
+        }
+        
+        Response:
+        {
+            "success": true,
+            "message": "Livraison marquée comme échouée",
+            "order": {
+                "id": 1,
+                "reference": "DEL/2024/0001",
+                "status": "failed",
+                "failed_at": "2024-12-16T18:00:00",
+                "reason": "Destinataire absent"
+            }
+        }
+        """
+        try:
+            # Require authenticated livreur
+            livreur, auth_error = self._require_livreur()
+            if auth_error:
+                return auth_error
+            
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            
+            if not order.exists():
+                return self._json_response({
+                    'success': False,
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Verify the order is assigned to this livreur
+            if order.assigned_livreur_id.id != livreur.id:
+                return self._json_response({
+                    'success': False,
+                    'error': 'Cette commande ne vous est pas assignée',
+                    'code': 'NOT_ASSIGNED_TO_YOU'
+                }, 403)
+            
+            # Check if the order can be failed
+            if order.status not in ['assigned', 'on_way']:
+                status_labels = {
+                    'draft': 'en brouillon',
+                    'delivered': 'déjà livrée',
+                    'failed': 'déjà échouée',
+                    'cancelled': 'annulée',
+                }
+                return self._json_response({
+                    'success': False,
+                    'error': f'Cette commande ne peut pas être marquée comme échouée car elle est {status_labels.get(order.status, order.status)}',
+                    'code': 'CANNOT_FAIL',
+                    'current_status': order.status
+                }, 400)
+            
+            # Get the reason if provided
+            reason = None
+            if request.httprequest.content_type and 'application/json' in request.httprequest.content_type:
+                try:
+                    data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+                    reason = data.get('reason')
+                except:
+                    pass
+            
+            # Mark as failed
+            order.write({'status': 'failed'})
+            
+            # Log the failure with message
+            if reason:
+                order.message_post(body=f"Livraison échouée par {livreur.name}. Raison: {reason}")
+            else:
+                order.message_post(body=f"Livraison marquée comme échouée par {livreur.name}")
+            
+            response_data = {
+                'success': True,
+                'message': 'Livraison marquée comme échouée',
+                'order': {
+                    'id': order.id,
+                    'reference': order.name,
+                    'external_reference': order.reference,
+                    'status': order.status,
+                    'failed_at': fields.Datetime.now().isoformat(),
+                    'failed_by': livreur.name,
+                    'reason': reason,
+                    'receiver': {
+                        'name': order.receiver_name,
+                        'phone': order.receiver_phone,
+                    },
+                }
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/fail', 
+                             {'order_id': order_id, 'reason': reason}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur échec livraison: {e}")
+            error_response = {
+                'success': False,
+                'error': str(e),
+                'code': 'FAIL_DELIVERY_ERROR'
+            }
+            self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/fail', 
+                             {'order_id': order_id}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
     @http.route('/smart_delivery/api/delivery/<int:order_id>/validation-proof', type='http', auth='public', methods=['GET'], csrf=False)
@@ -4440,6 +4754,131 @@ Vous pouvez **personnaliser** ces conditions en fournissant explicitement les ch
             _logger.error(f"Erreur récupération commandes entreprise: {e}")
             error_response = {'error': str(e), 'code': 'ENTERPRISE_ORDERS_ERROR'}
             self._log_api_call('/smart_delivery/api/enterprise/my-orders', kwargs, error_response, 500, e)
+            return self._json_response(error_response, 500)
+    
+    @http.route('/smart_delivery/api/enterprise/orders/<int:order_id>/cancel', type='http', auth='public', methods=['POST'], csrf=False)
+    def cancel_enterprise_order(self, order_id, **kwargs):
+        """
+        POST /smart_delivery/api/enterprise/orders/{order_id}/cancel - Cancel an order
+        
+        Only orders in 'draft' or 'assigned' status can be cancelled.
+        The enterprise can only cancel their own orders.
+        
+        Response (success):
+        {
+            "success": true,
+            "message": "Commande annulée avec succès",
+            "order": {
+                "id": 1,
+                "reference": "DEL/2024/0001",
+                "status": "cancelled"
+            }
+        }
+        
+        Response (error):
+        {
+            "success": false,
+            "error": "Description de l'erreur",
+            "code": "ERROR_CODE"
+        }
+        """
+        # Require enterprise or admin user
+        user, auth_error = self._require_enterprise_or_admin()
+        if auth_error:
+            return auth_error
+        
+        try:
+            user_type = self._get_user_type(user)
+            
+            # Find the order
+            order = request.env['delivery.order'].sudo().browse(order_id)
+            
+            if not order.exists():
+                return self._json_response({
+                    'success': False,
+                    'error': 'Commande non trouvée',
+                    'code': 'ORDER_NOT_FOUND'
+                }, 404)
+            
+            # Check ownership for enterprise users
+            if user_type == 'enterprise':
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                sender_company_id = order.sender_id.commercial_partner_id.id if order.sender_id.commercial_partner_id else order.sender_id.id
+                
+                # Check if the order belongs to this enterprise
+                if sender_company_id != company_partner_id and order.sender_id.parent_id.id != company_partner_id:
+                    return self._json_response({
+                        'success': False,
+                        'error': 'Vous ne pouvez annuler que vos propres commandes',
+                        'code': 'NOT_YOUR_ORDER'
+                    }, 403)
+            
+            # Check if the order can be cancelled
+            if order.status not in ['draft', 'assigned']:
+                status_labels = {
+                    'on_way': 'en cours de livraison',
+                    'delivered': 'déjà livrée',
+                    'failed': 'échouée',
+                    'cancelled': 'déjà annulée',
+                }
+                return self._json_response({
+                    'success': False,
+                    'error': f'Cette commande ne peut pas être annulée car elle est {status_labels.get(order.status, order.status)}',
+                    'code': 'CANNOT_CANCEL',
+                    'current_status': order.status
+                }, 400)
+            
+            # Get the reason if provided
+            reason = None
+            if request.httprequest.content_type and 'application/json' in request.httprequest.content_type:
+                try:
+                    data = json.loads(request.httprequest.data.decode('utf-8')) if request.httprequest.data else {}
+                    reason = data.get('reason')
+                except:
+                    pass
+            
+            # Cancel the order
+            old_livreur = order.assigned_livreur_id.name if order.assigned_livreur_id else None
+            order.write({
+                'status': 'cancelled',
+                'assigned_livreur_id': False,
+            })
+            
+            # Log the cancellation with message
+            if reason:
+                order.message_post(body=f"Commande annulée par {user.name}. Raison: {reason}")
+            else:
+                order.message_post(body=f"Commande annulée par {user.name}")
+            
+            response_data = {
+                'success': True,
+                'message': 'Commande annulée avec succès',
+                'order': {
+                    'id': order.id,
+                    'reference': order.name,
+                    'external_reference': order.reference,
+                    'status': order.status,
+                    'previous_livreur': old_livreur,
+                    'cancelled_at': fields.Datetime.now().isoformat(),
+                    'cancelled_by': user.name,
+                    'reason': reason,
+                }
+            }
+            
+            self._log_api_call(f'/smart_delivery/api/enterprise/orders/{order_id}/cancel', 
+                             {'order_id': order_id, 'reason': reason}, response_data)
+            return self._json_response(response_data)
+            
+        except Exception as e:
+            _logger.error(f"Erreur annulation commande: {e}")
+            error_response = {
+                'success': False,
+                'error': str(e),
+                'code': 'CANCEL_ERROR'
+            }
+            self._log_api_call(f'/smart_delivery/api/enterprise/orders/{order_id}/cancel', 
+                             {'order_id': order_id}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
     @http.route('/smart_delivery/api/enterprise/my-billings', type='http', auth='public', methods=['GET'], csrf=False)
