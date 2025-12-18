@@ -66,6 +66,11 @@
                                 PARTIEL
                             </div>
                         </t>
+                        <t t-elif="o.payment_state != 'paid'">
+                            <div style="display: inline-block; background: #c0392b; color: white; padding: 4px 12px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-top: 5px;">
+                                NON PAYE
+                            </div>
+                        </t>
                     </td>
                 </tr>
             </table>
@@ -79,11 +84,19 @@
                     <td style="width: 50%; vertical-align: top; padding-right: 15px;">
                         <div style="background: #f5f5f5; padding: 10px; border-radius: 4px; border-left: 3px solid #1a5276;">
                             <div style="font-size: 9px; text-transform: uppercase; color: #888; margin-bottom: 5px; font-weight: bold;">Facture a</div>
-                            <strong style="font-size: 12px;"><span t-field="o.partner_id.name"/></strong><br/>
-                            <span style="font-size: 10px; color: #666;">
-                                <t t-if="o.partner_id.phone">Tel: <span t-field="o.partner_id.phone"/><br/></t>
-                                <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
-                            </span>
+                            <t t-if="order">
+                                <strong style="font-size: 12px;"><t t-esc="order.receiver_name or o.partner_id.name"/></strong><br/>
+                                <span style="font-size: 10px; color: #666;">
+                                    <t t-if="order.receiver_phone">Tel: <t t-esc="order.receiver_phone"/></t>
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <strong style="font-size: 12px;"><span t-field="o.partner_id.name"/></strong><br/>
+                                <span style="font-size: 10px; color: #666;">
+                                    <t t-if="o.partner_id.phone">Tel: <span t-field="o.partner_id.phone"/><br/></t>
+                                    <t t-if="o.partner_id.street"><span t-field="o.partner_id.street"/></t>
+                                </span>
+                            </t>
                         </div>
                     </td>
                     <td style="width: 50%; vertical-align: top;">
@@ -179,6 +192,11 @@
                         <t t-elif="o.amount_residual and o.amount_residual != o.amount_total">
                             <div style="background: #fff3cd; text-align: center; padding: 6px; margin-top: 8px; border-radius: 3px; border: 1px solid #ffc107; font-size: 10px;">
                                 <strong>Reste a payer:</strong> <span t-field="o.amount_residual"/>
+                            </div>
+                        </t>
+                        <t t-elif="o.payment_state != 'paid'">
+                            <div style="background: #f8d7da; text-align: center; padding: 6px; margin-top: 8px; border-radius: 3px; border: 1px solid #f5c6cb; font-size: 10px; color: #721c24;">
+                                <strong>STATUT:</strong> NON PAYE
                             </div>
                         </t>
                     </td>
