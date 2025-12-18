@@ -2,6 +2,7 @@
 
 import json
 import logging
+import base64
 from datetime import datetime, timedelta
 from odoo import http, fields
 from odoo.http import request
@@ -71,10 +72,16 @@ class SmartDeliveryAPI(http.Controller):
     
     def _require_auth(self):
         """Require authentication, raise error if not authenticated"""
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            return request.make_response('', headers=self._get_cors_headers(), status=200)
+
         if not self._authenticate():
+            headers = [('Content-Type', 'application/json')]
+            headers.extend(self._get_cors_headers())
             return request.make_response(
                 json.dumps({'error': 'Authentication required', 'code': 'AUTH_REQUIRED'}),
-                headers=[('Content-Type', 'application/json')],
+                headers=headers,
                 status=401
             )
         return None
@@ -94,11 +101,35 @@ class SmartDeliveryAPI(http.Controller):
         except Exception as e:
             _logger.error(f"Erreur lors de l'enregistrement du log API: {e}")
     
+    def _get_cors_headers(self):
+        """Get CORS headers for API responses"""
+        origin = request.httprequest.headers.get('Origin', '*')
+        # Allow specific origins or all origins in development
+        # You can customize this to only allow specific origins in production
+        allowed_origins = ['http://localhost:3001', 'http://localhost:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:3000']
+        
+        # Check if origin is in allowed list, or use '*' for development
+        if origin in allowed_origins:
+            cors_origin = origin
+        else:
+            # In development, allow all origins. In production, you might want to restrict this
+            cors_origin = origin if origin else '*'
+        
+        return [
+            ('Access-Control-Allow-Origin', cors_origin),
+            ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
+            ('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Client-ID'),
+            ('Access-Control-Allow-Credentials', 'true'),
+            ('Access-Control-Max-Age', '3600'),
+        ]
+    
     def _json_response(self, data, status_code=200):
-        """Retourne une réponse JSON"""
+        """Retourne une réponse JSON avec les en-têtes CORS"""
+        headers = [('Content-Type', 'application/json')]
+        headers.extend(self._get_cors_headers())
         response = request.make_response(
             json.dumps(data, default=str),
-            headers=[('Content-Type', 'application/json')],
+            headers=headers,
         )
         response.status_code = status_code
         return response
@@ -207,9 +238,17 @@ class SmartDeliveryAPI(http.Controller):
         
         return livreur, None
     
+    # ==================== CORS PREFLIGHT HANDLER ====================
+    
+    @http.route('/smart_delivery/api/<path:path>', type='http', auth='public', methods=['OPTIONS'], csrf=False)
+    def handle_options(self, path, **kwargs):
+        """Handle CORS preflight requests for all API endpoints"""
+        headers = self._get_cors_headers()
+        return request.make_response('', headers=headers, status=200)
+
     # ==================== AUTHENTICATION ENDPOINT ====================
     
-    @http.route('/smart_delivery/api/auth/login', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/auth/login', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def login(self, **kwargs):
         """
         POST /smart_delivery/api/auth/login - Authenticate user and get JWT token
@@ -232,6 +271,10 @@ class SmartDeliveryAPI(http.Controller):
             "expires_in": 86400
         }
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
         if not JWT_AVAILABLE:
             return self._json_response({
                 'error': 'JWT authentication not available. Please install PyJWT: pip install PyJWT cryptography',
@@ -347,7 +390,7 @@ class SmartDeliveryAPI(http.Controller):
             self._log_api_call('/smart_delivery/api/auth/login', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/auth/logout', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/auth/logout', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def logout(self, **kwargs):
         """
         POST /smart_delivery/api/auth/logout - Logout user and invalidate session
@@ -400,7 +443,7 @@ class SmartDeliveryAPI(http.Controller):
     
     # ==================== PUBLIC SECTORS API (NO AUTH REQUIRED) ====================
     
-    @http.route('/smart_delivery/api/sectors', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/sectors', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_public_sectors(self, **kwargs):
         """
         GET /smart_delivery/api/sectors - Get all available sectors (NO AUTH REQUIRED)
@@ -428,6 +471,11 @@ class SmartDeliveryAPI(http.Controller):
             ]
         }
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+
         try:
             sectors = request.env['sector.rule'].sudo().search([])
             
@@ -463,7 +511,7 @@ class SmartDeliveryAPI(http.Controller):
     
     # ==================== LIVREUR REGISTRATION (NO AUTH REQUIRED) ====================
     
-    @http.route('/smart_delivery/api/livreur/register', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/register', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def register_livreur(self, **kwargs):
         """
         POST /smart_delivery/api/livreur/register - Register a new livreur account (NO AUTH REQUIRED)
@@ -515,6 +563,11 @@ class SmartDeliveryAPI(http.Controller):
             "code": "ERROR_CODE"
         }
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+
         try:
             # Get data from request - support both JSON and multipart form data
             if request.httprequest.content_type and 'application/json' in request.httprequest.content_type:
@@ -805,7 +858,7 @@ class SmartDeliveryAPI(http.Controller):
     
     # ==================== ENTERPRISE REGISTRATION (NO AUTH REQUIRED) ====================
     
-    @http.route('/smart_delivery/api/enterprise/register', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/enterprise/register', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def register_enterprise(self, **kwargs):
         """
         POST /smart_delivery/api/enterprise/register - Register a new enterprise account (NO AUTH REQUIRED)
@@ -850,6 +903,11 @@ class SmartDeliveryAPI(http.Controller):
             }
         }
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+
         try:
             # Get data from request - support both JSON and multipart form data
             if request.httprequest.content_type and 'application/json' in request.httprequest.content_type:
@@ -1047,9 +1105,14 @@ class SmartDeliveryAPI(http.Controller):
     
     # ==================== SWAGGER DOCUMENTATION ====================
     
-    @http.route('/smart_delivery/api/docs', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/docs', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def swagger_docs(self, **kwargs):
         """GET /smart_delivery/api/docs - Swagger/OpenAPI documentation"""
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+
         try:
             swagger_spec = self._get_swagger_spec()
             return request.make_response(
@@ -1063,9 +1126,14 @@ class SmartDeliveryAPI(http.Controller):
                 headers=[('Content-Type', 'application/json')]
             )
     
-    @http.route('/smart_delivery/api/docs/ui', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/docs/ui', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def swagger_ui(self, **kwargs):
         """GET /smart_delivery/api/docs/ui - Swagger UI HTML page"""
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+
         try:
             html = """
 <!DOCTYPE html>
@@ -2610,9 +2678,9 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
                 },
                 "/smart_delivery/api/livreur/orders/{order_id}/invoice-pdf": {
                     "get": {
-                        "tags": ["8. Driver - Billing"],
+                        "tags": ["8. Driver - Billing", "9. Enterprise - Billing"],
                         "summary": "Télécharger le PDF de la facture",
-                        "description": "Télécharge la facture au format PDF avec le branding de l'entreprise. Montrez ce PDF au client avant d'encaisser le paiement.",
+                        "description": "Télécharge la facture au format PDF avec le branding de l'entreprise. Accessible au livreur assigné, à l'entreprise propriétaire de la commande et aux administrateurs.",
                         "security": [{"bearerAuth": []}],
                         "parameters": [
                             {"name": "order_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la commande"}
@@ -2636,9 +2704,14 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
     
     # ==================== DEBUG ENDPOINT ====================
     
-    @http.route('/smart_delivery/api/debug/auth', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/debug/auth', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def debug_auth(self, **kwargs):
         """Debug endpoint to check authentication status"""
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+
         try:
             result = {
                 'jwt_available': JWT_AVAILABLE,
@@ -2685,7 +2758,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
     
     # ==================== USER INFO ENDPOINT ====================
     
-    @http.route('/smart_delivery/api/user/info', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/user/info', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_user_info(self, **kwargs):
         """GET /smart_delivery/api/user/info - Get current user information and type"""
         auth_error = self._require_auth()
@@ -2741,7 +2814,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
     
     # ==================== DELIVERY ENDPOINTS ====================
     
-    @http.route('/smart_delivery/api/delivery/create', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/delivery/create', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def create_delivery(self, **kwargs):
         """POST /smart_delivery/api/delivery/create - Crée une commande de livraison
         
@@ -2827,7 +2900,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/delivery/create', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/delivery/status/<int:order_id>', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/delivery/status/<int:order_id>', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_delivery_status(self, order_id, **kwargs):
         """GET /smart_delivery/api/delivery/status/<id> - Retourne le statut complet
         
@@ -2835,6 +2908,11 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
         Admin users can see all orders.
         Livreurs can see orders assigned to them.
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+
         auth_error = self._require_auth()
         if auth_error:
             return auth_error
@@ -2948,7 +3026,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/delivery/status/{order_id}', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/delivery/assign', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/delivery/assign', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def assign_delivery(self, **kwargs):
         """POST /smart_delivery/api/delivery/assign - Déclenche le dispatching"""
         auth_error = self._require_auth()
@@ -2988,7 +3066,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/delivery/assign', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/my-orders', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/my-orders', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_livreur_orders(self, **kwargs):
         """
         GET /smart_delivery/api/livreur/my-orders - Get all orders assigned to the authenticated livreur
@@ -3012,6 +3090,10 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             "orders": [...]
         }
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
         try:
             # Check auth and get livreur
             livreur, error = self._require_livreur()
@@ -3133,7 +3215,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/livreur/my-orders', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/start', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/start', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def start_delivery(self, order_id, **kwargs):
         """
         POST /smart_delivery/api/livreur/orders/<order_id>/start
@@ -3200,7 +3282,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/start', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/deliver', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/deliver', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def deliver_order(self, order_id, **kwargs):
         """
         POST /smart_delivery/api/livreur/orders/<order_id>/deliver
@@ -3381,7 +3463,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/deliver', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/fail', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/fail', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def fail_delivery(self, order_id, **kwargs):
         """
         POST /smart_delivery/api/livreur/orders/{order_id}/fail - Mark delivery as failed
@@ -3497,7 +3579,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
                              {'order_id': order_id}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/delivery/<int:order_id>/validation-proof', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/delivery/<int:order_id>/validation-proof', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_validation_proof(self, order_id, **kwargs):
         """
         GET /smart_delivery/api/delivery/<order_id>/validation-proof
@@ -3604,7 +3686,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/delivery/{order_id}/validation-proof', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/location', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/location', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def update_livreur_location(self, **kwargs):
         """
         POST /smart_delivery/api/livreur/location - Update GPS location for the authenticated livreur
@@ -3655,7 +3737,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/livreur/location', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/stats', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/stats', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_livreur_stats(self, **kwargs):
         """
         GET /smart_delivery/api/livreur/stats - Get delivery statistics for the authenticated livreur
@@ -3736,7 +3818,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
     
     # ==================== LIVREUR BILLING ENDPOINTS ====================
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/billing', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/billing', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_order_billing(self, order_id, **kwargs):
         """
         GET /smart_delivery/api/livreur/orders/{order_id}/billing - Get billing info for an order
@@ -3843,7 +3925,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/billing', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/confirm-invoice', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/confirm-invoice', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def confirm_order_invoice(self, order_id, **kwargs):
         """
         POST /smart_delivery/api/livreur/orders/{order_id}/confirm-invoice - Confirm invoice for an order
@@ -3976,7 +4058,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/confirm-invoice', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/confirm-payment', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/confirm-payment', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def confirm_order_payment(self, order_id, **kwargs):
         """
         POST /smart_delivery/api/livreur/orders/{order_id}/confirm-payment - Confirm cash payment for an order
@@ -4135,20 +4217,30 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/confirm-payment', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/invoice-pdf', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/invoice-pdf', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_order_invoice_pdf(self, order_id, **kwargs):
         """
         GET /smart_delivery/api/livreur/orders/{order_id}/invoice-pdf - Download invoice PDF
         
-        Only the assigned livreur can download the invoice PDF.
+        The assigned livreur, the enterprise that owns the order, or an admin
+        can download the invoice PDF.
         Returns the PDF file for the enterprise invoice report.
         
         Response: PDF file download
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+        
         try:
-            livreur, error_response = self._require_livreur()
-            if error_response:
-                return error_response
+            # Authenticate current user (livreur, enterprise or admin)
+            auth_error = self._require_auth()
+            if auth_error:
+                return auth_error
+            
+            user = self._get_current_user()
+            user_type = self._get_user_type(user) if user else None
             
             # Find the order
             order = request.env['delivery.order'].sudo().browse(order_id)
@@ -4158,12 +4250,30 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
                     'code': 'ORDER_NOT_FOUND'
                 }, 404)
             
-            # Check if livreur is assigned to this order
-            if order.assigned_livreur_id.id != livreur.id:
-                return self._json_response({
-                    'error': 'Vous n\'êtes pas assigné à cette commande',
-                    'code': 'NOT_ASSIGNED'
-                }, 403)
+            # Access control
+            if user_type == 'livreur':
+                # Only the assigned livreur can download the invoice PDF
+                livreur = request.env['delivery.livreur'].sudo().search([('user_id', '=', user.id)], limit=1)
+                if not livreur or order.assigned_livreur_id.id != livreur.id:
+                    return self._json_response({
+                        'error': 'Vous n\'êtes pas assigné à cette commande',
+                        'code': 'NOT_ASSIGNED'
+                    }, 403)
+            elif user_type == 'enterprise':
+                # Enterprise can download invoices only for their own company's orders
+                partner = user.partner_id
+                company_partner_id = partner.commercial_partner_id.id if partner.commercial_partner_id else partner.id
+                sender_company_id = order.sender_id.commercial_partner_id.id if order.sender_id.commercial_partner_id else order.sender_id.id
+                
+                if sender_company_id != company_partner_id and order.sender_id.parent_id.id != company_partner_id:
+                    return self._json_response({
+                        'error': 'Accès refusé. Cette commande ne vous appartient pas.',
+                        'code': 'ACCESS_DENIED'
+                    }, 403)
+            else:
+                # Admin and other allowed types can access without extra checks
+                # (admin can see all orders)
+                pass
             
             # Get billing
             billing = request.env['delivery.billing'].sudo().search([
@@ -4200,15 +4310,18 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
                     'code': 'PDF_GENERATION_ERROR'
                 }, 500)
             
-            # Create response with PDF
-            filename = f"Facture_{billing.invoice_id.name.replace('/', '_')}.pdf"
+            # Create response with PDF (include CORS headers)
+            invoice_name = billing.invoice_id.name or f"Invoice_{billing.invoice_id.id}"
+            filename = f"Facture_{str(invoice_name).replace('/', '_')}.pdf"
+            headers = self._get_cors_headers()
+            headers.extend([
+                ('Content-Type', 'application/pdf'),
+                ('Content-Disposition', f'attachment; filename="{filename}"'),
+                ('Content-Length', len(pdf_content)),
+            ])
             response = request.make_response(
                 pdf_content,
-                headers=[
-                    ('Content-Type', 'application/pdf'),
-                    ('Content-Disposition', f'attachment; filename="{filename}"'),
-                    ('Content-Length', len(pdf_content)),
-                ]
+                headers=headers,
             )
             
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/invoice-pdf', {}, {'success': True, 'filename': filename})
@@ -4222,7 +4335,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
     
     # ==================== LIVREUR PROFILE MANAGEMENT ====================
     
-    @http.route('/smart_delivery/api/livreur/change-password', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/change-password', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def livreur_change_password(self, **kwargs):
         """
         POST /smart_delivery/api/livreur/change-password - Change livreur password
@@ -4312,7 +4425,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/livreur/change-password', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/update-profile', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/update-profile', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def livreur_update_profile(self, **kwargs):
         """
         POST /smart_delivery/api/livreur/update-profile - Update livreur profile (name and/or photo)
@@ -4412,7 +4525,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
     
     # ==================== ORDER OTP ENDPOINT (SECURED) ====================
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/otp', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/otp', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_order_otp(self, order_id, **kwargs):
         """
         GET /smart_delivery/api/livreur/orders/{order_id}/otp - Get OTP for an assigned order
@@ -4496,7 +4609,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call(f'/smart_delivery/api/livreur/orders/{order_id}/otp', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/details', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/livreur/orders/<int:order_id>/details', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_order_details(self, order_id, **kwargs):
         """
         GET /smart_delivery/api/livreur/orders/{order_id}/details - Get full order details
@@ -4593,7 +4706,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
     
     # ==================== ENTERPRISE ENDPOINTS ====================
     
-    @http.route('/smart_delivery/api/enterprise/my-orders', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/enterprise/my-orders', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_enterprise_orders(self, **kwargs):
         """
         GET /smart_delivery/api/enterprise/my-orders - Get all orders for the enterprise
@@ -4616,6 +4729,11 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             "orders": [...]
         }
         """
+        # Handle CORS preflight requests
+        if request.httprequest.method == 'OPTIONS':
+            headers = self._get_cors_headers()
+            return request.make_response('', headers=headers, status=200)
+        
         # Require enterprise or admin user
         user, auth_error = self._require_enterprise_or_admin()
         if auth_error:
@@ -4755,7 +4873,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/enterprise/my-orders', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/enterprise/orders/<int:order_id>/cancel', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/smart_delivery/api/enterprise/orders/<int:order_id>/cancel', type='http', auth='public', methods=['POST', 'OPTIONS'], csrf=False)
     def cancel_enterprise_order(self, order_id, **kwargs):
         """
         POST /smart_delivery/api/enterprise/orders/{order_id}/cancel - Cancel an order
@@ -4880,7 +4998,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
                              {'order_id': order_id}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/enterprise/my-billings', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/enterprise/my-billings', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_enterprise_billings(self, **kwargs):
         """
         GET /smart_delivery/api/enterprise/my-billings - Get all billings for the enterprise
@@ -4989,7 +5107,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/enterprise/my-billings', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/enterprise/stats', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/enterprise/stats', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_enterprise_stats(self, **kwargs):
         """
         GET /smart_delivery/api/enterprise/stats - Get delivery statistics for the enterprise
@@ -5084,7 +5202,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/enterprise/stats', {}, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/enterprise/livreurs-by-sector', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/enterprise/livreurs-by-sector', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_livreurs_by_sector(self, **kwargs):
         """
         GET /smart_delivery/api/enterprise/livreurs-by-sector - Get livreurs by sector type
@@ -5222,7 +5340,7 @@ Seul le livreur assigné peut marquer sa commande comme échouée.""",
             self._log_api_call('/smart_delivery/api/enterprise/livreurs-by-sector', kwargs, error_response, 500, e)
             return self._json_response(error_response, 500)
     
-    @http.route('/smart_delivery/api/enterprise/sectors', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/smart_delivery/api/enterprise/sectors', type='http', auth='public', methods=['GET', 'OPTIONS'], csrf=False)
     def get_sectors(self, **kwargs):
         """
         GET /smart_delivery/api/enterprise/sectors - Get all available sector rules (PUBLIC)

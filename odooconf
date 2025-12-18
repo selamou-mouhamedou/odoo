@@ -12,7 +12,7 @@ db_password = 010203
 logfile = /Users/selamou/odoo/18.0/odoo.log
 admin_passwd = admin
 xmlrpc_port = 8069
-
+proxy_mode = True
 
 password_db : 5r5d-58q4-nsfq
 
